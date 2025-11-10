@@ -1,10 +1,36 @@
-Backend mínimo (S01)
+# Backend S1 - Django REST API
 
-Este directorio contiene las dependencias necesarias para el backend Django/DRF.
-Instalación (entorno virtual):
+## Requisitos
+- Python 3.10+
+- pip
 
+## Instalación
+
+```powershell
+cd S1/backend
 python -m venv venv
-venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+```
 
-(En S01 solo agregamos el archivo de dependencias y la carpeta)
+## Migraciones
+
+```powershell
+python manage.py migrate
+```
+
+## Ejecutar servidor
+
+```powershell
+python manage.py runserver
+```
+
+El servidor estará disponible en `http://localhost:8000`
+
+## Crear superusuario (opcional)
+
+```powershell
+python manage.py createsuperuser
+```
+
+Admin panel: `http://localhost:8000/admin`

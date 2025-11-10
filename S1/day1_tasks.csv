@@ -1,0 +1,11 @@
+id,area,task,description,status,owner,due_date,notes
+1,backend,Crear esqueleto Django,"django-admin startproject config .; crear app 'core'; agregar manage.py y settings mínimos con CORS y REST framework",due_today,tu,2025-11-10,"No modelos; solo estructura"
+2,backend,Agregar .gitignore backend,"Ignorar venv, db sqlite, __pycache__, .env",done,tu,2025-11-10,"Ya creado"
+3,backend,Crear README backend,"Instrucciones para crear venv, instalar requirements y correr server",due_today,tu,2025-11-10,
+4,frontend,Inicializar Vite+React,"npm create vite@latest . -- --template react; npm install; crear src/main.jsx y src/App.jsx",due_today,tu,2025-11-10,"No UI; solo archivos base"
+5,frontend,Agregar .gitignore frontend,"Ignorar node_modules, dist, .env, .vite",done,tu,2025-11-10,"Ya creado"
+6,repo,Agregar .gitignore S1,"Archivo .gitignore global para S1 (venv, node_modules, .env)",done,tu,2025-11-10,
+7,env,Crear venv backend,"python -m venv venv; .\venv\Scripts\Activate.ps1; pip install -r requirements.txt",due_today,tu,2025-11-10,"Opcional si ya lo hiciste"
+8,verify,Arrancar servidores de prueba,"python manage.py runserver (backend) y npm run dev (frontend) para comprobar que arrancan",optional,tu,2025-11-10,"Puede esperar hasta mañana si no da tiempo"
+9,docs,Actualizar README principal,"Añadir secciones de cómo ejecutar backend/frontend y notas para el día 1",due_today,tu,2025-11-10,
+10,cleanup,Revisar secretos y .env,"Confirmar que no hay credenciales en repo; añadir .env a .gitignore",done,tu,2025-11-10,"Revisado" 
