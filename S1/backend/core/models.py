@@ -7,6 +7,8 @@ class Producto(models.Model):
     """
     nombre = models.CharField(max_length=100, verbose_name="Nombre del producto")
     descripcion = models.TextField(blank=True, verbose_name="Descripción")
+    marca = models.CharField(max_length=50, blank=True, verbose_name="Marca")
+    modelo = models.CharField(max_length=100, blank=True, verbose_name="Modelo")
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
     stock = models.IntegerField(default=0, verbose_name="Stock actual")
     categoria = models.CharField(max_length=50, blank=True, verbose_name="Categoría")
@@ -18,7 +20,51 @@ class Producto(models.Model):
         ordering = ['-fecha_creacion']
 
     def __str__(self):
+        if self.marca and self.modelo:
+            return f"{self.marca} {self.modelo} - {self.nombre}"
         return self.nombre
+    
+    def esta_en_stock_bajo(self):
+        """Verifica si el producto tiene stock por debajo del umbral de alerta"""
+        alerta = self.alertas.first()
+        if alerta and alerta.activa:
+            return self.stock < alerta.umbral
+        return False
+    
+    def registrar_entrada(self, cantidad, descripcion=''):
+        """Registra una entrada de stock"""
+        movimiento = Movimiento.objects.create(
+            producto=self,
+            tipo='ENTRADA',
+            cantidad=cantidad,
+            descripcion=descripcion
+        )
+        self.stock += cantidad
+        self.save()
+        self._verificar_alertas()
+        return movimiento
+    
+    def registrar_salida(self, cantidad, descripcion=''):
+        """Registra una salida de stock"""
+        if cantidad > self.stock:
+            raise ValueError(f"Stock insuficiente. Disponible: {self.stock}, solicitado: {cantidad}")
+        
+        movimiento = Movimiento.objects.create(
+            producto=self,
+            tipo='SALIDA',
+            cantidad=cantidad,
+            descripcion=descripcion
+        )
+        self.stock -= cantidad
+        self.save()
+        self._verificar_alertas()
+        return movimiento
+    
+    def _verificar_alertas(self):
+        """Verifica y actualiza el estado de las alertas según el stock actual"""
+        for alerta in self.alertas.all():
+            alerta.activa = self.stock < alerta.umbral
+            alerta.save()
 
 
 class Movimiento(models.Model):

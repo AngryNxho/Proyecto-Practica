@@ -4,9 +4,9 @@ from .models import Producto, Movimiento, Alerta
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'categoria', 'precio', 'stock', 'fecha_creacion']
-    list_filter = ['categoria', 'fecha_creacion']
-    search_fields = ['nombre', 'descripcion']
+    list_display = ['nombre', 'marca', 'modelo', 'categoria', 'precio', 'stock', 'fecha_creacion']
+    list_filter = ['marca', 'categoria', 'fecha_creacion']
+    search_fields = ['nombre', 'marca', 'modelo', 'descripcion']
     ordering = ['-fecha_creacion']
 
 
