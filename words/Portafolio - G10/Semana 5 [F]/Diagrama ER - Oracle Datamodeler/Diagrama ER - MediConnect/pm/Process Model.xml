@@ -1,7 +1,0 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
-<ProcessModel class="oracle.dbtools.crest.model.design.process.ProcessModel" name="Process Model" id="A6CA60F9-B652-EFC0-7FB1-899882D10826">
-<createdBy>katsup</createdBy>
-<createdTime>2025-09-12 02:25:19 UTC</createdTime>
-<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
-<shouldBeOpen>false</shouldBeOpen>
-</ProcessModel>

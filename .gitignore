@@ -53,7 +53,11 @@ Thumbs.db
 .env.local
 
 # Documentation local 
+words/
 S1/words/
+S2/words/
+S3/words/
+S4/words/
 
 # Archivos multimedia grandes (videos, audio)
 *.mp4

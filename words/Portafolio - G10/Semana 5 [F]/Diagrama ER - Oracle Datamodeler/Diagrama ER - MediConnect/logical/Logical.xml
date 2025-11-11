@@ -1,7 +1,0 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
-<LogicalDesign class="oracle.dbtools.crest.model.design.logical.LogicalDesign" name="Logical" id="3DDF2935-3636-2455-A5D1-A50DD1BA2E6B" mainViewID="343EB536-B671-73C0-C0AA-DC7BE4F6E9F1">
-<createdBy>katsup</createdBy>
-<createdTime>2025-09-12 02:25:19 UTC</createdTime>
-<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
-<shouldBeOpen>false</shouldBeOpen>
-</LogicalDesign>
