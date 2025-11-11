@@ -1,0 +1,79 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="6166F8D0-0C07-25EB-2870-EB728714A40A" name="usuario_rol">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>C0BC463E-FA28-E2F7-D09B-3666FF84132B</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_usuario" id="EC7E6CC4-ABB5-C6B9-713B-7979024D89C5">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>E0866882-A0EB-2783-8702-EFCD68FCD817</importedID>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>4FEF4A33-E654-55F5-0768-8E4D87F73E26</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="73820E02-041D-7C6D-2B10-CFEA55E67721" referredColumn="6049CE25-32F5-86AB-A7D8-5F1C0061BD1B"/>
+</associations>
+</Column>
+<Column name="id_rol" id="1E3AF357-8680-F326-8956-B96873D5CEC4">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>268839C6-0AE9-0A13-CC26-82E58FFB4A7C</importedID>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>7924A983-EBD7-1B22-D905-4E1551ACA187</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="E52E86FD-7579-9E50-DB41-E44D8064F014" referredColumn="8A3EB0DD-55C6-5982-E625-FDAE05FD7367"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="56DC32E0-1875-6AA2-0324-BF4E7001CFF1" name="pk_usuario_rol">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>9DAA3C82-79FB-7A7E-9875-FD8F3BA821B5</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="EC7E6CC4-ABB5-C6B9-713B-7979024D89C5"/>
+<colUsage columnID="1E3AF357-8680-F326-8956-B96873D5CEC4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E5609C48-FCCF-7BE1-515B-842C4318D322" name="fk_ur_rol">
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="1E3AF357-8680-F326-8956-B96873D5CEC4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="D655F9F4-04CC-5986-B387-7DD6C0631574" name="fk_ur_usuario">
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="EC7E6CC4-ABB5-C6B9-713B-7979024D89C5"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="D0281E50-F61E-6DB1-63FF-2F1AE355A7A8" containerWithKeyObject="6C681E7B-11CE-BA37-D82E-F7B7F6EC4215" localFKIndex="9E5270AE-6B41-7B0E-FB56-4071DE1FB2E6" name="fk_func_usuario">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>A64510D2-1A4C-9566-E073-CA89C6A1F904</importedID>
+<referredTableLongName>usuario</referredTableLongName>
+<deleteRule>CASCADE</deleteRule>
+<referredTableID>9904A37A-8A62-124D-C11F-593D134783A7</referredTableID>
+<keyObject>6A4CE598-9315-8F3E-D226-996FCD1BA3EA</keyObject>
+<referredKeyID>6A4CE598-9315-8F3E-D226-996FCD1BA3EA</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>id_usuario</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

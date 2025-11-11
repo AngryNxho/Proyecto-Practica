@@ -1,0 +1,129 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="65D109C0-BC17-E8C9-6B2A-1ED3B570E86C" name="agenda_diaria">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:30 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>31E63EB9-7621-9E59-A513-4A421D724A44</importedID>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_agenda" id="38DD5D33-D68C-0805-417C-1E348B2918B2">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>A63FA806-D423-5003-4927-4FBD566296E2</importedID>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>4FEF4A33-E654-55F5-0768-8E4D87F73E26</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<autoIncrementOrder>false</autoIncrementOrder>
+</Column>
+<Column name="id_profesional" id="86354FA8-A41A-FFCF-3A7B-D134BDF7D1F1">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>5CFF7C26-8F88-0FC3-122C-AA8F695A32AE</importedID>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>4FEF4A33-E654-55F5-0768-8E4D87F73E26</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="8795DFCE-0699-F67E-F2EF-6FFA48E75559" referredColumn="1B140919-A9E9-5FD3-47FD-437AFEAEEA54"/>
+</associations>
+</Column>
+<Column name="fecha" id="4746C36E-C641-0695-71F5-FEA1AA55DFB1">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>64DE73F1-BB33-C830-9CA5-892D60ED2C60</importedID>
+<use>0</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<domain>6B597C29-F349-98CF-2AA9-C261E2B1EC51</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ubicacion" id="119F28AC-380E-DC34-2B77-C4EF9F09A269">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>F7482B30-020E-9824-9D50-4E769D1CD88E</importedID>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>C2AA74D0-1A3A-9DE9-B168-81245FC22288</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="estado" id="7719F8C6-7A83-D3F1-4B07-C539119D9967">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>C7331DAC-401B-85C0-09EB-C6F556EDF841</importedID>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>E7B76926-53AE-630C-F93D-86CFD1150081</domain>
+<defaultValue>&apos;ABIERTA&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="B150F0CE-7D1F-227A-045E-73CFFEA78B67" name="agenda_diaria_PK">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>43AEFC09-754C-0D30-6A95-67D775DC294C</importedID>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="38DD5D33-D68C-0805-417C-1E348B2918B2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="CB93B9DF-A692-5FBD-C9C3-7C668B6A7913" name="uq_agenda_prof_fecha">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>550E7506-1922-C505-521D-38C885033A5D</importedID>
+<indexState>Unique Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="86354FA8-A41A-FFCF-3A7B-D134BDF7D1F1"/>
+<colUsage columnID="4746C36E-C641-0695-71F5-FEA1AA55DFB1"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="14D3BC2C-78AE-8B1F-204A-B8607A80868D" name="fk_agenda_profesional">
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="86354FA8-A41A-FFCF-3A7B-D134BDF7D1F1"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="chk_agenda_estado" directorySegmentName="seg_0" id="E8B88A40-3E13-6703-C49A-8CABCDE2B92A">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>F2F539CD-881B-8944-C921-C5C823182F62</importedID>
+<rule><![CDATA[estado IN ('ABIERTA','CERRADA')]]></rule>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

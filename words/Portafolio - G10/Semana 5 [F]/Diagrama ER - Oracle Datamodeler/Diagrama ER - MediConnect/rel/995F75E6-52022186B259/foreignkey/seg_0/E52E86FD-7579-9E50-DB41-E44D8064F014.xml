@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="E52E86FD-7579-9E50-DB41-E44D8064F014" containerWithKeyObject="6166F8D0-0C07-25EB-2870-EB728714A40A" localFKIndex="E5609C48-FCCF-7BE1-515B-842C4318D322" name="fk_ur_rol">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>2924D81A-BA88-B60F-1AC8-AEA4A72BDED7</importedID>
+<referredTableLongName>rol</referredTableLongName>
+<deleteRule>CASCADE</deleteRule>
+<referredTableID>1F23DA2A-AE5C-FDD0-ADAC-C34FE606C0DC</referredTableID>
+<keyObject>423D2547-4831-4CC6-A331-D3ACA4DF4370</keyObject>
+<referredKeyID>423D2547-4831-4CC6-A331-D3ACA4DF4370</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>id_rol</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="8795DFCE-0699-F67E-F2EF-6FFA48E75559" containerWithKeyObject="65D109C0-BC17-E8C9-6B2A-1ED3B570E86C" localFKIndex="14D3BC2C-78AE-8B1F-204A-B8607A80868D" name="fk_agenda_profesional">
+<sourceDDLFile>ddl_oracle_datamodeler.sql</sourceDDLFile>
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:26:31 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<importedID>B9DACDE1-2267-2FDD-6041-451ADDB99EFE</importedID>
+<referredTableLongName>profesional_salud</referredTableLongName>
+<deleteRule>CASCADE</deleteRule>
+<referredTableID>A9DD81FB-F7AD-E695-EC5D-7143DB0E7C9C</referredTableID>
+<keyObject>77923AD4-EDE0-DAE0-9801-CFD3660D3AD0</keyObject>
+<referredKeyID>77923AD4-EDE0-DAE0-9801-CFD3660D3AD0</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>id_profesional</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

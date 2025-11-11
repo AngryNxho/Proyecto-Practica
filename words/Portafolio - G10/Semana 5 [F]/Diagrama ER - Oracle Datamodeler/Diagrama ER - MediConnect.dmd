@@ -1,0 +1,13 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="Diagrama ER - MediConnect" id="F3D716BE-D00E-18D7-0834-C3A010D587B6" version="3.5">
+<createdBy>katsup</createdBy>
+<createdTime>2025-09-12 02:25:19 UTC</createdTime>
+<ownerDesignName>Diagrama ER - MediConnect</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>F3D716BE-D00E-18D7-0834-C3A010D587B6</designId>
+<usedDesignStorageDescriptors>
+<designDescr class="oracle.dbtools.crest.model.design.Design$DesignStorageDesc" id="3BDDB8AF-28D5-6DDE-9B35-593CCA80B787">
+<designStoragePath>/ddl_oracle_datamodeler</designStoragePath>
+</designDescr>
+</usedDesignStorageDescriptors>
+</OSDM_Design>
