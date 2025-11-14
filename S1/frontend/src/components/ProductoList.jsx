@@ -13,8 +13,8 @@ function ProductoList() {
   const cargarProductos = async () => {
     try {
       setLoading(true);
-      const data = await productoService.listar();
-      setProductos(data);
+      const response = await productoService.getAll();
+      setProductos(response.data);
       setError(null);
     } catch (err) {
       setError('Error al cargar productos: ' + err.message);
@@ -38,15 +38,14 @@ function ProductoList() {
             <th>Marca</th>
             <th>Modelo</th>
             <th>Categoría</th>
-            <th>Stock Actual</th>
-            <th>Stock Mínimo</th>
+            <th>Stock</th>
             <th>Precio</th>
           </tr>
         </thead>
         <tbody>
           {productos.length === 0 ? (
             <tr>
-              <td colSpan="8" style={{ textAlign: 'center' }}>
+              <td colSpan="7" style={{ textAlign: 'center' }}>
                 No hay productos registrados
               </td>
             </tr>
@@ -59,13 +58,12 @@ function ProductoList() {
                 <td>{producto.modelo || 'N/A'}</td>
                 <td>{producto.categoria || 'N/A'}</td>
                 <td style={{ 
-                  color: producto.stock_actual < producto.stock_minimo ? 'red' : 'green',
+                  color: producto.esta_en_stock_bajo ? 'red' : 'green',
                   fontWeight: 'bold'
                 }}>
-                  {producto.stock_actual}
+                  {producto.stock}
                 </td>
-                <td>{producto.stock_minimo}</td>
-                <td>${producto.precio_unitario}</td>
+                <td>${producto.precio}</td>
               </tr>
             ))
           )}

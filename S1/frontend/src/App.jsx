@@ -4,8 +4,12 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <h1>Sistema de Inventario</h1>
-      <ProductoList />
+      <header>
+        <h1>Sistema de Inventario</h1>
+      </header>
+      <main>
+        <ProductoList />
+      </main>
     </div>
   );
 }
