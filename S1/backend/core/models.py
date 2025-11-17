@@ -120,3 +120,32 @@ class Alerta(models.Model):
 
     def __str__(self):
         return f"Alerta: {self.producto.nombre} (Umbral: {self.umbral})"
+
+
+class Device(models.Model):
+    """
+    Representa una impresora/dispositivo que puede reportar niveles de consumibles.
+    Se mapea a un `Producto` (ej. Toner) para actualizar el stock automáticamente.
+    """
+    nombre = models.CharField(max_length=150, verbose_name="Nombre del dispositivo")
+    ip = models.GenericIPAddressField(verbose_name="IP del dispositivo")
+    marca = models.CharField(max_length=50, blank=True, verbose_name="Marca")
+    modelo = models.CharField(max_length=100, blank=True, verbose_name="Modelo")
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='devices',
+        verbose_name="Producto consumible"
+    )
+    protocol = models.CharField(max_length=20, default='SNMP', verbose_name="Protocolo")
+    snmp_version = models.CharField(max_length=10, default='2c', verbose_name="SNMP Version")
+    snmp_community = models.CharField(max_length=100, blank=True, verbose_name="SNMP Community")
+    activo = models.BooleanField(default=True, verbose_name="Activo")
+    ultimo_lectura = models.DateTimeField(null=True, blank=True, verbose_name="Última lectura")
+
+    class Meta:
+        verbose_name = 'Dispositivo'
+        verbose_name_plural = 'Dispositivos'
+
+    def __str__(self):
+        return f"{self.nombre} ({self.ip})"

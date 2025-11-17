@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Producto, Movimiento, Alerta
+from .models import Device
 
 
 @admin.register(Producto)
@@ -24,3 +25,11 @@ class AlertaAdmin(admin.ModelAdmin):
     list_filter = ['activa', 'fecha_creacion']
     search_fields = ['producto__nombre']
     ordering = ['-fecha_creacion']
+
+
+@admin.register(Device)
+class DeviceAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'ip', 'marca', 'modelo', 'producto', 'activo', 'ultimo_lectura']
+    list_filter = ['marca', 'activo']
+    search_fields = ['nombre', 'ip', 'producto__nombre']
+    ordering = ['-ultimo_lectura']
