@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { productoService } from '../services/inventarioService';
+import './ProductoList.css';
 
 function ProductoList() {
   const [productos, setProductos] = useState([]);
@@ -24,13 +25,19 @@ function ProductoList() {
     }
   };
 
-  if (loading) return <div>Cargando productos...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
+  if (loading) return <div className="loading-message">Cargando productos...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div>
-      <h2>Lista de Productos</h2>
-      <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <div className="producto-list-container">
+      <div className="producto-list-header">
+        <h2>Lista de Productos</h2>
+        <span className="badge badge-success">
+          {productos.length} producto{productos.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+      
+      <table className="productos-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -45,7 +52,7 @@ function ProductoList() {
         <tbody>
           {productos.length === 0 ? (
             <tr>
-              <td colSpan="7" style={{ textAlign: 'center' }}>
+              <td colSpan="7" className="no-productos">
                 No hay productos registrados
               </td>
             </tr>
@@ -53,17 +60,14 @@ function ProductoList() {
             productos.map((producto) => (
               <tr key={producto.id}>
                 <td>{producto.id}</td>
-                <td>{producto.nombre}</td>
+                <td><strong>{producto.nombre}</strong></td>
                 <td>{producto.marca || 'N/A'}</td>
                 <td>{producto.modelo || 'N/A'}</td>
                 <td>{producto.categoria || 'N/A'}</td>
-                <td style={{ 
-                  color: producto.esta_en_stock_bajo ? 'red' : 'green',
-                  fontWeight: 'bold'
-                }}>
-                  {producto.stock}
+                <td className={producto.esta_en_stock_bajo ? 'stock-bajo' : 'stock-alto'}>
+                  {producto.stock} unidades
                 </td>
-                <td>${producto.precio}</td>
+                <td className="precio-cell">${Number(producto.precio).toLocaleString('es-CL')}</td>
               </tr>
             ))
           )}
