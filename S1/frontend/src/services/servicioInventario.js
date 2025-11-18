@@ -1,21 +1,21 @@
 import api from './api';
 
 // Servicio para gestionar productos
-export const productoService = {
+export const servicioProducto = {
   // Obtener todos los productos
-  getAll: () => api.get('/productos/'),
+  obtenerTodos: () => api.get('/productos/'),
   
   // Obtener un producto por ID
-  getById: (id) => api.get(`/productos/${id}/`),
+  obtenerPorId: (id) => api.get(`/productos/${id}/`),
   
   // Crear un nuevo producto
-  create: (data) => api.post('/productos/', data),
+  crear: (data) => api.post('/productos/', data),
   
   // Actualizar un producto
-  update: (id, data) => api.put(`/productos/${id}/`, data),
+  actualizar: (id, data) => api.put(`/productos/${id}/`, data),
   
   // Eliminar un producto
-  delete: (id) => api.delete(`/productos/${id}/`),
+  eliminar: (id) => api.delete(`/productos/${id}/`),
   
   // Registrar entrada de stock
   registrarEntrada: (id, data) => api.post(`/productos/${id}/registrar_entrada/`, data),
@@ -25,28 +25,28 @@ export const productoService = {
 };
 
 // Servicio para gestionar movimientos
-export const movimientoService = {
+export const servicioMovimiento = {
   // Obtener todos los movimientos
-  getAll: () => api.get('/movimientos/'),
+  obtenerTodos: () => api.get('/movimientos/'),
   
   // Obtener un movimiento por ID
-  getById: (id) => api.get(`/movimientos/${id}/`),
+  obtenerPorId: (id) => api.get(`/movimientos/${id}/`),
 };
 
 // Servicio para gestionar alertas
-export const alertaService = {
+export const servicioAlerta = {
   // Obtener todas las alertas
-  getAll: () => api.get('/alertas/'),
+  obtenerTodos: () => api.get('/alertas/'),
   
   // Obtener una alerta por ID
-  getById: (id) => api.get(`/alertas/${id}/`),
+  obtenerPorId: (id) => api.get(`/alertas/${id}/`),
   
   // Crear una nueva alerta
-  create: (data) => api.post('/alertas/', data),
+  crear: (data) => api.post('/alertas/', data),
   
   // Actualizar una alerta
-  update: (id, data) => api.put(`/alertas/${id}/`, data),
+  actualizar: (id, data) => api.put(`/alertas/${id}/`, data),
   
   // Eliminar una alerta
-  delete: (id) => api.delete(`/alertas/${id}/`),
+  eliminar: (id) => api.delete(`/alertas/${id}/`),
 };

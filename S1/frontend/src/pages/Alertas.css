@@ -1,0 +1,13 @@
+.alertas-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.alertas-summary p {
+  margin: 0;
+  font-weight: 500;
+  color: #1f2b50;
+}

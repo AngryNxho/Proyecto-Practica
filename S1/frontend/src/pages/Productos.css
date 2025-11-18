@@ -1,0 +1,23 @@
+.stats-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.stats-value {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #1a2849;
+}
+
+.stats-value.smaller {
+  font-size: 1.5rem;
+}
+
+.stats-label {
+  margin: -12px 0 6px;
+  color: #7c819b;
+}

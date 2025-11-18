@@ -1,0 +1,36 @@
+.movimiento-form {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 24px rgba(19, 25, 45, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.movimiento-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #39405c;
+}
+
+.movimiento-form input,
+.movimiento-form textarea,
+.movimiento-form select {
+  border: 1px solid #d9def0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #f9faff;
+  transition: border 0.15s ease;
+}
+
+.movimiento-form input:focus,
+.movimiento-form textarea:focus,
+.movimiento-form select:focus {
+  border-color: #2c62f6;
+  outline: none;
+  background: #fff;
+}

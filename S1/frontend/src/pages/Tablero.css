@@ -1,0 +1,42 @@
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.movimientos-table th,
+.movimientos-table td {
+  text-align: left;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+.movimientos-table thead {
+  background: #f3f5ff;
+  color: #4b5578;
+}
+
+.movimientos-table tbody tr:nth-child(odd) {
+  background: #fbfcff;
+}
+
+.movimientos-table tbody tr:hover {
+  background: #eef3ff;
+}
+
+.alertas-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.alertas-mini-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fef6f6;
+  border-radius: 14px;
+  padding: 12px 16px;
+}

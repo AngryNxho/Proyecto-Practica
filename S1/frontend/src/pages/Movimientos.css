@@ -1,0 +1,11 @@
+.resumen-movimientos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #42506b;
+}
+
+.resumen-movimientos strong {
+  font-size: 1.1rem;
+}

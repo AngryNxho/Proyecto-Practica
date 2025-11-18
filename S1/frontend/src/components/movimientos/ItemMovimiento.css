@@ -1,0 +1,45 @@
+.movimiento-item {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #edf0ff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.movimiento-item__producto {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2b50;
+}
+
+.movimiento-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+
+.movimiento-item__meta span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e9edff;
+  color: #3f4cc5;
+  font-weight: 600;
+}
+
+.movimiento-item.tipo-salida .movimiento-item__meta span {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.movimiento-item__meta strong {
+  font-size: 1.1rem;
+}
+
+.movimiento-item__descripcion {
+  margin: 0;
+  color: #6f7694;
+  font-size: 0.92rem;
+}
