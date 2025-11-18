@@ -68,3 +68,29 @@
 .producto-card.status-critical {
   border-color: rgba(231, 76, 60, 0.45);
 }
+
+.producto-card__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid #f0f2f8;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.15s ease;
+}
+
+.btn-icon:hover {
+  background: #f0f2f8;
+}
+
+.btn-danger:hover {
+  background: #fdecea;
+}

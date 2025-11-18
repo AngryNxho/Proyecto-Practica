@@ -31,6 +31,15 @@ function Productos() {
     }
   };
 
+  const manejarEliminar = async (id) => {
+    try {
+      await servicioProducto.eliminar(id);
+      await cargarDatos();
+    } catch (err) {
+      setError('No se pudo eliminar el producto.');
+    }
+  };
+
   return (
     <div className="page">
       <header className="page-header">
@@ -58,6 +67,7 @@ function Productos() {
         alertas={alertas}
         cargando={cargando}
         error={error}
+        alEliminar={manejarEliminar}
       />
     </div>
   );

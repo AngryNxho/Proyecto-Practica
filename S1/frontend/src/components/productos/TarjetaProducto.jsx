@@ -1,8 +1,14 @@
 import { formatearMonedaCLP, obtenerEstadoStock, obtenerEtiquetaStock } from '../../utils/utilidades';
 import './TarjetaProducto.css';
 
-function TarjetaProducto({ producto, alerta }) {
+function TarjetaProducto({ producto, alerta, alEliminar }) {
   const variante = obtenerEstadoStock(producto.stock, alerta?.umbral);
+
+  const manejarEliminar = async () => {
+    if (window.confirm(`¿Eliminar "${producto.nombre}"?`)) {
+      alEliminar?.(producto.id);
+    }
+  };
 
   return (
     <article className={`producto-card status-${variante}`}>
@@ -37,6 +43,12 @@ function TarjetaProducto({ producto, alerta }) {
       {producto.descripcion && (
         <p className="producto-card__descripcion">{producto.descripcion}</p>
       )}
+
+      <div className="producto-card__actions">
+        <button className="btn-icon btn-danger" onClick={manejarEliminar} title="Eliminar">
+          🗑️
+        </button>
+      </div>
     </article>
   );
 }
