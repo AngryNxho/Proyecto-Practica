@@ -32,7 +32,7 @@ function Alertas() {
   };
 
   return (
-    <div className="page">
+    <div className="page animate-fade-in">
       <header className="page-header">
         <h1 className="page-title">Alertas de stock</h1>
         <p className="page-description">

@@ -32,7 +32,7 @@ function Movimientos() {
   };
 
   return (
-    <div className="page">
+    <div className="page animate-fade-in">
       <header className="page-header">
         <h1 className="page-title">Movimientos de inventario</h1>
         <p className="page-description">Registra entradas y salidas respaldadas en la API.</p>

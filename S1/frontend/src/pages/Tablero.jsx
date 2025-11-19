@@ -43,8 +43,8 @@ function Tablero() {
   const recientes = datos.movimientos.slice(0, 5);
 
   return (
-    <div className="page">
-      <header className="page-header">
+    <div className="page tablero">
+      <header className="page-header animate-fade-in">
         <h1 className="page-title">Dashboard operativo</h1>
         <p className="page-description">
           Estado general del inventario y últimas actividades. Actualizado cada vez que entras.
@@ -54,22 +54,22 @@ function Tablero() {
       {error && <div className="panel error-state">{error}</div>}
 
       <section className="cards-grid">
-        <div className="data-card" style={{ background: 'linear-gradient(135deg, #4f3df8, #7a72ff)' }}>
+        <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #4f3df8, #7a72ff)' }}>
           <h3>Productos registrados</h3>
           <strong>{cargando ? '...' : productosRegistrados}</strong>
           <span>Catálogo total</span>
         </div>
-        <div className="data-card" style={{ background: 'linear-gradient(135deg, #08aeea, #2af598)' }}>
+        <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #08aeea, #2af598)' }}>
           <h3>Stock acumulado</h3>
           <strong>{cargando ? '...' : stockTotal}</strong>
           <span>Unidades disponibles</span>
         </div>
-        <div className="data-card" style={{ background: 'linear-gradient(135deg, #f7971e, #ffd200)' }}>
+        <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #f7971e, #ffd200)' }}>
           <h3>Valor estimado</h3>
           <strong>{cargando ? '...' : formatearMonedaCLP(valorTotal)}</strong>
           <span>En base a stock actual</span>
         </div>
-        <div className="data-card" style={{ background: 'linear-gradient(135deg, #ff5f6d, #ffc371)' }}>
+        <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #ff5f6d, #ffc371)' }}>
           <h3>Alertas activas</h3>
           <strong>{cargando ? '...' : alertasActivas}</strong>
           <span>Productos críticos</span>

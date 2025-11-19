@@ -3,7 +3,12 @@ import './ListaAlertas.css';
 
 function ListaAlertas({ alertas, cargando, error }) {
   if (cargando) {
-    return <div className="panel">Cargando alertas...</div>;
+    return (
+      <div className="panel">
+        <div className="spinner"></div>
+        <p style={{ textAlign: 'center', color: '#7c819b', marginTop: '12px' }}>Cargando alertas...</p>
+      </div>
+    );
   }
 
   if (error) {

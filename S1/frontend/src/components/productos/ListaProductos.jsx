@@ -14,7 +14,12 @@ function ListaProductos({ productos, alertas, cargando, error, alEliminar }) {
   }, [alertas]);
 
   if (cargando) {
-    return <div className="panel">Cargando productos...</div>;
+    return (
+      <div className="panel">
+        <div className="spinner"></div>
+        <p style={{ textAlign: 'center', color: '#7c819b', marginTop: '12px' }}>Cargando productos...</p>
+      </div>
+    );
   }
 
   if (error) {
@@ -27,13 +32,14 @@ function ListaProductos({ productos, alertas, cargando, error, alEliminar }) {
 
   return (
     <section className="productos-list">
-      {productos.map((producto) => (
-        <TarjetaProducto
-          key={producto.id}
-          producto={producto}
-          alerta={alertasPorProducto[producto.id]}
-          alEliminar={alEliminar}
-        />
+      {productos.map((producto, index) => (
+        <div key={producto.id} className="stagger-item" style={{ animationDelay: `${index * 0.05}s` }}>
+          <TarjetaProducto
+            producto={producto}
+            alerta={alertasPorProducto[producto.id]}
+            alEliminar={alEliminar}
+          />
+        </div>
       ))}
     </section>
   );

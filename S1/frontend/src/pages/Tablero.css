@@ -1,3 +1,7 @@
+.tablero {
+  animation: fadeIn 0.5s ease-out;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;

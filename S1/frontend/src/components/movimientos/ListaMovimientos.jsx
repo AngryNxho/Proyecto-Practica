@@ -3,7 +3,12 @@ import './ListaMovimientos.css';
 
 function ListaMovimientos({ movimientos, cargando, error }) {
   if (cargando) {
-    return <div className="panel">Cargando movimientos...</div>;
+    return (
+      <div className="panel">
+        <div className="spinner"></div>
+        <p style={{ textAlign: 'center', color: '#7c819b', marginTop: '12px' }}>Cargando movimientos...</p>
+      </div>
+    );
   }
 
   if (error) {
