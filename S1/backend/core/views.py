@@ -1,13 +1,41 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import HttpResponse
 from .models import Producto, Movimiento, Alerta
 from .serializers import ProductoSerializer, MovimientoSerializer, AlertaSerializer
+import csv
+from datetime import datetime
 
 class ProductoViewSet(viewsets.ModelViewSet):
     """ViewSet para operaciones CRUD de productos"""
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+    
+    @action(detail=False, methods=['get'])
+    def exportar_csv(self, request):
+        """Exporta todos los productos a CSV"""
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="productos_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+        response.write('\ufeff')  # BOM para UTF-8 en Excel
+        
+        writer = csv.writer(response)
+        writer.writerow(['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Stock', 'Precio', 'Descripción', 'Fecha Creación'])
+        
+        for producto in self.queryset:
+            writer.writerow([
+                producto.id,
+                producto.nombre,
+                producto.marca,
+                producto.modelo,
+                producto.categoria,
+                producto.stock,
+                producto.precio,
+                producto.descripcion,
+                producto.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        
+        return response
     
     @action(detail=True, methods=['post'])
     def registrar_entrada(self, request, pk=None):
@@ -41,6 +69,28 @@ class MovimientoViewSet(viewsets.ModelViewSet):
     """ViewSet para movimientos de stock"""
     queryset = Movimiento.objects.all()
     serializer_class = MovimientoSerializer
+    
+    @action(detail=False, methods=['get'])
+    def exportar_csv(self, request):
+        """Exporta todos los movimientos a CSV"""
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="movimientos_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+        response.write('\ufeff')
+        
+        writer = csv.writer(response)
+        writer.writerow(['ID', 'Producto', 'Tipo', 'Cantidad', 'Fecha', 'Descripción'])
+        
+        for mov in self.queryset.select_related('producto'):
+            writer.writerow([
+                mov.id,
+                mov.producto.nombre,
+                mov.tipo,
+                mov.cantidad,
+                mov.fecha.strftime('%Y-%m-%d %H:%M:%S'),
+                mov.descripcion
+            ])
+        
+        return response
 
 class AlertaViewSet(viewsets.ModelViewSet):
     """ViewSet para alertas de stock"""

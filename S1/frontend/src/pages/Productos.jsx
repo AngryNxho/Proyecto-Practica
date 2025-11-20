@@ -40,6 +40,11 @@ function Productos() {
     }
   };
 
+  const exportarCSV = () => {
+    const url = `${import.meta.env.VITE_API_URL}/productos/exportar_csv/`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="page animate-fade-in">
       <header className="page-header">
@@ -56,9 +61,14 @@ function Productos() {
           <p className="stats-label">Productos totales</p>
           <p className="stats-value smaller">{alertas.length}</p>
           <p className="stats-label">Alertas configuradas</p>
-          <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
-            Actualizar catálogo
-          </button>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
+              🔄 Actualizar
+            </button>
+            <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!productos.length}>
+              📥 Exportar CSV
+            </button>
+          </div>
         </div>
       </section>
 
