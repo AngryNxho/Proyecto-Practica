@@ -9,6 +9,7 @@ function Productos() {
   const [alertas, setAlertas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [productoEditar, setProductoEditar] = useState(null);
 
   useEffect(() => {
     cargarDatos();
@@ -40,6 +41,14 @@ function Productos() {
     }
   };
 
+  const manejarEditar = (producto) => {
+    setProductoEditar(producto);
+  };
+
+  const manejarCancelarEdicion = () => {
+    setProductoEditar(null);
+  };
+
   const exportarCSV = () => {
     const url = `${import.meta.env.VITE_API_URL}/productos/exportar_csv/`;
     window.open(url, '_blank');
@@ -55,7 +64,11 @@ function Productos() {
       </header>
 
       <section className="grid-two">
-        <FormularioProducto alCrear={cargarDatos} />
+        <FormularioProducto 
+          alCrear={cargarDatos} 
+          productoEditar={productoEditar}
+          alCancelar={manejarCancelarEdicion}
+        />
         <div className="panel stats-panel">
           <p className="stats-value">{productos.length}</p>
           <p className="stats-label">Productos totales</p>
@@ -78,6 +91,7 @@ function Productos() {
         cargando={cargando}
         error={error}
         alEliminar={manejarEliminar}
+        alEditar={manejarEditar}
       />
     </div>
   );

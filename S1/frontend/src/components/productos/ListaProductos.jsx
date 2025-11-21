@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import TarjetaProducto from './TarjetaProducto';
 import './ListaProductos.css';
 
-function ListaProductos({ productos, alertas, cargando, error, alEliminar }) {
+function ListaProductos({ productos, alertas, cargando, error, alEliminar, alEditar }) {
   const alertasPorProducto = useMemo(() => {
     if (!Array.isArray(alertas)) return {};
     return alertas.reduce((acc, alerta) => {
@@ -38,6 +38,7 @@ function ListaProductos({ productos, alertas, cargando, error, alEliminar }) {
             producto={producto}
             alerta={alertasPorProducto[producto.id]}
             alEliminar={alEliminar}
+            alEditar={alEditar}
           />
         </div>
       ))}

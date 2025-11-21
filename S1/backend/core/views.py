@@ -22,7 +22,9 @@ class ProductoViewSet(viewsets.ModelViewSet):
         writer = csv.writer(response)
         writer.writerow(['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Stock', 'Precio', 'Descripción', 'Fecha Creación'])
         
-        for producto in self.queryset:
+        # Forzar consulta fresca desde la base de datos
+        productos = Producto.objects.all().order_by('-fecha_creacion')
+        for producto in productos:
             writer.writerow([
                 producto.id,
                 producto.nombre,
@@ -80,7 +82,9 @@ class MovimientoViewSet(viewsets.ModelViewSet):
         writer = csv.writer(response)
         writer.writerow(['ID', 'Producto', 'Tipo', 'Cantidad', 'Fecha', 'Descripción'])
         
-        for mov in self.queryset.select_related('producto'):
+        # Forzar consulta fresca desde la base de datos
+        movimientos = Movimiento.objects.all().select_related('producto').order_by('-fecha')
+        for mov in movimientos:
             writer.writerow([
                 mov.id,
                 mov.producto.nombre,

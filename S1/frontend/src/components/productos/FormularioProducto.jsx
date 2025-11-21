@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { servicioProducto } from '../../services/servicioInventario';
 import './FormularioProducto.css';
 
@@ -12,10 +12,27 @@ const formularioInicial = {
   stock: '',
 };
 
-function FormularioProducto({ alCrear }) {
+function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
   const [datosFormulario, setDatosFormulario] = useState(formularioInicial);
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
+  const modoEdicion = Boolean(productoEditar);
+
+  useEffect(() => {
+    if (productoEditar) {
+      setDatosFormulario({
+        nombre: productoEditar.nombre || '',
+        descripcion: productoEditar.descripcion || '',
+        marca: productoEditar.marca || '',
+        modelo: productoEditar.modelo || '',
+        categoria: productoEditar.categoria || '',
+        precio: productoEditar.precio || '',
+        stock: productoEditar.stock || '',
+      });
+    } else {
+      setDatosFormulario(formularioInicial);
+    }
+  }, [productoEditar]);
 
   const manejarCambio = (event) => {
     const { name, value } = event.target;
@@ -36,14 +53,22 @@ function FormularioProducto({ alCrear }) {
         stock: Number(datosFormulario.stock) || 0,
         precio: Number(datosFormulario.precio) || 0,
       };
-      await servicioProducto.crear(payload);
-      setMensaje({ tipo: 'success', texto: 'Producto registrado correctamente.' });
+      
+      if (modoEdicion) {
+        await servicioProducto.actualizar(productoEditar.id, payload);
+        setMensaje({ tipo: 'success', texto: 'Producto actualizado correctamente.' });
+      } else {
+        await servicioProducto.crear(payload);
+        setMensaje({ tipo: 'success', texto: 'Producto registrado correctamente.' });
+      }
+      
       setDatosFormulario(formularioInicial);
       alCrear?.();
+      alCancelar?.();
     } catch (error) {
       setMensaje({
         tipo: 'error',
-        texto: error.response?.data?.detail || 'No se pudo crear el producto.',
+        texto: error.response?.data?.detail || `No se pudo ${modoEdicion ? 'actualizar' : 'crear'} el producto.`,
       });
     } finally {
       setCargando(false);
@@ -119,11 +144,18 @@ function FormularioProducto({ alCrear }) {
       )}
 
       <div className="form-actions">
-        <button className="btn btn-secondary" type="button" onClick={() => setDatosFormulario(formularioInicial)}>
-          Limpiar
-        </button>
+        {modoEdicion && (
+          <button className="btn btn-secondary" type="button" onClick={alCancelar}>
+            Cancelar
+          </button>
+        )}
+        {!modoEdicion && (
+          <button className="btn btn-secondary" type="button" onClick={() => setDatosFormulario(formularioInicial)}>
+            Limpiar
+          </button>
+        )}
         <button className="btn btn-primary" type="submit" disabled={cargando}>
-          {cargando ? 'Guardando...' : 'Guardar producto'}
+          {cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar producto' : 'Guardar producto')}
         </button>
       </div>
     </form>
