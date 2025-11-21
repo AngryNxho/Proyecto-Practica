@@ -1,8 +1,8 @@
-import { formatearMonedaCLP, obtenerEstadoStock, obtenerEtiquetaStock } from '../../utils/utilidades';
+import { formatCurrency, getStockStatus, getStockLabel } from '../../utils/utils';
 import './TarjetaProducto.css';
 
 function TarjetaProducto({ producto, alerta, alEliminar, alEditar }) {
-  const variante = obtenerEstadoStock(producto.stock, alerta?.umbral);
+  const variante = getStockStatus(producto.stock, alerta?.umbral);
 
   const manejarEliminar = async () => {
     if (window.confirm(`¿Eliminar "${producto.nombre}"?`)) {
@@ -26,7 +26,7 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar }) {
             </small>
           )}
         </div>
-        <span className={`status-badge ${variante}`}>{obtenerEtiquetaStock(variante)}</span>
+        <span className={`status-badge ${variante}`}>{getStockLabel(variante)}</span>
       </header>
 
       <div className="producto-card__body">
@@ -36,7 +36,7 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar }) {
         </div>
         <div>
           <p className="label">Precio</p>
-          <strong>{formatearMonedaCLP(producto.precio)}</strong>
+          <strong>{formatCurrency(producto.precio)}</strong>
         </div>
         <div>
           <p className="label">Alertas</p>

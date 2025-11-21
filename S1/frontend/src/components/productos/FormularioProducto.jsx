@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { servicioProducto } from '../../services/servicioInventario';
+import { productService } from '../../services/inventoryService';
 import './FormularioProducto.css';
 
 const formularioInicial = {
@@ -55,10 +55,10 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       };
       
       if (modoEdicion) {
-        await servicioProducto.actualizar(productoEditar.id, payload);
+        await productService.update(productoEditar.id, payload);
         setMensaje({ tipo: 'success', texto: 'Producto actualizado correctamente.' });
       } else {
-        await servicioProducto.crear(payload);
+        await productService.create(payload);
         setMensaje({ tipo: 'success', texto: 'Producto registrado correctamente.' });
       }
       

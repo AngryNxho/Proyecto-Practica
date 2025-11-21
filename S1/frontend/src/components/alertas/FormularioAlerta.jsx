@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { servicioAlerta } from '../../services/servicioInventario';
+import { alertService } from '../../services/inventoryService';
 import './FormularioAlerta.css';
 
 function FormularioAlerta({ productos, alCrear }) {
@@ -34,7 +34,7 @@ function FormularioAlerta({ productos, alCrear }) {
         umbral: Number(datosFormulario.umbral) || 5,
         activa: true,
       };
-      await servicioAlerta.crear(payload);
+      await alertService.create(payload);
       setMensaje({ tipo: 'success', texto: 'Alerta configurada correctamente.' });
       setDatosFormulario({ producto: '', umbral: 5 });
       alCrear?.();

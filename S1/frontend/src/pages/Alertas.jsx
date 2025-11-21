@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import FormularioAlerta from '../components/alertas/FormularioAlerta';
 import ListaAlertas from '../components/alertas/ListaAlertas';
-import { servicioAlerta, servicioProducto } from '../services/servicioInventario';
+import { alertService, productService } from '../services/inventoryService';
 import './Alertas.css';
 
 function Alertas() {
@@ -18,8 +18,8 @@ function Alertas() {
     try {
       setCargando(true);
       const [alertasRes, productosRes] = await Promise.all([
-        servicioAlerta.obtenerTodos(),
-        servicioProducto.obtenerTodos(),
+        alertService.getAll(),
+        productService.getAll(),
       ]);
       setAlertas(alertasRes.data);
       setProductos(productosRes.data);

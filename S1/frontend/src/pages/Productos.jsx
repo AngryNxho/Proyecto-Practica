@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import FormularioProducto from '../components/productos/FormularioProducto';
 import ListaProductos from '../components/productos/ListaProductos';
-import { servicioProducto, servicioAlerta } from '../services/servicioInventario';
+import { productService, alertService } from '../services/inventoryService';
 import './Productos.css';
 
 function Productos() {
@@ -19,8 +19,8 @@ function Productos() {
     try {
       setCargando(true);
       const [productosRes, alertasRes] = await Promise.all([
-        servicioProducto.obtenerTodos(),
-        servicioAlerta.obtenerTodos(),
+        productService.getAll(),
+        alertService.getAll(),
       ]);
       setProductos(productosRes.data);
       setAlertas(alertasRes.data);
@@ -34,7 +34,7 @@ function Productos() {
 
   const manejarEliminar = async (id) => {
     try {
-      await servicioProducto.eliminar(id);
+      await productService.delete(id);
       await cargarDatos();
     } catch (err) {
       setError('No se pudo eliminar el producto.');

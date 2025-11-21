@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import FormularioMovimiento from '../components/movimientos/FormularioMovimiento';
 import ListaMovimientos from '../components/movimientos/ListaMovimientos';
-import { servicioProducto, servicioMovimiento } from '../services/servicioInventario';
+import { productService, movementService } from '../services/inventoryService';
 import './Movimientos.css';
 
 function Movimientos() {
@@ -18,8 +18,8 @@ function Movimientos() {
     try {
       setCargando(true);
       const [productosRes, movimientosRes] = await Promise.all([
-        servicioProducto.obtenerTodos(),
-        servicioMovimiento.obtenerTodos(),
+        productService.getAll(),
+        movementService.getAll(),
       ]);
       setProductos(productosRes.data);
       setMovimientos(movimientosRes.data);

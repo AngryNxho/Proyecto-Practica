@@ -1,4 +1,4 @@
-import { formatearFechaHora } from '../../utils/utilidades';
+import { formatDateTime } from '../../utils/utils';
 import './ItemMovimiento.css';
 
 function ItemMovimiento({ movimiento }) {
@@ -6,7 +6,7 @@ function ItemMovimiento({ movimiento }) {
     <article className={`movimiento-item tipo-${movimiento.tipo.toLowerCase()}`}>
       <div>
         <p className="movimiento-item__producto">{movimiento.producto_nombre}</p>
-        <small>{formatearFechaHora(movimiento.fecha)}</small>
+        <small>{formatDateTime(movimiento.fecha)}</small>
       </div>
       <div className="movimiento-item__meta">
         <span>{movimiento.tipo}</span>

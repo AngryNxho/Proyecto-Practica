@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { servicioProducto } from '../../services/servicioInventario';
+import { productService } from '../../services/inventoryService';
 import './FormularioMovimiento.css';
 
 const formularioInicial = {
@@ -39,9 +39,9 @@ function FormularioMovimiento({ productos, alRegistrar }) {
       };
 
       if (datosFormulario.tipo === 'ENTRADA') {
-        await servicioProducto.registrarEntrada(datosFormulario.productoId, payload);
+        await productService.registerEntry(datosFormulario.productoId, payload);
       } else {
-        await servicioProducto.registrarSalida(datosFormulario.productoId, payload);
+        await productService.registerExit(datosFormulario.productoId, payload);
       }
 
       setMensaje({ tipo: 'success', texto: 'Movimiento registrado.' });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { servicioProducto, servicioMovimiento, servicioAlerta } from '../services/servicioInventario';
-import { formatearMonedaCLP, formatearFechaHora } from '../utils/utilidades';
+import { productService, movementService, alertService } from '../services/inventoryService';
+import { formatCurrency, formatDateTime } from '../utils/utils';
 import './Tablero.css';
 
 function Tablero() {
@@ -16,9 +16,9 @@ function Tablero() {
     try {
       setCargando(true);
       const [productosRes, movimientosRes, alertasRes] = await Promise.all([
-        servicioProducto.obtenerTodos(),
-        servicioMovimiento.obtenerTodos(),
-        servicioAlerta.obtenerTodos(),
+        productService.getAll(),
+        movementService.getAll(),
+        alertService.getAll(),
       ]);
       setDatos({
         productos: productosRes.data,
@@ -66,7 +66,7 @@ function Tablero() {
         </div>
         <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #f7971e, #ffd200)' }}>
           <h3>Valor estimado</h3>
-          <strong>{cargando ? '...' : formatearMonedaCLP(valorTotal)}</strong>
+          <strong>{cargando ? '...' : formatCurrency(valorTotal)}</strong>
           <span>En base a stock actual</span>
         </div>
         <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #ff5f6d, #ffc371)' }}>
@@ -99,7 +99,7 @@ function Tablero() {
               <tbody>
                 {recientes.map((movimiento) => (
                   <tr key={movimiento.id}>
-                    <td>{formatearFechaHora(movimiento.fecha)}</td>
+                    <td>{formatDateTime(movimiento.fecha)}</td>
                     <td>{movimiento.producto_nombre}</td>
                     <td>
                       <span className={`status-badge ${movimiento.tipo === 'SALIDA' ? 'critical' : 'ok'}`}>
