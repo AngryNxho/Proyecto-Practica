@@ -8,9 +8,9 @@ export const formatCurrency = (value) => {
 };
 
 export const formatDateTime = (value, options = {}) => {
-  if (!value) return 'No date';
+  if (!value) return 'Sin fecha';
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Invalid date';
+  if (Number.isNaN(date.getTime())) return 'Fecha inválida';
   return date.toLocaleString('es-CL', {
     year: 'numeric',
     month: 'short',
@@ -31,10 +31,10 @@ export const getStockStatus = (stock, threshold) => {
 export const getStockLabel = (variant) => {
   switch (variant) {
     case 'critical':
-      return 'Out of stock';
+      return 'Sin stock';
     case 'warning':
-      return 'Low stock';
+      return 'Stock bajo';
     default:
-      return 'Sufficient stock';
+      return 'Stock suficiente';
   }
 };

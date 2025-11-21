@@ -1,16 +1,25 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Producto, Movimiento, Alerta
 from .serializers import ProductoSerializer, MovimientoSerializer, AlertaSerializer
+from .pagination import StandardResultsSetPagination
+from .filters import ProductoFilter, MovimientoFilter, AlertaFilter
 import csv
 from datetime import datetime
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    """ViewSet para operaciones CRUD de productos"""
-    queryset = Producto.objects.all()
+    """ViewSet para operaciones CRUD de productos con paginación y filtros"""
+    queryset = Producto.objects.all().order_by('-fecha_creacion')
     serializer_class = ProductoSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = ProductoFilter
+    search_fields = ['nombre', 'marca', 'modelo', 'descripcion']
+    ordering_fields = ['nombre', 'stock', 'precio', 'fecha_creacion']
+    ordering = ['-fecha_creacion']
     
     @action(detail=False, methods=['get'])
     def exportar_csv(self, request):
@@ -68,9 +77,14 @@ class ProductoViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=400)
 
 class MovimientoViewSet(viewsets.ModelViewSet):
-    """ViewSet para movimientos de stock"""
-    queryset = Movimiento.objects.all()
+    """ViewSet para movimientos de stock con paginación y filtros"""
+    queryset = Movimiento.objects.all().select_related('producto').order_by('-fecha')
     serializer_class = MovimientoSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = MovimientoFilter
+    ordering_fields = ['fecha', 'cantidad']
+    ordering = ['-fecha']
     
     @action(detail=False, methods=['get'])
     def exportar_csv(self, request):
@@ -97,6 +111,11 @@ class MovimientoViewSet(viewsets.ModelViewSet):
         return response
 
 class AlertaViewSet(viewsets.ModelViewSet):
-    """ViewSet para alertas de stock"""
-    queryset = Alerta.objects.all()
+    """ViewSet para alertas de stock con paginación y filtros"""
+    queryset = Alerta.objects.all().select_related('producto').order_by('-fecha_creacion')
     serializer_class = AlertaSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = AlertaFilter
+    ordering_fields = ['fecha_creacion', 'umbral']
+    ordering = ['-fecha_creacion']
