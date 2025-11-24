@@ -11,20 +11,33 @@ function Productos() {
   const [error, setError] = useState(null);
   const [productoEditar, setProductoEditar] = useState(null);
   const [busqueda, setBusqueda] = useState('');
+  const [filtroStock, setFiltroStock] = useState('');
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
 
   useEffect(() => {
     cargarDatos();
-  }, []);
+  }, [paginaActual]);
 
   const cargarDatos = async () => {
     try {
       setCargando(true);
-      const parametros = busqueda ? { search: busqueda } : {};
+      const parametros = { page: paginaActual };
+      if (busqueda) parametros.search = busqueda;
+      if (filtroStock === 'bajo') parametros.stock_max = 10;
+      if (filtroStock === 'critico') parametros.stock_max = 5;
+      if (filtroStock === 'normal') parametros.stock_min = 11;
+      
       const [productosRes, alertasRes] = await Promise.all([
         productService.buscar(parametros),
         alertService.obtenerTodos(),
       ]);
-      setProductos(productosRes.data.results || productosRes.data);
+      
+      const datos = productosRes.data;
+      setProductos(datos.results || datos);
+      if (datos.count) {
+        setTotalPaginas(Math.ceil(datos.count / 10));
+      }
       setAlertas(alertasRes.data.results || alertasRes.data);
       setError(null);
     } catch (err) {
@@ -61,7 +74,14 @@ function Productos() {
 
   const limpiarBusqueda = () => {
     setBusqueda('');
+    setFiltroStock('');
+    setPaginaActual(1);
     setTimeout(() => cargarDatos(), 0);
+  };
+
+  const ejecutarBusqueda = () => {
+    setPaginaActual(1);
+    cargarDatos();
   };
 
   const exportarCSV = () => {
@@ -79,7 +99,7 @@ function Productos() {
       </header>
 
       <div className="panel" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
           <input
             type="text"
             placeholder="Buscar por nombre, marca, modelo o descripción..."
@@ -91,11 +111,27 @@ function Productos() {
           <button className="btn btn-primary" type="button" onClick={ejecutarBusqueda}>
             Buscar
           </button>
-          {busqueda && (
+          {(busqueda || filtroStock) && (
             <button className="btn btn-secondary" type="button" onClick={limpiarBusqueda}>
               Limpiar
             </button>
           )}
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <label style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>Filtrar por stock:</label>
+          <select 
+            value={filtroStock} 
+            onChange={(e) => setFiltroStock(e.target.value)}
+            style={{ padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+          >
+            <option value="">Todos</option>
+            <option value="critico">Crítico (≤5)</option>
+            <option value="bajo">Bajo (≤10)</option>
+            <option value="normal">Normal (&gt;10)</option>
+          </select>
+          <button className="btn btn-secondary" type="button" onClick={ejecutarBusqueda}>
+            Aplicar
+          </button>
         </div>
       </div>
 
@@ -129,6 +165,28 @@ function Productos() {
         alEliminar={manejarEliminar}
         alEditar={manejarEditar}
       />
+
+      {totalPaginas > 1 && (
+        <div className="panel" style={{ marginTop: '24px', padding: '16px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setPaginaActual(pag => Math.max(1, pag - 1))}
+            disabled={paginaActual === 1}
+          >
+            ← Anterior
+          </button>
+          <span style={{ padding: '0 16px', fontSize: '14px', color: '#52525b' }}>
+            Página {paginaActual} de {totalPaginas}
+          </span>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setPaginaActual(pag => Math.min(totalPaginas, pag + 1))}
+            disabled={paginaActual === totalPaginas}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

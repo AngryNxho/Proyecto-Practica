@@ -3,18 +3,22 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Prefetch
 from .models import Producto, Movimiento, Alerta
 from .serializers import ProductoSerializer, MovimientoSerializer, AlertaSerializer
-from .pagination import StandardResultsSetPagination
+from .pagination import PaginacionEstandar
 from .filters import ProductoFilter, MovimientoFilter, AlertaFilter
 import csv
 from datetime import datetime
 
 class ProductoViewSet(viewsets.ModelViewSet):
     """ViewSet para operaciones CRUD de productos con paginación y filtros"""
-    queryset = Producto.objects.all().order_by('-fecha_creacion')
+    queryset = Producto.objects.all().select_related().prefetch_related(
+        Prefetch('movimiento_set', queryset=Movimiento.objects.order_by('-fecha')[:5]),
+        Prefetch('alerta_set', queryset=Alerta.objects.filter(activa=True))
+    ).order_by('-fecha_creacion')
     serializer_class = ProductoSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = PaginacionEstandar
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = ProductoFilter
     search_fields = ['nombre', 'marca', 'modelo', 'descripcion']
