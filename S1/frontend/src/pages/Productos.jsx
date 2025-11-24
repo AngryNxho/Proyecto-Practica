@@ -10,6 +10,7 @@ function Productos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [productoEditar, setProductoEditar] = useState(null);
+  const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
     cargarDatos();
@@ -18,12 +19,13 @@ function Productos() {
   const cargarDatos = async () => {
     try {
       setCargando(true);
+      const parametros = busqueda ? { search: busqueda } : {};
       const [productosRes, alertasRes] = await Promise.all([
-        productService.getAll(),
-        alertService.getAll(),
+        productService.buscar(parametros),
+        alertService.obtenerTodos(),
       ]);
-      setProductos(productosRes.data);
-      setAlertas(alertasRes.data);
+      setProductos(productosRes.data.results || productosRes.data);
+      setAlertas(alertasRes.data.results || alertasRes.data);
       setError(null);
     } catch (err) {
       setError('No pudimos obtener los productos.');
@@ -34,7 +36,7 @@ function Productos() {
 
   const manejarEliminar = async (id) => {
     try {
-      await productService.delete(id);
+      await productService.eliminar(id);
       await cargarDatos();
     } catch (err) {
       setError('No se pudo eliminar el producto.');
@@ -47,6 +49,19 @@ function Productos() {
 
   const manejarCancelarEdicion = () => {
     setProductoEditar(null);
+  };
+
+  const manejarBusqueda = (e) => {
+    setBusqueda(e.target.value);
+  };
+
+  const ejecutarBusqueda = () => {
+    cargarDatos();
+  };
+
+  const limpiarBusqueda = () => {
+    setBusqueda('');
+    setTimeout(() => cargarDatos(), 0);
   };
 
   const exportarCSV = () => {
@@ -62,6 +77,27 @@ function Productos() {
           Da de alta nuevos equipos o tóners y controla su estado en tiempo real.
         </p>
       </header>
+
+      <div className="panel" style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Buscar por nombre, marca, modelo o descripción..."
+            value={busqueda}
+            onChange={manejarBusqueda}
+            onKeyPress={(e) => e.key === 'Enter' && ejecutarBusqueda()}
+            style={{ flex: 1, padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
+          />
+          <button className="btn btn-primary" type="button" onClick={ejecutarBusqueda}>
+            Buscar
+          </button>
+          {busqueda && (
+            <button className="btn btn-secondary" type="button" onClick={limpiarBusqueda}>
+              Limpiar
+            </button>
+          )}
+        </div>
+      </div>
 
       <section className="grid-two">
         <FormularioProducto 
