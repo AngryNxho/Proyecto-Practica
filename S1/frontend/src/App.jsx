@@ -4,6 +4,7 @@ import Tablero from './pages/Tablero';
 import Productos from './pages/Productos';
 import Movimientos from './pages/Movimientos';
 import Alertas from './pages/Alertas';
+import Scanner from './pages/Scanner';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/movimientos" element={<Movimientos />} />
           <Route path="/alertas" element={<Alertas />} />
+          <Route path="/scanner" element={<Scanner />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

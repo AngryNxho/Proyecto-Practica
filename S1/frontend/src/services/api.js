@@ -10,7 +10,6 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Logging en desarrollo
 api.interceptors.request.use(
   (config) => {
     if (import.meta.env.DEV) {
@@ -24,7 +23,6 @@ api.interceptors.request.use(
   }
 );
 
-// Manejo de errores
 api.interceptors.response.use(
   (response) => {
     if (import.meta.env.DEV) {

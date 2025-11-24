@@ -13,6 +13,7 @@ class Producto(models.Model):
     stock = models.IntegerField(default=0, verbose_name="Stock actual")
     categoria = models.CharField(max_length=50, blank=True, verbose_name="Categoría")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
+    codigo_barras = models.CharField(max_length=64, blank=True, null=True, unique=True, verbose_name="Código de barras")
 
     class Meta:
         verbose_name = 'Producto'
@@ -134,14 +135,14 @@ class Device(models.Model):
     producto = models.ForeignKey(
         Producto,
         on_delete=models.CASCADE,
-        related_name='devices',
+        related_name='dispositivos',
         verbose_name="Producto consumible"
     )
-    protocol = models.CharField(max_length=20, default='SNMP', verbose_name="Protocolo")
-    snmp_version = models.CharField(max_length=10, default='2c', verbose_name="SNMP Version")
-    snmp_community = models.CharField(max_length=100, blank=True, verbose_name="SNMP Community")
+    protocolo = models.CharField(max_length=20, default='SNMP', verbose_name="Protocolo")
+    version_snmp = models.CharField(max_length=10, default='2c', verbose_name="SNMP Version")
+    comunidad_snmp = models.CharField(max_length=100, blank=True, verbose_name="SNMP Community")
     activo = models.BooleanField(default=True, verbose_name="Activo")
-    ultimo_lectura = models.DateTimeField(null=True, blank=True, verbose_name="Última lectura")
+    ultima_lectura = models.DateTimeField(null=True, blank=True, verbose_name="Última lectura")
 
     class Meta:
         verbose_name = 'Dispositivo'

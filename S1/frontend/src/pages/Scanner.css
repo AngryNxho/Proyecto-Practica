@@ -1,0 +1,8 @@
+.scanner-page { padding: 16px; }
+.scanner-form { display:flex; gap:8px; margin-bottom:12px; }
+#barcode-input { flex:1; padding:8px 10px; font-size:18px; }
+.producto { border:1px solid #ddd; padding:12px; margin-top:12px; background:#fafafa }
+.actions { display:flex; gap:8px; margin-top:10px }
+.btn { padding:8px 12px; cursor:pointer }
+.btn-danger { background:#e74c3c; color:#fff; border:none }
+.msg { color:#555 }

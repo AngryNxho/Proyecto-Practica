@@ -3,8 +3,8 @@ from .models import Producto, Movimiento, Alerta
 
 
 class ProductoFilter(filters.FilterSet):
-    """Filtros para productos: nombre, marca, modelo, categoria, stock y precio"""
     nombre = filters.CharFilter(lookup_expr='icontains')
+    codigo_barras = filters.CharFilter(field_name='codigo_barras', lookup_expr='exact')
     marca = filters.CharFilter(lookup_expr='icontains')
     modelo = filters.CharFilter(lookup_expr='icontains')
     categoria = filters.CharFilter(lookup_expr='icontains')
@@ -15,11 +15,10 @@ class ProductoFilter(filters.FilterSet):
 
     class Meta:
         model = Producto
-        fields = ['nombre', 'marca', 'modelo', 'categoria', 'stock_min', 'stock_max', 'precio_min', 'precio_max']
+        fields = ['nombre', 'marca', 'modelo', 'categoria', 'codigo_barras', 'stock_min', 'stock_max', 'precio_min', 'precio_max']
 
 
 class MovimientoFilter(filters.FilterSet):
-    """Filtros para movimientos: tipo, producto y rango de fechas"""
     tipo = filters.ChoiceFilter(choices=Movimiento.TIPO_CHOICES)
     producto = filters.NumberFilter(field_name='producto__id')
     fecha_desde = filters.DateTimeFilter(field_name='fecha', lookup_expr='gte')
@@ -31,7 +30,6 @@ class MovimientoFilter(filters.FilterSet):
 
 
 class AlertaFilter(filters.FilterSet):
-    """Filtros para alertas: estado activo y producto"""
     activa = filters.BooleanFilter()
     producto = filters.NumberFilter(field_name='producto__id')
 
