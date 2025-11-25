@@ -1,7 +1,7 @@
 import { formatCurrency, getStockStatus, getStockLabel } from '../../utils/utils';
 import './TarjetaProducto.css';
 
-function TarjetaProducto({ producto, alerta, alEliminar, alEditar }) {
+function TarjetaProducto({ producto, alerta, alEliminar, alEditar, alRegistrarMovimiento }) {
   const variante = getStockStatus(producto.stock, alerta?.umbral);
 
   const manejarEliminar = async () => {
@@ -49,6 +49,12 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar }) {
       )}
 
       <div className="producto-card__actions">
+        <button className="btn-icon btn-success" onClick={() => alRegistrarMovimiento?.(producto, 'entrada')} title="Registrar entrada">
+          ⬆️
+        </button>
+        <button className="btn-icon btn-warning" onClick={() => alRegistrarMovimiento?.(producto, 'salida')} title="Registrar salida">
+          ⬇️
+        </button>
         <button className="btn-icon btn-primary" onClick={manejarEditar} title="Editar">
           ✏️
         </button>

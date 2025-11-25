@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import FormularioProducto from '../components/productos/FormularioProducto';
 import ListaProductos from '../components/productos/ListaProductos';
+import ModalMovimiento from '../components/productos/ModalMovimiento';
 import { productService, alertService } from '../services/inventoryService';
 import './Productos.css';
 
@@ -14,6 +15,7 @@ function Productos() {
   const [filtroStock, setFiltroStock] = useState('');
   const [paginaActual, setPaginaActual] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  const [modalMovimiento, setModalMovimiento] = useState(null);
 
   useEffect(() => {
     cargarDatos();
@@ -87,6 +89,21 @@ function Productos() {
   const exportarCSV = () => {
     const url = `${import.meta.env.VITE_API_URL}/productos/exportar_csv/`;
     window.open(url, '_blank');
+  };
+
+  const manejarRegistrarMovimiento = (producto, tipo) => {
+    setModalMovimiento({ producto, tipo });
+  };
+
+  const confirmarMovimiento = async (datos) => {
+    try {
+      const accion = modalMovimiento.tipo === 'entrada' ? 'registrarEntrada' : 'registrarSalida';
+      await productService[accion](modalMovimiento.producto.id, datos);
+      setModalMovimiento(null);
+      await cargarDatos();
+    } catch (err) {
+      setError(`No se pudo registrar la ${modalMovimiento.tipo}`);
+    }
   };
 
   return (
@@ -171,7 +188,17 @@ function Productos() {
         error={error}
         alEliminar={manejarEliminar}
         alEditar={manejarEditar}
+        alRegistrarMovimiento={manejarRegistrarMovimiento}
       />
+
+      {modalMovimiento && (
+        <ModalMovimiento
+          producto={modalMovimiento.producto}
+          tipo={modalMovimiento.tipo}
+          alCerrar={() => setModalMovimiento(null)}
+          alConfirmar={confirmarMovimiento}
+        />
+      )}
 
       {totalPaginas > 1 && (
         <div className="panel" style={{ marginTop: '24px', padding: '16px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>

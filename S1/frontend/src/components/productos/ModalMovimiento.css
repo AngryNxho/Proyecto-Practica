@@ -1,0 +1,131 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-contenido {
+  background: white;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+.modal-encabezado h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1f2b50;
+}
+
+.modal-cerrar {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #7c819b;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.modal-cerrar:hover {
+  background: #f4f6fb;
+}
+
+.modal-cuerpo {
+  padding: 24px;
+}
+
+.modal-producto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #f9faff;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.modal-producto strong {
+  color: #1f2b50;
+}
+
+.modal-producto span {
+  font-size: 0.9rem;
+  color: #7c819b;
+}
+
+.modal-cuerpo form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-cuerpo label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-cuerpo label span {
+  font-size: 0.9rem;
+  color: #39405c;
+  font-weight: 500;
+}
+
+.modal-cuerpo input,
+.modal-cuerpo textarea {
+  border: 1px solid #d9def0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #f9faff;
+  font-family: inherit;
+}
+
+.modal-cuerpo input:focus,
+.modal-cuerpo textarea:focus {
+  border-color: #2c62f6;
+  outline: none;
+  background: white;
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
