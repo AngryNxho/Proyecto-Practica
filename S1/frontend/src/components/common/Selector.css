@@ -1,0 +1,32 @@
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selector__etiqueta {
+  font-size: 0.9rem;
+  color: #39405c;
+  font-weight: 500;
+}
+
+.selector__select {
+  border: 1px solid #d9def0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #f9faff;
+  transition: border 0.15s ease;
+  cursor: pointer;
+}
+
+.selector__select:focus {
+  border-color: #2c62f6;
+  outline: none;
+  background: #fff;
+}
+
+.selector__select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

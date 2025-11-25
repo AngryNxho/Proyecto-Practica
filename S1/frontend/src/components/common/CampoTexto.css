@@ -1,0 +1,31 @@
+.campo-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-texto__etiqueta {
+  font-size: 0.9rem;
+  color: #39405c;
+  font-weight: 500;
+}
+
+.campo-texto__input {
+  border: 1px solid #d9def0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #f9faff;
+  transition: border 0.15s ease;
+}
+
+.campo-texto__input:focus {
+  border-color: #2c62f6;
+  outline: none;
+  background: #fff;
+}
+
+.campo-texto__input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
