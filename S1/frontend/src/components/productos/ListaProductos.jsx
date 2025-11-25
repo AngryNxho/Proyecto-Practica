@@ -23,11 +23,21 @@ function ListaProductos({ productos, alertas, cargando, error, alEliminar, alEdi
   }
 
   if (error) {
-    return <div className="panel error-state">{error}</div>;
+    return (
+      <div className="panel error-state">
+        <p style={{ fontSize: '16px', color: '#dc2626', marginBottom: '8px' }}>⚠️ {error}</p>
+        <p style={{ fontSize: '14px', color: '#71717a' }}>Por favor, verifica que el servidor esté funcionando.</p>
+      </div>
+    );
   }
 
   if (!productos.length) {
-    return <div className="panel empty-state">Aún no registras productos.</div>;
+    return (
+      <div className="panel empty-state">
+        <p style={{ fontSize: '16px', marginBottom: '8px' }}>📦 No hay productos registrados</p>
+        <p style={{ fontSize: '14px', color: '#71717a' }}>Comienza agregando tu primer producto usando el formulario de arriba.</p>
+      </div>
+    );
   }
 
   return (

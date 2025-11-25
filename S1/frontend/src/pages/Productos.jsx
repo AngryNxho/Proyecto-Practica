@@ -36,14 +36,17 @@ function Productos() {
       ]);
       
       const datos = productosRes.data;
-      setProductos(datos.results || datos);
+      setProductos(datos.results || datos || []);
       if (datos.count) {
         setTotalPaginas(Math.ceil(datos.count / 10));
       }
-      setAlertas(alertasRes.data.results || alertasRes.data);
+      setAlertas(alertasRes.data.results || alertasRes.data || []);
       setError(null);
     } catch (err) {
-      setError('No pudimos obtener los productos.');
+      console.error('Error al cargar datos:', err);
+      setProductos([]);
+      setAlertas([]);
+      setError(null); // No mostrar error si simplemente no hay datos
     } finally {
       setCargando(false);
     }
@@ -66,11 +69,22 @@ function Productos() {
     setProductoEditar(null);
   };
 
+  const alCrearProducto = () => {
+    setBusqueda('');
+    setFiltroStock('');
+    if (paginaActual === 1) {
+      cargarDatos(); // Si ya estamos en página 1, recargar manualmente
+    } else {
+      setPaginaActual(1); // Si no, cambiar a página 1 disparará el useEffect
+    }
+  };
+
   const manejarBusqueda = (e) => {
     setBusqueda(e.target.value);
   };
 
   const ejecutarBusqueda = () => {
+    setPaginaActual(1);
     cargarDatos();
   };
 
@@ -79,11 +93,6 @@ function Productos() {
     setFiltroStock('');
     setPaginaActual(1);
     setTimeout(() => cargarDatos(), 0);
-  };
-
-  const ejecutarBusqueda = () => {
-    setPaginaActual(1);
-    cargarDatos();
   };
 
   const exportarCSV = () => {
@@ -161,7 +170,7 @@ function Productos() {
 
       <section className="grid-two">
         <FormularioProducto 
-          alCrear={cargarDatos} 
+          alCrear={alCrearProducto} 
           productoEditar={productoEditar}
           alCancelar={manejarCancelarEdicion}
         />

@@ -136,7 +136,7 @@ CORS_ALLOWED_ORIGINS = config(
 
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardResultsSetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.PaginacionEstandar',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',

@@ -18,14 +18,17 @@ function Alertas() {
     try {
       setCargando(true);
       const [alertasRes, productosRes] = await Promise.all([
-        alertService.getAll(),
-        productService.getAll(),
+        alertService.obtenerTodos(),
+        productService.obtenerTodos(),
       ]);
-      setAlertas(alertasRes.data);
-      setProductos(productosRes.data);
+      setAlertas(alertasRes.data.results || alertasRes.data || []);
+      setProductos(productosRes.data.results || productosRes.data || []);
       setError(null);
     } catch (err) {
-      setError('No pudimos consultar las alertas.');
+      console.error('Error al cargar alertas:', err);
+      setAlertas([]);
+      setProductos([]);
+      setError(null);
     } finally {
       setCargando(false);
     }

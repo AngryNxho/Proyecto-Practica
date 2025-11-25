@@ -55,10 +55,10 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       };
       
       if (modoEdicion) {
-        await productService.update(productoEditar.id, payload);
+        await productService.actualizar(productoEditar.id, payload);
         setMensaje({ tipo: 'success', texto: 'Producto actualizado correctamente.' });
       } else {
-        await productService.create(payload);
+        await productService.crear(payload);
         setMensaje({ tipo: 'success', texto: 'Producto registrado correctamente.' });
       }
       

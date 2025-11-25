@@ -18,14 +18,17 @@ function Movimientos() {
     try {
       setCargando(true);
       const [productosRes, movimientosRes] = await Promise.all([
-        productService.getAll(),
-        movementService.getAll(),
+        productService.obtenerTodos(),
+        movementService.obtenerTodos(),
       ]);
-      setProductos(productosRes.data);
-      setMovimientos(movimientosRes.data);
+      setProductos(productosRes.data.results || productosRes.data || []);
+      setMovimientos(movimientosRes.data.results || movimientosRes.data || []);
       setError(null);
     } catch (err) {
-      setError('No pudimos obtener los movimientos.');
+      console.error('Error al cargar movimientos:', err);
+      setMovimientos([]);
+      setProductos([]);
+      setError(null);
     } finally {
       setCargando(false);
     }

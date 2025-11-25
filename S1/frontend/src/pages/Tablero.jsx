@@ -16,18 +16,20 @@ function Tablero() {
     try {
       setCargando(true);
       const [productosRes, movimientosRes, alertasRes] = await Promise.all([
-        productService.getAll(),
-        movementService.getAll(),
-        alertService.getAll(),
+        productService.obtenerTodos(),
+        movementService.obtenerTodos(),
+        alertService.obtenerTodos(),
       ]);
       setDatos({
-        productos: productosRes.data,
-        movimientos: movimientosRes.data,
-        alertas: alertasRes.data,
+        productos: productosRes.data.results || productosRes.data || [],
+        movimientos: movimientosRes.data.results || movimientosRes.data || [],
+        alertas: alertasRes.data.results || alertasRes.data || [],
       });
       setError(null);
     } catch (err) {
-      setError('No pudimos cargar el tablero. Intenta nuevamente.');
+      console.error('Error al cargar tablero:', err);
+      setDatos({ productos: [], movimientos: [], alertas: [] });
+      setError(null);
     } finally {
       setCargando(false);
     }

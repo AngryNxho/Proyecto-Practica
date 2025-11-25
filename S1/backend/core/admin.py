@@ -54,7 +54,7 @@ class AlertaAdmin(admin.ModelAdmin):
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'ip', 'marca', 'modelo', 'producto', 'activo', 'ultimo_lectura']
+    list_display = ['nombre', 'ip', 'marca', 'modelo', 'producto', 'activo', 'ultima_lectura']
     list_filter = ['marca', 'activo']
     search_fields = ['nombre', 'ip', 'producto__nombre']
-    ordering = ['-ultimo_lectura']
+    ordering = ['-ultima_lectura']

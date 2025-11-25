@@ -13,10 +13,7 @@ from datetime import datetime
 
 class ProductoViewSet(viewsets.ModelViewSet):
     """ViewSet para operaciones CRUD de productos con paginación y filtros"""
-    queryset = Producto.objects.all().select_related().prefetch_related(
-        Prefetch('movimiento_set', queryset=Movimiento.objects.order_by('-fecha')[:5]),
-        Prefetch('alerta_set', queryset=Alerta.objects.filter(activa=True))
-    ).order_by('-fecha_creacion')
+    queryset = Producto.objects.all().order_by('-fecha_creacion')
     serializer_class = ProductoSerializer
     pagination_class = PaginacionEstandar
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -84,7 +81,7 @@ class MovimientoViewSet(viewsets.ModelViewSet):
     """ViewSet para movimientos de stock con paginación y filtros"""
     queryset = Movimiento.objects.all().select_related('producto').order_by('-fecha')
     serializer_class = MovimientoSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = PaginacionEstandar
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = MovimientoFilter
     ordering_fields = ['fecha', 'cantidad']
@@ -118,7 +115,7 @@ class AlertaViewSet(viewsets.ModelViewSet):
     """ViewSet para alertas de stock con paginación y filtros"""
     queryset = Alerta.objects.all().select_related('producto').order_by('-fecha_creacion')
     serializer_class = AlertaSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = PaginacionEstandar
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = AlertaFilter
     ordering_fields = ['fecha_creacion', 'umbral']
