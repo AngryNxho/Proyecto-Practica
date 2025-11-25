@@ -99,39 +99,46 @@ function Productos() {
       </header>
 
       <div className="panel" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
-          <input
-            type="text"
-            placeholder="Buscar por nombre, marca, modelo o descripción..."
-            value={busqueda}
-            onChange={manejarBusqueda}
-            onKeyPress={(e) => e.key === 'Enter' && ejecutarBusqueda()}
-            style={{ flex: 1, padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
-          />
-          <button className="btn btn-primary" type="button" onClick={ejecutarBusqueda}>
-            Buscar
-          </button>
-          {(busqueda || filtroStock) && (
-            <button className="btn btn-secondary" type="button" onClick={limpiarBusqueda}>
-              Limpiar
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, marca, modelo..."
+              value={busqueda}
+              onChange={manejarBusqueda}
+              onKeyPress={(e) => e.key === 'Enter' && ejecutarBusqueda()}
+              style={{ flex: '1 1 200px', padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
+              aria-label="Campo de búsqueda de productos"
+            />
+            <button className="btn btn-primary" type="button" onClick={ejecutarBusqueda}>
+              Buscar
             </button>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <label style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>Filtrar por stock:</label>
-          <select 
-            value={filtroStock} 
-            onChange={(e) => setFiltroStock(e.target.value)}
-            style={{ padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
-          >
-            <option value="">Todos</option>
-            <option value="critico">Crítico (≤5)</option>
-            <option value="bajo">Bajo (≤10)</option>
-            <option value="normal">Normal (&gt;10)</option>
-          </select>
-          <button className="btn btn-secondary" type="button" onClick={ejecutarBusqueda}>
-            Aplicar
-          </button>
+            {(busqueda || filtroStock) && (
+              <button className="btn btn-secondary" type="button" onClick={limpiarBusqueda}>
+                Limpiar
+              </button>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <label htmlFor="filtro-stock" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+              Filtrar por stock:
+            </label>
+            <select 
+              id="filtro-stock"
+              value={filtroStock} 
+              onChange={(e) => setFiltroStock(e.target.value)}
+              style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+              aria-label="Filtro de productos por nivel de stock"
+            >
+              <option value="">Todos</option>
+              <option value="critico">Crítico (≤5)</option>
+              <option value="bajo">Bajo (≤10)</option>
+              <option value="normal">Normal (&gt;10)</option>
+            </select>
+            <button className="btn btn-secondary" type="button" onClick={ejecutarBusqueda}>
+              Aplicar
+            </button>
+          </div>
         </div>
       </div>
 
