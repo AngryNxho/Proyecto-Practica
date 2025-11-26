@@ -42,6 +42,8 @@ function Tablero() {
   );
   const alertasActivas = datos.alertas.filter((alerta) => alerta.activa).length;
   const productosRegistrados = datos.productos.length;
+  const stockCritico = datos.productos.filter(p => p.stock <= 5).length;
+  const stockBajo = datos.productos.filter(p => p.stock > 5 && p.stock <= 10).length;
   const recientes = datos.movimientos.slice(0, 5);
 
   return (
@@ -75,6 +77,29 @@ function Tablero() {
           <h3>Alertas activas</h3>
           <strong>{cargando ? '...' : alertasActivas}</strong>
           <span>Productos críticos</span>
+        </div>
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Análisis de inventario</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div style={{ padding: '12px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca' }}>
+            <p style={{ fontSize: '14px', color: '#991b1b', marginBottom: '4px', fontWeight: '500' }}>Stock crítico</p>
+            <p style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626' }}>{cargando ? '...' : stockCritico}</p>
+            <p style={{ fontSize: '12px', color: '#991b1b', marginTop: '4px' }}>≤5 unidades</p>
+          </div>
+          <div style={{ padding: '12px', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fde68a' }}>
+            <p style={{ fontSize: '14px', color: '#92400e', marginBottom: '4px', fontWeight: '500' }}>Stock bajo</p>
+            <p style={{ fontSize: '24px', fontWeight: '700', color: '#d97706' }}>{cargando ? '...' : stockBajo}</p>
+            <p style={{ fontSize: '12px', color: '#92400e', marginTop: '4px' }}>6-10 unidades</p>
+          </div>
+          <div style={{ padding: '12px', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+            <p style={{ fontSize: '14px', color: '#14532d', marginBottom: '4px', fontWeight: '500' }}>Stock normal</p>
+            <p style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a' }}>
+              {cargando ? '...' : productosRegistrados - stockCritico - stockBajo}
+            </p>
+            <p style={{ fontSize: '12px', color: '#14532d', marginTop: '4px' }}>&gt;10 unidades</p>
+          </div>
         </div>
       </section>
 

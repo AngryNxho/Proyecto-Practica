@@ -39,6 +39,11 @@ function Movimientos() {
     ? movimientos.filter((m) => m.tipo === filtroTipo)
     : movimientos;
 
+  const totalEntradas = movimientos.filter((m) => m.tipo === 'ENTRADA')
+    .reduce((sum, m) => sum + (m.cantidad || 0), 0);
+  const totalSalidas = movimientos.filter((m) => m.tipo === 'SALIDA')
+    .reduce((sum, m) => sum + (m.cantidad || 0), 0);
+
   const exportarCSV = () => {
     const url = `${import.meta.env.VITE_API_URL}/movimientos/exportar_csv/`;
     window.open(url, '_blank');
@@ -56,11 +61,17 @@ function Movimientos() {
         <div className="panel resumen-movimientos">
           <p>Total movimientos: <strong>{movimientos.length}</strong></p>
           <p>
-            Entradas: <strong>{movimientos.filter((m) => m.tipo === 'ENTRADA').length}</strong>
+            Entradas: <strong>{movimientos.filter((m) => m.tipo === 'ENTRADA').length}</strong> ({totalEntradas} u.)
           </p>
           <p>
-            Salidas: <strong>{movimientos.filter((m) => m.tipo === 'SALIDA').length}</strong>
+            Salidas: <strong>{movimientos.filter((m) => m.tipo === 'SALIDA').length}</strong> ({totalSalidas} u.)
           </p>
+          <div style={{ marginTop: '16px', padding: '12px', background: '#f9fafb', borderRadius: '6px', borderLeft: '3px solid #3b82f6' }}>
+            <p style={{ fontSize: '13px', color: '#52525b', marginBottom: '4px' }}>Balance neto</p>
+            <p style={{ fontSize: '20px', fontWeight: '700', color: totalEntradas - totalSalidas >= 0 ? '#16a34a' : '#dc2626' }}>
+              {totalEntradas - totalSalidas > 0 ? '+' : ''}{totalEntradas - totalSalidas} unidades
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
             <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
               🔄 Actualizar
