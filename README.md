@@ -152,9 +152,46 @@ python manage.py test
 - ✅ Validacion de stock suficiente antes de salidas
 - ✅ Historial completo de movimientos con filtros
 
+---
+
+## Sprint 2 - En Progreso ⚙️ (26-Nov-2025)
+
+**Estado:** ~60% completado  
+**Periodo:** 25-Nov-2025 al 8-Dic-2025  
+**Objetivo:** Busqueda, filtros, paginacion y mejoras UX
+
+### Funcionalidades implementadas (Sprint 2)
+
+#### Busqueda y filtros
+- ✅ Barra de busqueda en productos (nombre, marca, modelo)
+- ✅ Filtros por nivel de stock (critico ≤5, bajo ≤10, normal >10)
+- ✅ Filtros por tipo en movimientos (entradas/salidas)
+- ✅ Paginacion en productos (10 items por pagina)
+
+#### Mejoras UX
+- ✅ Modal para registro rapido de movimientos desde tarjetas de productos
+- ✅ Componentes reutilizables (Tarjeta, Boton, CampoTexto, Selector)
+- ✅ Lector de codigos de barra con auto-busqueda
+- ✅ Manejo inteligente de errores (no muestra errores en datos vacios)
+- ✅ Interfaz responsive y accesible
+- ✅ Exportacion CSV de productos y movimientos
+
+#### Correccion de bugs
+- ✅ Correccion de llamadas de servicios del frontend
+- ✅ Manejo correcto de respuestas paginadas del backend
+- ✅ Logs de debugging en consola del navegador
+
+### Pendientes
+
+- ⏳ Ordenamiento de columnas en listas
+- ⏳ Filtros de rango de fechas en movimientos
+- ⏳ Busqueda en tiempo real (debounce)
+- ⏳ Indicadores visuales de carga mas detallados
+- ⏳ Validaciones mejoradas en formularios
+
 ### Proximo Sprint
 
-**Sprint 2** (25-Nov-2025 al 8-Dic-2025): Busqueda, filtros, paginacion y optimizacion de consultas  
+**Sprint 3** (9-Dic-2025 al 22-Dic-2025): Reportes, graficos y optimizacion de rendimiento  
 
 ---
 

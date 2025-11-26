@@ -9,6 +9,7 @@ function Movimientos() {
   const [movimientos, setMovimientos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [filtroTipo, setFiltroTipo] = useState('');
 
   useEffect(() => {
     cargarDatos();
@@ -34,6 +35,15 @@ function Movimientos() {
     }
   };
 
+  const movimientosFiltrados = filtroTipo
+    ? movimientos.filter((m) => m.tipo === filtroTipo)
+    : movimientos;
+
+  const exportarCSV = () => {
+    const url = `${import.meta.env.VITE_API_URL}/movimientos/exportar_csv/`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="page animate-fade-in">
       <header className="page-header">
@@ -51,13 +61,42 @@ function Movimientos() {
           <p>
             Salidas: <strong>{movimientos.filter((m) => m.tipo === 'SALIDA').length}</strong>
           </p>
-          <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
-            Actualizar
-          </button>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+            <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
+              🔄 Actualizar
+            </button>
+            <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!movimientos.length}>
+              📥 Exportar CSV
+            </button>
+          </div>
         </div>
       </section>
 
-      <ListaMovimientos movimientos={movimientos} cargando={cargando} error={error} />
+      <div className="panel" style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label htmlFor="filtro-tipo" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+            Filtrar por tipo:
+          </label>
+          <select 
+            id="filtro-tipo"
+            value={filtroTipo} 
+            onChange={(e) => setFiltroTipo(e.target.value)}
+            style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+            aria-label="Filtro de movimientos por tipo"
+          >
+            <option value="">Todos los movimientos</option>
+            <option value="ENTRADA">Solo entradas</option>
+            <option value="SALIDA">Solo salidas</option>
+          </select>
+          {filtroTipo && (
+            <button className="btn btn-secondary" type="button" onClick={() => setFiltroTipo('')}>
+              Limpiar
+            </button>
+          )}
+        </div>
+      </div>
+
+      <ListaMovimientos movimientos={movimientosFiltrados} cargando={cargando} error={error} />
     </div>
   );
 }
