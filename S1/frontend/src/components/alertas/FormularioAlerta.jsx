@@ -34,14 +34,15 @@ function FormularioAlerta({ productos, alCrear }) {
         umbral: Number(datosFormulario.umbral) || 5,
         activa: true,
       };
-      await alertService.create(payload);
+      await alertService.crear(payload);
       setMensaje({ tipo: 'success', texto: 'Alerta configurada correctamente.' });
       setDatosFormulario({ producto: '', umbral: 5 });
       alCrear?.();
     } catch (error) {
+      console.error('Error al crear alerta:', error);
       setMensaje({
         tipo: 'error',
-        texto: error.response?.data?.detail || 'No se pudo crear la alerta.',
+        texto: error.response?.data?.detail || error.response?.data?.error || 'No se pudo crear la alerta.',
       });
     } finally {
       setCargando(false);

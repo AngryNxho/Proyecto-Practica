@@ -39,15 +39,16 @@ function FormularioMovimiento({ productos, alRegistrar }) {
       };
 
       if (datosFormulario.tipo === 'ENTRADA') {
-        await productService.registerEntry(datosFormulario.productoId, payload);
+        await productService.registrarEntrada(datosFormulario.productoId, payload);
       } else {
-        await productService.registerExit(datosFormulario.productoId, payload);
+        await productService.registrarSalida(datosFormulario.productoId, payload);
       }
 
       setMensaje({ tipo: 'success', texto: 'Movimiento registrado.' });
       setDatosFormulario(formularioInicial);
       alRegistrar?.();
     } catch (error) {
+      console.error('Error al registrar movimiento:', error);
       setMensaje({
         tipo: 'error',
         texto:
