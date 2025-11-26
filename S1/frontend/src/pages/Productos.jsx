@@ -15,11 +15,26 @@ function Productos() {
   const [filtroStock, setFiltroStock] = useState('');
   const [paginaActual, setPaginaActual] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalResultados, setTotalResultados] = useState(0);
   const [modalMovimiento, setModalMovimiento] = useState(null);
+  const [ordenamiento, setOrdenamiento] = useState('-fecha_creacion');
 
   useEffect(() => {
     cargarDatos();
   }, [paginaActual]);
+
+  // Búsqueda automática con debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (paginaActual === 1) {
+        cargarDatos();
+      } else {
+        setPaginaActual(1);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [busqueda, filtroStock, ordenamiento]);
 
   const cargarDatos = async () => {
     try {
@@ -29,6 +44,7 @@ function Productos() {
       if (filtroStock === 'bajo') parametros.stock_max = 10;
       if (filtroStock === 'critico') parametros.stock_max = 5;
       if (filtroStock === 'normal') parametros.stock_min = 11;
+      if (ordenamiento) parametros.ordering = ordenamiento;
       
       const [productosRes, alertasRes] = await Promise.all([
         productService.buscar(parametros),
@@ -37,8 +53,11 @@ function Productos() {
       
       const datos = productosRes.data;
       setProductos(datos.results || datos || []);
-      if (datos.count) {
+      if (datos.count !== undefined) {
+        setTotalResultados(datos.count);
         setTotalPaginas(Math.ceil(datos.count / 10));
+      } else {
+        setTotalResultados(datos.length || 0);
       }
       setAlertas(alertasRes.data.results || alertasRes.data || []);
       setError(null);
@@ -83,16 +102,11 @@ function Productos() {
     setBusqueda(e.target.value);
   };
 
-  const ejecutarBusqueda = () => {
-    setPaginaActual(1);
-    cargarDatos();
-  };
-
   const limpiarBusqueda = () => {
     setBusqueda('');
     setFiltroStock('');
-    setPaginaActual(1);
-    setTimeout(() => cargarDatos(), 0);
+    setOrdenamiento('-fecha_creacion');
+    if (paginaActual !== 1) setPaginaActual(1);
   };
 
   const exportarCSV = () => {
@@ -129,20 +143,21 @@ function Productos() {
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="Buscar por nombre, marca, modelo..."
+              placeholder="🔍 Buscar por nombre, marca, modelo..."
               value={busqueda}
               onChange={manejarBusqueda}
-              onKeyPress={(e) => e.key === 'Enter' && ejecutarBusqueda()}
               style={{ flex: '1 1 200px', padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
               aria-label="Campo de búsqueda de productos"
             />
-            <button className="btn btn-primary" type="button" onClick={ejecutarBusqueda}>
-              Buscar
-            </button>
-            {(busqueda || filtroStock) && (
+            {(busqueda || filtroStock || ordenamiento !== '-fecha_creacion') && (
               <button className="btn btn-secondary" type="button" onClick={limpiarBusqueda}>
-                Limpiar
+                Limpiar filtros
               </button>
+            )}
+            {totalResultados > 0 && (
+              <span style={{ fontSize: '14px', color: '#52525b', padding: '0 8px' }}>
+                {cargando ? '⏳ Buscando...' : `${totalResultados} ${totalResultados === 1 ? 'resultado' : 'resultados'}`}
+              </span>
             )}
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -161,9 +176,27 @@ function Productos() {
               <option value="bajo">Bajo (≤10)</option>
               <option value="normal">Normal (&gt;10)</option>
             </select>
-            <button className="btn btn-secondary" type="button" onClick={ejecutarBusqueda}>
-              Aplicar
-            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <label htmlFor="ordenamiento" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+              Ordenar por:
+            </label>
+            <select 
+              id="ordenamiento"
+              value={ordenamiento} 
+              onChange={(e) => setOrdenamiento(e.target.value)}
+              style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+              aria-label="Ordenamiento de productos"
+            >
+              <option value="-fecha_creacion">Más recientes</option>
+              <option value="fecha_creacion">Más antiguos</option>
+              <option value="nombre">Nombre (A-Z)</option>
+              <option value="-nombre">Nombre (Z-A)</option>
+              <option value="stock">Menor stock</option>
+              <option value="-stock">Mayor stock</option>
+              <option value="precio">Menor precio</option>
+              <option value="-precio">Mayor precio</option>
+            </select>
           </div>
         </div>
       </div>
@@ -175,15 +208,27 @@ function Productos() {
           alCancelar={manejarCancelarEdicion}
         />
         <div className="panel stats-panel">
-          <p className="stats-value">{productos.length}</p>
-          <p className="stats-label">Productos totales</p>
-          <p className="stats-value smaller">{alertas.length}</p>
-          <p className="stats-label">Alertas configuradas</p>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-            <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
-              🔄 Actualizar
+          <div style={{ marginBottom: '16px' }}>
+            <p className="stats-value">{totalResultados}</p>
+            <p className="stats-label">
+              {busqueda || filtroStock ? 'Resultados encontrados' : 'Productos totales'}
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div>
+              <p className="stats-value smaller">{productos.filter(p => p.stock <= 5).length}</p>
+              <p className="stats-label" style={{ fontSize: '12px' }}>Stock crítico</p>
+            </div>
+            <div>
+              <p className="stats-value smaller">{alertas.filter(a => a.activa).length}</p>
+              <p className="stats-label" style={{ fontSize: '12px' }}>Alertas activas</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+            <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando} style={{ width: '100%' }}>
+              {cargando ? 'Cargando...' : '🔄 Actualizar'}
             </button>
-            <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!productos.length}>
+            <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!productos.length} style={{ width: '100%' }}>
               📥 Exportar CSV
             </button>
           </div>
