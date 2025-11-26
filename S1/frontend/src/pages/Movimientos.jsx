@@ -10,6 +10,7 @@ function Movimientos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [filtroTipo, setFiltroTipo] = useState('');
+  const [ordenamiento, setOrdenamiento] = useState('-fecha');
 
   useEffect(() => {
     cargarDatos();
@@ -38,6 +39,26 @@ function Movimientos() {
   const movimientosFiltrados = filtroTipo
     ? movimientos.filter((m) => m.tipo === filtroTipo)
     : movimientos;
+
+  // Ordenar movimientos
+  const movimientosOrdenados = [...movimientosFiltrados].sort((a, b) => {
+    switch (ordenamiento) {
+      case '-fecha':
+        return new Date(b.fecha) - new Date(a.fecha);
+      case 'fecha':
+        return new Date(a.fecha) - new Date(b.fecha);
+      case 'producto':
+        return (a.producto_nombre || '').localeCompare(b.producto_nombre || '');
+      case '-producto':
+        return (b.producto_nombre || '').localeCompare(a.producto_nombre || '');
+      case '-cantidad':
+        return (b.cantidad || 0) - (a.cantidad || 0);
+      case 'cantidad':
+        return (a.cantidad || 0) - (b.cantidad || 0);
+      default:
+        return 0;
+    }
+  });
 
   const totalEntradas = movimientos.filter((m) => m.tipo === 'ENTRADA')
     .reduce((sum, m) => sum + (m.cantidad || 0), 0);
@@ -105,9 +126,28 @@ function Movimientos() {
             </button>
           )}
         </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
+          <label htmlFor="ordenamiento" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+            Ordenar por:
+          </label>
+          <select 
+            id="ordenamiento"
+            value={ordenamiento} 
+            onChange={(e) => setOrdenamiento(e.target.value)}
+            style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+            aria-label="Ordenamiento de movimientos"
+          >
+            <option value="-fecha">Más recientes</option>
+            <option value="fecha">Más antiguos</option>
+            <option value="producto">Producto (A-Z)</option>
+            <option value="-producto">Producto (Z-A)</option>
+            <option value="-cantidad">Mayor cantidad</option>
+            <option value="cantidad">Menor cantidad</option>
+          </select>
+        </div>
       </div>
 
-      <ListaMovimientos movimientos={movimientosFiltrados} cargando={cargando} error={error} />
+      <ListaMovimientos movimientos={movimientosOrdenados} cargando={cargando} error={error} />
     </div>
   );
 }
