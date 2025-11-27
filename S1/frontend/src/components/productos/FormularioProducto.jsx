@@ -10,6 +10,7 @@ const formularioInicial = {
   categoria: '',
   precio: '',
   stock: '',
+  codigo_barras: '',
 };
 
 function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
@@ -28,6 +29,7 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
         categoria: productoEditar.categoria || '',
         precio: productoEditar.precio || '',
         stock: productoEditar.stock || '',
+        codigo_barras: productoEditar.codigo_barras || '',
       });
     } else {
       setDatosFormulario(formularioInicial);
@@ -141,6 +143,15 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
             min="0"
             value={datosFormulario.stock}
             onChange={manejarCambio}
+          />
+        </label>
+        <label>
+          <span>Código de barras</span>
+          <input
+            name="codigo_barras"
+            value={datosFormulario.codigo_barras}
+            onChange={manejarCambio}
+            placeholder="Opcional"
           />
         </label>
       </div>
