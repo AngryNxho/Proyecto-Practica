@@ -44,6 +44,15 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar, alRegistrarMo
         </div>
       </div>
 
+      {producto.codigo_barras && (
+        <div style={{ padding: '8px 12px', background: '#f9fafb', borderRadius: '4px', marginTop: '8px' }}>
+          <p style={{ fontSize: '12px', color: '#71717a', margin: '0 0 2px 0' }}>Código de barras</p>
+          <p style={{ fontSize: '13px', fontWeight: '600', color: '#18181b', margin: 0, fontFamily: 'monospace' }}>
+            {producto.codigo_barras}
+          </p>
+        </div>
+      )}
+
       {producto.descripcion && (
         <p className="producto-card__descripcion">{producto.descripcion}</p>
       )}
