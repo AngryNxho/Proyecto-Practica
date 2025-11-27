@@ -24,9 +24,27 @@ function FormularioMovimiento({ productos, alRegistrar }) {
 
   const manejarEnvio = async (event) => {
     event.preventDefault();
+    
     if (!datosFormulario.productoId) {
       setMensaje({ tipo: 'error', texto: 'Selecciona un producto.' });
       return;
+    }
+
+    if (!datosFormulario.cantidad || Number(datosFormulario.cantidad) <= 0) {
+      setMensaje({ tipo: 'error', texto: 'La cantidad debe ser mayor a 0.' });
+      return;
+    }
+
+    // Validar stock suficiente para salidas
+    if (datosFormulario.tipo === 'SALIDA') {
+      const productoSeleccionado = productos.find(p => p.id === Number(datosFormulario.productoId));
+      if (productoSeleccionado && Number(datosFormulario.cantidad) > productoSeleccionado.stock) {
+        setMensaje({ 
+          tipo: 'error', 
+          texto: `Stock insuficiente. Disponible: ${productoSeleccionado.stock} unidades.` 
+        });
+        return;
+      }
     }
 
     setCargando(true);

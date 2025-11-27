@@ -44,6 +44,23 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
 
   const manejarEnvio = async (event) => {
     event.preventDefault();
+
+    // Validaciones básicas
+    if (!datosFormulario.nombre.trim()) {
+      setMensaje({ tipo: 'error', texto: 'El nombre del producto es obligatorio.' });
+      return;
+    }
+
+    if (datosFormulario.precio && Number(datosFormulario.precio) < 0) {
+      setMensaje({ tipo: 'error', texto: 'El precio no puede ser negativo.' });
+      return;
+    }
+
+    if (datosFormulario.stock && Number(datosFormulario.stock) < 0) {
+      setMensaje({ tipo: 'error', texto: 'El stock no puede ser negativo.' });
+      return;
+    }
+
     setCargando(true);
     setMensaje(null);
 
