@@ -7,6 +7,9 @@ const enlaces = [
   { to: '/productos', etiqueta: 'Productos' },
   { to: '/movimientos', etiqueta: 'Movimientos' },
   { to: '/alertas', etiqueta: 'Alertas' },
+  { to: '/scanner', etiqueta: 'Scanner' },
+  { to: '/generador', etiqueta: 'Generador' },
+  { to: '/dev', etiqueta: 'Pruebas' },
 ];
 
 function BarraNavegacion() {

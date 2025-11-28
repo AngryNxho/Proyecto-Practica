@@ -13,6 +13,25 @@ const formularioInicial = {
   codigo_barras: '',
 };
 
+// Función para generar código de barras EAN-13
+const generarCodigoBarras = () => {
+  // Genera 12 dígitos aleatorios (el último es dígito de control)
+  let codigo = '780'; // Prefijo común para códigos de barras
+  for (let i = 0; i < 9; i++) {
+    codigo += Math.floor(Math.random() * 10);
+  }
+  
+  // Calcular dígito de control EAN-13
+  let suma = 0;
+  for (let i = 0; i < 12; i++) {
+    const digito = parseInt(codigo[i]);
+    suma += (i % 2 === 0) ? digito : digito * 3;
+  }
+  const digitoControl = (10 - (suma % 10)) % 10;
+  
+  return codigo + digitoControl;
+};
+
 function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
   const [datosFormulario, setDatosFormulario] = useState(formularioInicial);
   const [cargando, setCargando] = useState(false);
@@ -42,6 +61,15 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const generarCodigo = () => {
+    const codigoGenerado = generarCodigoBarras();
+    setDatosFormulario((prev) => ({
+      ...prev,
+      codigo_barras: codigoGenerado,
+    }));
+    setMensaje({ tipo: 'success', texto: `Código generado: ${codigoGenerado}` });
   };
 
   const manejarEnvio = async (event) => {
@@ -147,12 +175,23 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
         </label>
         <label>
           <span>Código de barras</span>
-          <input
-            name="codigo_barras"
-            value={datosFormulario.codigo_barras}
-            onChange={manejarCambio}
-            placeholder="Opcional"
-          />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              name="codigo_barras"
+              value={datosFormulario.codigo_barras}
+              onChange={manejarCambio}
+              placeholder="Ej. 7801234567890"
+              style={{ flex: 1 }}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={generarCodigo}
+              title="Generar código automáticamente"
+            >
+              🎲 Generar
+            </button>
+          </div>
         </label>
       </div>
 

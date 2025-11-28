@@ -1,15 +1,17 @@
 from rest_framework import viewsets, filters
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Prefetch
+from django.utils import timezone
 from .models import Producto, Movimiento, Alerta
 from .serializers import ProductoSerializer, MovimientoSerializer, AlertaSerializer
 from .pagination import PaginacionEstandar
 from .filters import ProductoFilter, MovimientoFilter, AlertaFilter
 import csv
 from datetime import datetime
+import pytz
 
 class ProductoViewSet(viewsets.ModelViewSet):
     """ViewSet para operaciones CRUD de productos con paginación y filtros"""
@@ -34,7 +36,12 @@ class ProductoViewSet(viewsets.ModelViewSet):
         
         # Forzar consulta fresca desde la base de datos
         productos = Producto.objects.all().order_by('-fecha_creacion')
+        tz_chile = pytz.timezone('America/Santiago')
+        
         for producto in productos:
+            # Convertir UTC a hora local de Chile
+            fecha_local = producto.fecha_creacion.astimezone(tz_chile)
+            
             writer.writerow([
                 producto.id,
                 producto.nombre,
@@ -44,7 +51,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
                 producto.stock,
                 producto.precio,
                 producto.descripcion,
-                producto.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S')
+                fecha_local.strftime('%Y-%m-%d %H:%M:%S')
             ])
         
         return response
@@ -99,13 +106,18 @@ class MovimientoViewSet(viewsets.ModelViewSet):
         
         # Forzar consulta fresca desde la base de datos
         movimientos = Movimiento.objects.all().select_related('producto').order_by('-fecha')
+        tz_chile = pytz.timezone('America/Santiago')
+        
         for mov in movimientos:
+            # Convertir UTC a hora local de Chile
+            fecha_local = mov.fecha.astimezone(tz_chile)
+            
             writer.writerow([
                 mov.id,
                 mov.producto.nombre,
                 mov.tipo,
                 mov.cantidad,
-                mov.fecha.strftime('%Y-%m-%d %H:%M:%S'),
+                fecha_local.strftime('%Y-%m-%d %H:%M:%S'),
                 mov.descripcion
             ])
         
@@ -120,3 +132,117 @@ class AlertaViewSet(viewsets.ModelViewSet):
     filterset_class = AlertaFilter
     ordering_fields = ['fecha_creacion', 'umbral']
     ordering = ['-fecha_creacion']
+
+
+# ========== ENDPOINTS DE DESARROLLO - ELIMINAR EN PRODUCCIÓN ==========
+
+@api_view(['POST'])
+def reset_database(request):
+    """SOLO DESARROLLO: Borra todos los datos de la base de datos"""
+    try:
+        Movimiento.objects.all().delete()
+        Alerta.objects.all().delete()
+        Producto.objects.all().delete()
+        return Response({'message': 'Base de datos limpiada', 'status': 'success'})
+    except Exception as e:
+        return Response({'message': str(e), 'status': 'error'}, status=500)
+
+
+@api_view(['POST'])
+def populate_database(request):
+    """SOLO DESARROLLO: Inserta datos de ejemplo"""
+    try:
+        # Limpiar primero
+        Movimiento.objects.all().delete()
+        Alerta.objects.all().delete()
+        Producto.objects.all().delete()
+        
+        # Crear productos de ejemplo
+        productos_data = [
+            {
+                'nombre': 'Toner HP 85A Negro',
+                'marca': 'HP',
+                'modelo': 'CE285A',
+                'categoria': 'Toner',
+                'stock': 25,
+                'precio': 45000,
+                'descripcion': 'Toner original HP 85A para LaserJet Pro',
+                'codigo_barras': '7801234567890'
+            },
+            {
+                'nombre': 'Tinta Epson T504 Cyan',
+                'marca': 'Epson',
+                'modelo': 'T504220',
+                'categoria': 'Tinta',
+                'stock': 15,
+                'precio': 12000,
+                'descripcion': 'Tinta original Epson EcoTank',
+                'codigo_barras': '7809876543210'
+            },
+            {
+                'nombre': 'Papel Bond Carta',
+                'marca': 'Navigator',
+                'modelo': 'A4-75g',
+                'categoria': 'Papel',
+                'stock': 50,
+                'precio': 3500,
+                'descripcion': 'Resma 500 hojas papel bond carta',
+                'codigo_barras': '7802468135790'
+            },
+            {
+                'nombre': 'Toner Brother TN-760',
+                'marca': 'Brother',
+                'modelo': 'TN-760',
+                'categoria': 'Toner',
+                'stock': 8,
+                'precio': 52000,
+                'descripcion': 'Toner original Brother alto rendimiento',
+                'codigo_barras': '7805551234567'
+            },
+            {
+                'nombre': 'Cartucho Canon PG-245XL',
+                'marca': 'Canon',
+                'modelo': 'PG-245XL',
+                'categoria': 'Cartucho',
+                'stock': 3,
+                'precio': 28000,
+                'descripcion': 'Cartucho negro de alto rendimiento',
+                'codigo_barras': '7807890123456'
+            }
+        ]
+        
+        productos_creados = []
+        for data in productos_data:
+            producto = Producto.objects.create(**data)
+            productos_creados.append(producto)
+            
+            # Crear alerta para productos con stock bajo
+            if producto.stock < 10:
+                Alerta.objects.create(
+                    producto=producto,
+                    umbral=10,
+                    activa=True
+                )
+        
+        # Crear algunos movimientos de ejemplo
+        if len(productos_creados) >= 2:
+            Movimiento.objects.create(
+                producto=productos_creados[0],
+                tipo='ENTRADA',
+                cantidad=10,
+                descripcion='Entrada inicial de stock'
+            )
+            Movimiento.objects.create(
+                producto=productos_creados[1],
+                tipo='SALIDA',
+                cantidad=5,
+                descripcion='Venta a cliente'
+            )
+        
+        return Response({
+            'message': 'Base de datos poblada',
+            'status': 'success',
+            'productos': len(productos_creados)
+        })
+    except Exception as e:
+        return Response({'message': str(e), 'status': 'error'}, status=500)
