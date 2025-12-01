@@ -159,55 +159,212 @@ def populate_database(request):
         
         # Crear productos de ejemplo
         productos_data = [
+            # Impresoras
             {
-                'nombre': 'Toner HP 85A Negro',
+                'nombre': 'Impresora HP LaserJet Pro M404dn',
                 'marca': 'HP',
-                'modelo': 'CE285A',
-                'categoria': 'Toner',
-                'stock': 25,
-                'precio': 45000,
-                'descripcion': 'Toner original HP 85A para LaserJet Pro',
+                'modelo': 'M404dn',
+                'categoria': 'Impresora',
+                'stock': 3,
+                'precio': 285000,
+                'descripcion': 'Impresora láser monocromática, 38 ppm, dúplex',
                 'codigo_barras': '7801234567890'
             },
             {
-                'nombre': 'Tinta Epson T504 Cyan',
+                'nombre': 'Impresora Canon Pixma G3110',
+                'marca': 'Canon',
+                'modelo': 'G3110',
+                'categoria': 'Impresora',
+                'stock': 5,
+                'precio': 195000,
+                'descripcion': 'Multifuncional de tinta continua WiFi',
+                'codigo_barras': '7801234567891'
+            },
+            {
+                'nombre': 'Impresora Epson EcoTank L3250',
                 'marca': 'Epson',
-                'modelo': 'T504220',
-                'categoria': 'Tinta',
+                'modelo': 'L3250',
+                'categoria': 'Impresora',
+                'stock': 4,
+                'precio': 220000,
+                'descripcion': 'Multifuncional con tanque de tinta WiFi',
+                'codigo_barras': '7801234567892'
+            },
+            {
+                'nombre': 'Impresora Brother DCP-L2540DW',
+                'marca': 'Brother',
+                'modelo': 'DCP-L2540DW',
+                'categoria': 'Impresora',
+                'stock': 2,
+                'precio': 175000,
+                'descripcion': 'Multifuncional láser monocromática WiFi',
+                'codigo_barras': '7801234567893'
+            },
+            # Tóners Negro
+            {
+                'nombre': 'Tóner HP 414A Negro',
+                'marca': 'HP',
+                'modelo': 'W2020A',
+                'categoria': 'Toner',
                 'stock': 15,
-                'precio': 12000,
-                'descripcion': 'Tinta original Epson EcoTank',
-                'codigo_barras': '7809876543210'
+                'precio': 48000,
+                'descripcion': 'Tóner original negro para HP Color LaserJet Pro',
+                'codigo_barras': '7801234567894'
             },
             {
-                'nombre': 'Papel Bond Carta',
-                'marca': 'Navigator',
-                'modelo': 'A4-75g',
-                'categoria': 'Papel',
-                'stock': 50,
-                'precio': 3500,
-                'descripcion': 'Resma 500 hojas papel bond carta',
-                'codigo_barras': '7802468135790'
+                'nombre': 'Tóner Canon 046 Negro',
+                'marca': 'Canon',
+                'modelo': '046BK',
+                'categoria': 'Toner',
+                'stock': 12,
+                'precio': 45000,
+                'descripcion': 'Tóner original negro para Canon i-SENSYS',
+                'codigo_barras': '7801234567895'
             },
             {
-                'nombre': 'Toner Brother TN-760',
+                'nombre': 'Tóner Brother TN-760',
                 'marca': 'Brother',
                 'modelo': 'TN-760',
                 'categoria': 'Toner',
                 'stock': 8,
                 'precio': 52000,
-                'descripcion': 'Toner original Brother alto rendimiento',
-                'codigo_barras': '7805551234567'
+                'descripcion': 'Tóner original alto rendimiento negro',
+                'codigo_barras': '7801234567896'
+            },
+            # Tóners Cyan
+            {
+                'nombre': 'Tóner HP 414A Cyan',
+                'marca': 'HP',
+                'modelo': 'W2021A',
+                'categoria': 'Toner',
+                'stock': 10,
+                'precio': 62000,
+                'descripcion': 'Tóner original cyan para HP Color LaserJet Pro',
+                'codigo_barras': '7801234567897'
             },
             {
-                'nombre': 'Cartucho Canon PG-245XL',
+                'nombre': 'Tóner Canon 046 Cyan',
                 'marca': 'Canon',
-                'modelo': 'PG-245XL',
-                'categoria': 'Cartucho',
-                'stock': 3,
-                'precio': 28000,
-                'descripcion': 'Cartucho negro de alto rendimiento',
-                'codigo_barras': '7807890123456'
+                'modelo': '046C',
+                'categoria': 'Toner',
+                'stock': 9,
+                'precio': 58000,
+                'descripcion': 'Tóner original cyan para Canon i-SENSYS',
+                'codigo_barras': '7801234567898'
+            },
+            # Tóners Magenta
+            {
+                'nombre': 'Tóner HP 414A Magenta',
+                'marca': 'HP',
+                'modelo': 'W2023A',
+                'categoria': 'Toner',
+                'stock': 11,
+                'precio': 62000,
+                'descripcion': 'Tóner original magenta para HP Color LaserJet Pro',
+                'codigo_barras': '7801234567899'
+            },
+            {
+                'nombre': 'Tóner Canon 046 Magenta',
+                'marca': 'Canon',
+                'modelo': '046M',
+                'categoria': 'Toner',
+                'stock': 7,
+                'precio': 58000,
+                'descripcion': 'Tóner original magenta para Canon i-SENSYS',
+                'codigo_barras': '7801234567900'
+            },
+            # Tóners Yellow
+            {
+                'nombre': 'Tóner HP 414A Amarillo',
+                'marca': 'HP',
+                'modelo': 'W2022A',
+                'categoria': 'Toner',
+                'stock': 10,
+                'precio': 62000,
+                'descripcion': 'Tóner original amarillo para HP Color LaserJet Pro',
+                'codigo_barras': '7801234567901'
+            },
+            {
+                'nombre': 'Tóner Canon 046 Amarillo',
+                'marca': 'Canon',
+                'modelo': '046Y',
+                'categoria': 'Toner',
+                'stock': 8,
+                'precio': 58000,
+                'descripcion': 'Tóner original amarillo para Canon i-SENSYS',
+                'codigo_barras': '7801234567902'
+            },
+            # Tintas
+            {
+                'nombre': 'Tinta Epson 544 Negro',
+                'marca': 'Epson',
+                'modelo': 'T544120',
+                'categoria': 'Tinta',
+                'stock': 20,
+                'precio': 12000,
+                'descripcion': 'Botella de tinta negra 65ml para EcoTank',
+                'codigo_barras': '7801234567903'
+            },
+            {
+                'nombre': 'Tinta Epson 544 Cyan',
+                'marca': 'Epson',
+                'modelo': 'T544220',
+                'categoria': 'Tinta',
+                'stock': 18,
+                'precio': 12000,
+                'descripcion': 'Botella de tinta cyan 65ml para EcoTank',
+                'codigo_barras': '7801234567904'
+            },
+            {
+                'nombre': 'Tinta Canon GI-790 Negro',
+                'marca': 'Canon',
+                'modelo': 'GI-790BK',
+                'categoria': 'Tinta',
+                'stock': 16,
+                'precio': 11500,
+                'descripcion': 'Botella de tinta negra para Pixma G',
+                'codigo_barras': '7801234567905'
+            },
+            # Consumibles
+            {
+                'nombre': 'Papel Bond Carta Navigator',
+                'marca': 'Navigator',
+                'modelo': 'A4-75g',
+                'categoria': 'Papel',
+                'stock': 50,
+                'precio': 3500,
+                'descripcion': 'Resma 500 hojas papel bond carta 75g',
+                'codigo_barras': '7801234567906'
+            },
+            {
+                'nombre': 'Papel Fotográfico HP Premium',
+                'marca': 'HP',
+                'modelo': 'Q8692A',
+                'categoria': 'Papel',
+                'stock': 25,
+                'precio': 8500,
+                'descripcion': 'Papel fotográfico glossy 50 hojas A4',
+                'codigo_barras': '7801234567907'
+            },
+            {
+                'nombre': 'Tambor Brother DR-2340',
+                'marca': 'Brother',
+                'modelo': 'DR-2340',
+                'categoria': 'Tambor',
+                'stock': 4,
+                'precio': 85000,
+                'descripcion': 'Unidad de tambor original 12000 páginas',
+                'codigo_barras': '7801234567908'
+            },
+            {
+                'nombre': 'Kit Mantenimiento HP M404',
+                'marca': 'HP',
+                'modelo': 'J8J88A',
+                'categoria': 'Kit',
+                'stock': 2,
+                'precio': 125000,
+                'descripcion': 'Kit de mantenimiento 225K páginas',
+                'codigo_barras': '7801234567909'
             }
         ]
         

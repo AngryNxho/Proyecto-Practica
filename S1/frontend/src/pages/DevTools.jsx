@@ -85,7 +85,7 @@ function DevTools() {
 
         <div className="tool-card">
           <h2>Insertar Datos de Ejemplo</h2>
-          <p>Borra los datos actuales e inserta 5 productos de ejemplo con sus alertas y movimientos.</p>
+          <p>Borra los datos actuales e inserta 20 productos de ejemplo (impresoras, tóners CMYK, tintas, papel) con sus alertas y movimientos.</p>
           <button 
             className="btn btn-primary btn-lg" 
             onClick={populateDatabase}

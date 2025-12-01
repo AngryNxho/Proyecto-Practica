@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { productService } from '../services/inventoryService';
 import JsBarcode from 'jsbarcode';
+import { QRCodeSVG } from 'qrcode.react';
 import '../styles/GeneradorCodigoBarras.css';
 
 function GeneradorCodigoBarras() {
@@ -103,7 +104,22 @@ function GeneradorCodigoBarras() {
                     <h3>{productoSeleccionado.nombre}</h3>
                     {productoSeleccionado.marca && <p>Marca: {productoSeleccionado.marca}</p>}
                     {productoSeleccionado.modelo && <p>Modelo: {productoSeleccionado.modelo}</p>}
-                    <svg id="barcode-svg"></svg>
+                    
+                    <div className="codigos-container">
+                      <div className="barcode-section">
+                        <svg id="barcode-svg"></svg>
+                      </div>
+                      
+                      <div className="qr-section">
+                        <QRCodeSVG 
+                          value={productoSeleccionado.codigo_barras}
+                          size={120}
+                          level="M"
+                          includeMargin={true}
+                        />
+                        <p className="qr-label">Escanear con móvil</p>
+                      </div>
+                    </div>
                   </div>
                   <button 
                     className="btn btn-primary btn-lg"
