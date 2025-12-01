@@ -137,13 +137,13 @@ function GeneradorCodigoBarras() {
           <h3>Cómo usar</h3>
           <ol>
             <li>Selecciona un producto de la lista</li>
-            <li>Se generará automáticamente la etiqueta con código de barras</li>
+            <li>Se generará automáticamente la etiqueta con código de barras y QR</li>
             <li>Haz clic en "Imprimir Etiqueta"</li>
             <li>Configura tu impresora y imprime</li>
             <li>Pega la etiqueta en el producto físico</li>
           </ol>
           <p className="nota">
-            <strong>Nota:</strong> Solo se muestran productos que tienen código de barras asignado.
+            <strong>Nota:</strong> El código QR permite escaneo rápido con smartphones. El código de barras es para lectores láser tradicionales.
           </p>
         </div>
       </div>
