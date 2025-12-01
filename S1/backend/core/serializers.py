@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Producto, Movimiento, Alerta
+from django.db import transaction
 
 
 class ProductoSerializer(serializers.ModelSerializer):

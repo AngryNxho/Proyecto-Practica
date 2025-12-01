@@ -33,7 +33,10 @@ class Producto(models.Model):
         return False
     
     def registrar_entrada(self, cantidad, descripcion=''):
-        """Registra una entrada de stock"""
+        """Registra una entrada de stock con validación"""
+        if cantidad <= 0:
+            raise ValueError("La cantidad debe ser mayor a cero")
+        
         movimiento = Movimiento.objects.create(
             producto=self,
             tipo='ENTRADA',
@@ -41,14 +44,21 @@ class Producto(models.Model):
             descripcion=descripcion
         )
         self.stock += cantidad
-        self.save()
+        self.save(update_fields=['stock'])
         self._verificar_alertas()
         return movimiento
     
     def registrar_salida(self, cantidad, descripcion=''):
-        """Registra una salida de stock"""
+        """Registra una salida de stock con validación estricta"""
+        if cantidad <= 0:
+            raise ValueError("La cantidad debe ser mayor a cero")
+        
         if cantidad > self.stock:
-            raise ValueError(f"Stock insuficiente. Disponible: {self.stock}, solicitado: {cantidad}")
+            raise ValueError(
+                f"Stock insuficiente para '{self.nombre}'. "
+                f"Disponible: {self.stock}, Solicitado: {cantidad}, "
+                f"Faltante: {cantidad - self.stock}"
+            )
         
         movimiento = Movimiento.objects.create(
             producto=self,
@@ -57,7 +67,7 @@ class Producto(models.Model):
             descripcion=descripcion
         )
         self.stock -= cantidad
-        self.save()
+        self.save(update_fields=['stock'])
         self._verificar_alertas()
         return movimiento
     

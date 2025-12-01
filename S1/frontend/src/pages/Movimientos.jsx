@@ -10,6 +10,8 @@ function Movimientos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [filtroTipo, setFiltroTipo] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroProducto, setFiltroProducto] = useState('');
   const [ordenamiento, setOrdenamiento] = useState('-fecha');
 
   useEffect(() => {
@@ -36,9 +38,23 @@ function Movimientos() {
     }
   };
 
-  const movimientosFiltrados = filtroTipo
-    ? movimientos.filter((m) => m.tipo === filtroTipo)
-    : movimientos;
+  const movimientosFiltrados = movimientos.filter(m => {
+    // Filtro por tipo
+    if (filtroTipo && m.tipo !== filtroTipo) return false;
+    
+    // Filtro por producto
+    if (filtroProducto && m.producto !== parseInt(filtroProducto)) return false;
+    
+    // B\u00fasqueda en nombre de producto o descripci\u00f3n
+    if (busqueda) {
+      const searchLower = busqueda.toLowerCase();
+      const matchNombre = (m.producto_nombre || '').toLowerCase().includes(searchLower);
+      const matchDescripcion = (m.descripcion || '').toLowerCase().includes(searchLower);
+      if (!matchNombre && !matchDescripcion) return false;
+    }
+    
+    return true;
+  });
 
   // Ordenar movimientos
   const movimientosOrdenados = [...movimientosFiltrados].sort((a, b) => {
@@ -105,7 +121,48 @@ function Movimientos() {
       </section>
 
       <div className="panel" style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
+          <input
+            type="text"
+            placeholder="Buscar por producto o descripción..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            style={{ flex: '1 1 250px', padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
+            aria-label="Campo de búsqueda de movimientos"
+          />
+          {(busqueda || filtroTipo || filtroProducto) && (
+            <button 
+              className="btn btn-secondary" 
+              type="button" 
+              onClick={() => {
+                setBusqueda('');
+                setFiltroTipo('');
+                setFiltroProducto('');
+              }}
+            >
+              Limpiar filtros
+            </button>
+          )}
+          <span style={{ fontSize: '14px', color: '#52525b', padding: '0 8px' }}>
+            {movimientosFiltrados.length} {movimientosFiltrados.length === 1 ? 'resultado' : 'resultados'}
+          </span>
+        </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label htmlFor="filtro-producto" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+            Producto:
+          </label>
+          <select 
+            id="filtro-producto"
+            value={filtroProducto} 
+            onChange={(e) => setFiltroProducto(e.target.value)}
+            style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+            aria-label="Filtro de movimientos por producto"
+          >
+            <option value="">Todos los productos</option>
+            {productos.map(p => (
+              <option key={p.id} value={p.id}>{p.nombre}</option>
+            ))}
+          </select>
           <label htmlFor="filtro-tipo" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
             Filtrar por tipo:
           </label>
@@ -120,11 +177,6 @@ function Movimientos() {
             <option value="ENTRADA">Solo entradas</option>
             <option value="SALIDA">Solo salidas</option>
           </select>
-          {filtroTipo && (
-            <button className="btn btn-secondary" type="button" onClick={() => setFiltroTipo('')}>
-              Limpiar
-            </button>
-          )}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
           <label htmlFor="ordenamiento" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
