@@ -37,6 +37,12 @@ function GeneradorCodigoBarras() {
 
   const generarImagenBarcode = (codigo) => {
     try {
+      // Limpiar el SVG anterior
+      const svgElement = document.getElementById("barcode-svg");
+      if (svgElement) {
+        svgElement.innerHTML = '';
+      }
+      
       JsBarcode("#barcode-svg", codigo, {
         format: "EAN13",
         width: 2,
@@ -57,8 +63,8 @@ function GeneradorCodigoBarras() {
   return (
     <div className="generador-container">
       <header className="page-header">
-        <h1>Imprimir Códigos de Barras</h1>
-        <p>Selecciona un producto para generar su etiqueta con código de barras</p>
+        <h1>Etiquetas de Productos</h1>
+        <p>Selecciona un producto para imprimir su etiqueta con código de barras</p>
       </header>
 
       <div className="generador-content">

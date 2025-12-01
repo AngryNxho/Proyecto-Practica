@@ -8,7 +8,7 @@ const enlaces = [
   { to: '/movimientos', etiqueta: 'Movimientos' },
   { to: '/alertas', etiqueta: 'Alertas' },
   { to: '/scanner', etiqueta: 'Scanner' },
-  { to: '/generador', etiqueta: 'Generador' },
+  { to: '/generador', etiqueta: 'Etiquetas' },
   { to: '/dev', etiqueta: 'Pruebas' },
 ];
 
