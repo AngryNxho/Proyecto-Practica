@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 
 class Producto(models.Model):
@@ -37,15 +37,16 @@ class Producto(models.Model):
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser mayor a cero")
         
-        movimiento = Movimiento.objects.create(
-            producto=self,
-            tipo='ENTRADA',
-            cantidad=cantidad,
-            descripcion=descripcion
-        )
-        self.stock += cantidad
-        self.save(update_fields=['stock'])
-        self._verificar_alertas()
+        with transaction.atomic():
+            movimiento = Movimiento.objects.create(
+                producto=self,
+                tipo='ENTRADA',
+                cantidad=cantidad,
+                descripcion=descripcion
+            )
+            self.stock += cantidad
+            self.save(update_fields=['stock'])
+            self._verificar_alertas()
         return movimiento
     
     def registrar_salida(self, cantidad, descripcion=''):
@@ -60,15 +61,16 @@ class Producto(models.Model):
                 f"Faltante: {cantidad - self.stock}"
             )
         
-        movimiento = Movimiento.objects.create(
-            producto=self,
-            tipo='SALIDA',
-            cantidad=cantidad,
-            descripcion=descripcion
-        )
-        self.stock -= cantidad
-        self.save(update_fields=['stock'])
-        self._verificar_alertas()
+        with transaction.atomic():
+            movimiento = Movimiento.objects.create(
+                producto=self,
+                tipo='SALIDA',
+                cantidad=cantidad,
+                descripcion=descripcion
+            )
+            self.stock -= cantidad
+            self.save(update_fields=['stock'])
+            self._verificar_alertas()
         return movimiento
     
     def _verificar_alertas(self):
