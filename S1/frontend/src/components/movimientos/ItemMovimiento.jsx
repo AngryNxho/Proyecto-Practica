@@ -1,7 +1,7 @@
 import { formatDateTime } from '../../utils/utils';
 import './ItemMovimiento.css';
 
-function ItemMovimiento({ movimiento }) {
+function ItemMovimiento({ movimiento, onVerDetalle }) {
   return (
     <article className={`movimiento-item tipo-${movimiento.tipo.toLowerCase()}`}>
       <div>
@@ -14,6 +14,15 @@ function ItemMovimiento({ movimiento }) {
       </div>
       {movimiento.descripcion && (
         <p className="movimiento-item__descripcion">{movimiento.descripcion}</p>
+      )}
+      {onVerDetalle && (
+        <button 
+          className="btn-ver-detalle"
+          onClick={() => onVerDetalle(movimiento)}
+          title="Ver detalles completos"
+        >
+          👁️ Ver detalles
+        </button>
       )}
     </article>
   );

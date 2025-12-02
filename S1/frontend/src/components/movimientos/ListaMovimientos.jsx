@@ -1,7 +1,7 @@
 import ItemMovimiento from './ItemMovimiento';
 import './ListaMovimientos.css';
 
-function ListaMovimientos({ movimientos, cargando, error }) {
+function ListaMovimientos({ movimientos, cargando, error, onVerDetalle }) {
   if (cargando) {
     return (
       <div className="panel">
@@ -22,7 +22,11 @@ function ListaMovimientos({ movimientos, cargando, error }) {
   return (
     <div className="movimientos-list">
       {movimientos.map((movimiento) => (
-        <ItemMovimiento key={movimiento.id} movimiento={movimiento} />
+        <ItemMovimiento 
+          key={movimiento.id} 
+          movimiento={movimiento}
+          onVerDetalle={onVerDetalle}
+        />
       ))}
     </div>
   );

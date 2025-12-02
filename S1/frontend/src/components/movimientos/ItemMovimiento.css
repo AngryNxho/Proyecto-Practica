@@ -43,3 +43,23 @@
   color: #6f7694;
   font-size: 0.92rem;
 }
+
+.btn-ver-detalle {
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #18181b;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.btn-ver-detalle:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}

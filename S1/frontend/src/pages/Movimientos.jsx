@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import FormularioMovimiento from '../components/movimientos/FormularioMovimiento';
 import ListaMovimientos from '../components/movimientos/ListaMovimientos';
+import ModalDetalleMovimiento from '../components/movimientos/ModalDetalleMovimiento';
 import { productService, movementService } from '../services/inventoryService';
 import './Movimientos.css';
 
@@ -13,6 +14,8 @@ function Movimientos() {
   const [busqueda, setBusqueda] = useState('');
   const [filtroProducto, setFiltroProducto] = useState('');
   const [ordenamiento, setOrdenamiento] = useState('-fecha');
+  const [movimientoSeleccionado, setMovimientoSeleccionado] = useState(null);
+  const [mostrarModal, setMostrarModal] = useState(false);
 
   useEffect(() => {
     cargarDatos();
@@ -84,6 +87,16 @@ function Movimientos() {
   const exportarCSV = () => {
     const url = `${import.meta.env.VITE_API_URL}/movimientos/exportar_csv/`;
     window.open(url, '_blank');
+  };
+
+  const abrirDetalle = (movimiento) => {
+    setMovimientoSeleccionado(movimiento);
+    setMostrarModal(true);
+  };
+
+  const cerrarModal = () => {
+    setMostrarModal(false);
+    setMovimientoSeleccionado(null);
   };
 
   return (
@@ -199,7 +212,19 @@ function Movimientos() {
         </div>
       </div>
 
-      <ListaMovimientos movimientos={movimientosOrdenados} cargando={cargando} error={error} />
+      <ListaMovimientos 
+        movimientos={movimientosOrdenados} 
+        cargando={cargando} 
+        error={error}
+        onVerDetalle={abrirDetalle}
+      />
+
+      {mostrarModal && movimientoSeleccionado && (
+        <ModalDetalleMovimiento 
+          movimiento={movimientoSeleccionado}
+          onCerrar={cerrarModal}
+        />
+      )}
     </div>
   );
 }
