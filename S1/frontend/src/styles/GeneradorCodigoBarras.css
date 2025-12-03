@@ -1,7 +1,191 @@
 .generador-container {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+/* Estadísticas */
+.estadisticas-etiquetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.stat-numero {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  opacity: 0.95;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Filtros */
+.filtros-etiquetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e4e4e7;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtro-grupo label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #18181b;
+}
+
+/* Opciones de etiqueta */
+.opciones-etiqueta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #fef3c7;
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+}
+
+/* Información del producto en etiqueta */
+.info-producto-etiqueta {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.info-producto-etiqueta h3 {
+  margin: 0 0 12px 0;
+  color: #18181b;
+  font-size: 18px;
+}
+
+.info-producto-etiqueta p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #52525b;
+}
+
+.precio-etiqueta {
+  font-size: 16px !important;
+  color: #16a34a !important;
+  font-weight: 600;
+  margin-top: 8px !important;
+}
+
+/* Tipo de código */
+.codigo-tipo {
+  font-size: 12px;
+  font-weight: 600;
+  color: #71717a;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Acciones */
+.acciones-etiqueta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-secondary {
+  background: #71717a;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #52525b;
+}
+
+/* Formatos de código */
+.info-formatos {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #e4e4e7;
+}
+
+.info-formatos h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #18181b;
+}
+
+.info-formatos ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.info-formatos li {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #52525b;
+}
+
+.info-formatos strong {
+  color: #18181b;
+}
+
+/* Estadísticas de categorías */
+.categoria-stats {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #e4e4e7;
+}
+
+.categoria-stats h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #18181b;
+}
+
+.categoria-stats ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.categoria-stats li {
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #52525b;
 }
 
 .generador-content {

@@ -4,6 +4,7 @@ import ListaMovimientos from '../components/movimientos/ListaMovimientos';
 import ModalDetalleMovimiento from '../components/movimientos/ModalDetalleMovimiento';
 import { productService, movementService } from '../services/inventoryService';
 import './Movimientos.css';
+import '../styles/EstadisticasMovimientos.css';
 
 function Movimientos() {
   const [productos, setProductos] = useState([]);
@@ -99,33 +100,98 @@ function Movimientos() {
     setMovimientoSeleccionado(null);
   };
 
+  const obtenerEstadisticas = () => {
+    const entradas = movimientos.filter(m => m.tipo === 'ENTRADA');
+    const salidas = movimientos.filter(m => m.tipo === 'SALIDA');
+    
+    const totalEntradas = entradas.reduce((sum, m) => sum + (m.cantidad || 0), 0);
+    const totalSalidas = salidas.reduce((sum, m) => sum + (m.cantidad || 0), 0);
+    
+    return {
+      totalMovimientos: movimientos.length,
+      totalEntradas: entradas.length,
+      totalSalidas: salidas.length,
+      cantidadEntradas: totalEntradas,
+      cantidadSalidas: totalSalidas,
+      balance: totalEntradas - totalSalidas
+    };
+  };
+
+  const exportarMovimientosCSV = async () => {
+    try {
+      const response = await movementService.exportarCSV();
+      const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `movimientos_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      alert('Error al exportar movimientos');
+    }
+  };
+
   return (
     <div className="page animate-fade-in">
       <header className="page-header">
         <h1 className="page-title">Movimientos de inventario</h1>
-        <p className="page-description">Registra entradas y salidas respaldadas en la API.</p>
+        <p className="page-description">Registra entradas y salidas de stock con validación automática.</p>
       </header>
+
+      {/* Estadísticas mejoradas */}
+      <div className="estadisticas-movimientos">
+        <div className="stat-card-mov entrada">
+          <div className="stat-icono">📥</div>
+          <div className="stat-info">
+            <span className="stat-numero">{obtenerEstadisticas().totalEntradas}</span>
+            <span className="stat-label">Entradas</span>
+            <span className="stat-detalle">{obtenerEstadisticas().cantidadEntradas} unidades</span>
+          </div>
+        </div>
+        <div className="stat-card-mov salida">
+          <div className="stat-icono">📤</div>
+          <div className="stat-info">
+            <span className="stat-numero">{obtenerEstadisticas().totalSalidas}</span>
+            <span className="stat-label">Salidas</span>
+            <span className="stat-detalle">{obtenerEstadisticas().cantidadSalidas} unidades</span>
+          </div>
+        </div>
+        <div className="stat-card-mov balance">
+          <div className="stat-icono">⚖️</div>
+          <div className="stat-info">
+            <span className="stat-numero">{obtenerEstadisticas().balance}</span>
+            <span className="stat-label">Balance neto</span>
+            <span className="stat-detalle">{obtenerEstadisticas().totalMovimientos} movimientos</span>
+          </div>
+        </div>
+      </div>
 
       <section className="grid-two">
         <FormularioMovimiento productos={productos} alRegistrar={cargarDatos} />
-        <div className="panel resumen-movimientos">
-          <p>Total movimientos: <strong>{movimientos.length}</strong></p>
-          <p>
-            Entradas: <strong>{movimientos.filter((m) => m.tipo === 'ENTRADA').length}</strong> ({totalEntradas} u.)
-          </p>
-          <p>
-            Salidas: <strong>{movimientos.filter((m) => m.tipo === 'SALIDA').length}</strong> ({totalSalidas} u.)
-          </p>
-          <div style={{ marginTop: '16px', padding: '12px', background: '#f9fafb', borderRadius: '6px', borderLeft: '3px solid #3b82f6' }}>
-            <p style={{ fontSize: '13px', color: '#52525b', marginBottom: '4px' }}>Balance neto</p>
-            <p style={{ fontSize: '20px', fontWeight: '700', color: totalEntradas - totalSalidas >= 0 ? '#16a34a' : '#dc2626' }}>
-              {totalEntradas - totalSalidas > 0 ? '+' : ''}{totalEntradas - totalSalidas} unidades
+        <div className="panel resumen-movimientos-acciones">
+          <h3>⚡ Acciones rápidas</h3>
+          <div className="acciones-grid">
+            <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
+              🔄 Actualizar lista
+            </button>
+            <button className="btn btn-success" type="button" onClick={exportarMovimientosCSV}>
+              📊 Exportar CSV
+            </button>
+          </div>
+          
+          <div className="info-balance">
+            <p className="info-label">Balance total del sistema</p>
+            <p className={`balance-valor ${obtenerEstadisticas().balance >= 0 ? 'positivo' : 'negativo'}`}>
+              {obtenerEstadisticas().balance > 0 ? '+' : ''}{obtenerEstadisticas().balance} unidades
+            </p>
+            <p className="info-detalle">
+              Último movimiento: {movimientos.length > 0 ? new Date(movimientos[0]?.fecha).toLocaleDateString('es-CL') : 'N/A'}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-            <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
-              🔄 Actualizar
-            </button>
+        </div>
             <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!movimientos.length}>
               📥 Exportar CSV
             </button>
