@@ -45,7 +45,7 @@ function GeneradorCodigoBarras() {
       }
       
       JsBarcode("#barcode-svg", codigo, {
-        format: "EAN13",
+        format: "CODE128",
         width: 2,
         height: 100,
         displayValue: true,
