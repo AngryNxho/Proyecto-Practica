@@ -3,8 +3,7 @@
 **Estudiante:** Ignacio Esteban Manriquez Silva  
 **Empresa:** Asesorias y Gestiones Tecnologicas SPA (TISOL)  
 **Periodo:** 10/11/2025 - 15/01/2026  
-**Metodologia:** Scrum (Sprints de 14 dias)  
-**Ultima actualizacion:** 03/12/2025 - 16:40
+**Metodologia:** Scrum (Sprints de 14 dias)
 
 Sistema web full-stack para controlar inventario de productos de impresion (impresoras, toners, repuestos), con gestion de movimientos de stock, alertas automaticas y dashboard con reportes.
 
