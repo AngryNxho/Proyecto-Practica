@@ -22,6 +22,7 @@ export const alertService = {
   obtenerTodos: () => api.get('/alertas/'),
   buscar: (params) => api.get('/alertas/', { params }),
   obtenerPorId: (id) => api.get(`/alertas/${id}/`),
+  obtenerActivas: () => api.get('/alertas/activas/'),
   crear: (data) => api.post('/alertas/', data),
   actualizar: (id, data) => api.put(`/alertas/${id}/`, data),
   eliminar: (id) => api.delete(`/alertas/${id}/`),

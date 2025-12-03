@@ -163,6 +163,16 @@ class AlertaViewSet(viewsets.ModelViewSet):
     filterset_class = AlertaFilter
     ordering_fields = ['fecha_creacion', 'umbral']
     ordering = ['-fecha_creacion']
+    
+    @action(detail=False, methods=['get'])
+    def activas(self, request):
+        """Obtiene solo las alertas activas"""
+        alertas_activas = self.queryset.filter(activa=True)
+        serializer = self.get_serializer(alertas_activas, many=True)
+        return Response({
+            'total': alertas_activas.count(),
+            'alertas': serializer.data
+        })
 
 
 # ========== ENDPOINTS DE DESARROLLO - ELIMINAR EN PRODUCCIÓN ==========

@@ -26,12 +26,12 @@ function Dashboard() {
       const [estadisticasRes, movimientosRes, alertasRes] = await Promise.all([
         productService.obtenerEstadisticas(),
         movimientoService.buscar({ page_size: 5, ordering: '-fecha' }),
-        alertService.buscar({ activa: true })
+        alertService.obtenerActivas()
       ]);
 
       setEstadisticas(estadisticasRes.data);
       setMovimientosRecientes(movimientosRes.data.results || movimientosRes.data || []);
-      setAlertasActivas(alertasRes.data.results || alertasRes.data || []);
+      setAlertasActivas(alertasRes.data.alertas || []);
     } catch (err) {
       console.error('Error al cargar datos del dashboard:', err);
     } finally {

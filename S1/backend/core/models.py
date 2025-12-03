@@ -75,9 +75,13 @@ class Producto(models.Model):
     
     def _verificar_alertas(self):
         """Verifica y actualiza el estado de las alertas según el stock actual"""
+        # Si no hay alertas configuradas, crear una por defecto con umbral de 10
+        if not self.alertas.exists():
+            Alerta.objects.create(producto=self, umbral=10, activa=False)
+        
         for alerta in self.alertas.all():
             alerta.activa = self.stock < alerta.umbral
-            alerta.save()
+            alerta.save(update_fields=['activa'])
 
 
 class Movimiento(models.Model):
