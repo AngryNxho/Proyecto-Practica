@@ -224,6 +224,20 @@ function Productos() {
               <p className="stats-label" style={{ fontSize: '12px' }}>Alertas activas</p>
             </div>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div>
+              <p className="stats-value smaller" style={{ color: '#10b981' }}>
+                {productos.filter(p => p.stock > 10).length}
+              </p>
+              <p className="stats-label" style={{ fontSize: '12px' }}>Stock normal</p>
+            </div>
+            <div>
+              <p className="stats-value smaller" style={{ color: '#f59e0b' }}>
+                {productos.filter(p => p.stock > 5 && p.stock <= 10).length}
+              </p>
+              <p className="stats-label" style={{ fontSize: '12px' }}>Stock bajo</p>
+            </div>
+          </div>
           <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
             <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando} style={{ width: '100%' }}>
               {cargando ? 'Cargando...' : '🔄 Actualizar'}

@@ -20,9 +20,40 @@ class ProductoViewSet(viewsets.ModelViewSet):
     pagination_class = PaginacionEstandar
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = ProductoFilter
-    search_fields = ['nombre', 'marca', 'modelo', 'descripcion']
-    ordering_fields = ['nombre', 'stock', 'precio', 'fecha_creacion']
+    search_fields = ['nombre', 'marca', 'modelo', 'descripcion', 'categoria']
+    ordering_fields = ['nombre', 'stock', 'precio', 'fecha_creacion', 'categoria']
     ordering = ['-fecha_creacion']
+    
+    @action(detail=False, methods=['get'])
+    def estadisticas(self, request):
+        """Obtiene estadísticas generales del inventario"""
+        productos = Producto.objects.all()
+        
+        total = productos.count()
+        critico = productos.filter(stock__lte=5).count()
+        bajo = productos.filter(stock__gt=5, stock__lte=10).count()
+        normal = productos.filter(stock__gt=10).count()
+        
+        # Calcular valor total del inventario
+        valor_total = sum(p.stock * p.precio for p in productos)
+        
+        # Productos por categoría
+        categorias = {}
+        for producto in productos:
+            cat = producto.categoria
+            if cat not in categorias:
+                categorias[cat] = {'cantidad': 0, 'stock_total': 0}
+            categorias[cat]['cantidad'] += 1
+            categorias[cat]['stock_total'] += producto.stock
+        
+        return Response({
+            'total_productos': total,
+            'stock_critico': critico,
+            'stock_bajo': bajo,
+            'stock_normal': normal,
+            'valor_inventario': round(valor_total, 2),
+            'por_categoria': categorias
+        })
     
     @action(detail=False, methods=['get'])
     def exportar_csv(self, request):

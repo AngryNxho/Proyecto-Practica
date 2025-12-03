@@ -1,6 +1,7 @@
 ﻿import { Routes, Route, Navigate } from 'react-router-dom';
 import BarraNavegacion from './components/layout/BarraNavegacion';
 import Tablero from './pages/Tablero';
+import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
 import Movimientos from './pages/Movimientos';
 import Alertas from './pages/Alertas';
@@ -16,6 +17,7 @@ function App() {
       <main className="app-content">
         <Routes>
           <Route path="/" element={<Tablero />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/productos" element={<Productos />} />
           <Route path="/movimientos" element={<Movimientos />} />
           <Route path="/alertas" element={<Alertas />} />
