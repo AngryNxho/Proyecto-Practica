@@ -191,7 +191,7 @@ function Movimientos() {
               Último movimiento: {movimientos.length > 0 ? new Date(movimientos[0]?.fecha).toLocaleDateString('es-CL') : 'N/A'}
             </p>
           </div>
-        </div>
+          <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
             <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!movimientos.length}>
               📥 Exportar CSV
             </button>

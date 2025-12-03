@@ -95,7 +95,21 @@ function GeneradorCodigoBarras() {
     // Crear canvas temporal
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    ca{/* Estadísticas */}
+    
+    // Implementación pendiente de descarga PNG
+    alert('Función de descarga en desarrollo');
+  };
+
+  return (
+    <div className="page animate-fade-in">
+      <header className="page-header">
+        <h1 className="page-title">Generador de etiquetas</h1>
+        <p className="page-description">
+          Genera e imprime etiquetas con códigos de barras y QR para tus productos
+        </p>
+      </header>
+
+      {/* Estadísticas */}
       <div className="estadisticas-etiquetas">
         <div className="stat-card">
           <span className="stat-numero">{obtenerEstadisticas().total}</span>
@@ -164,20 +178,29 @@ function GeneradorCodigoBarras() {
                       }
                     }}
                     className="form-control"
-                  >opciones-etiqueta">
-                    <div className="filtro-grupo">
-                      <label htmlFor="cantidad">Cantidad de etiquetas:</label>
-                      <input
-                        id="cantidad"
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={cantidadEtiquetas}
-                        onChange={(e) => setCantidadEtiquetas(parseInt(e.target.value) || 1)}
-                        className="form-control"
-                      />
-                    </div>
-                  </div>
+                  >
+                    <option value="CODE128">CODE128</option>
+                    <option value="CODE39">CODE39</option>
+                    <option value="EAN13">EAN-13</option>
+                    <option value="UPC">UPC</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="opciones-etiqueta">
+                <div className="filtro-grupo">
+                  <label htmlFor="cantidad">Cantidad de etiquetas:</label>
+                  <input
+                    id="cantidad"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={cantidadEtiquetas}
+                    onChange={(e) => setCantidadEtiquetas(parseInt(e.target.value) || 1)}
+                    className="form-control"
+                  />
+                </div>
+              </div>
 
                   <div className="etiqueta-contenido">
                     <div className="info-producto-etiqueta">
@@ -198,17 +221,43 @@ function GeneradorCodigoBarras() {
                       <div className="qr-section">
                         <p className="codigo-tipo">Código QR</p>
                         <QRCodeSVG 
-              💡 Cómo usar</h3>
-          <ol>
-            <li>Usa los filtros para encontrar el producto</li>
-            <li>Selecciona el formato de código de barras deseado</li>
-            <li>Ajusta la cantidad de etiquetas a imprimir</li>
-            <li>Haz clic en "Imprimir" o "Descargar"</li>
-            <li>Pega las etiquetas en los productos físicos</li>
-          </ol>
+                          value={productoSeleccionado.codigo_barras}
+                          size={100}
+                          level="H"
+                          includeMargin={true}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="acciones-etiqueta">
+                      <button className="btn btn-primary" type="button" onClick={imprimirCodigo}>
+                        🖨️ Imprimir
+                      </button>
+                      <button className="btn btn-secondary" type="button" onClick={descargarEtiqueta}>
+                        💾 Descargar PNG
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="empty-state">Selecciona un producto para generar su etiqueta</p>
+              )}
+            </div>
+          </div>
+
+          <div className="panel">
+            <h3>Cómo usar</h3>
+            <ol>
+              <li>Usa los filtros para encontrar el producto</li>
+              <li>Selecciona el formato de código de barras deseado</li>
+              <li>Ajusta la cantidad de etiquetas a imprimir</li>
+              <li>Haz clic en Imprimir o Descargar</li>
+              <li>Pega las etiquetas en los productos físicos</li>
+            </ol>
+          </div>
           
-          <div className="info-formatos">
-            <h4>📋 Formatos disponibles</h4>
+          <div className="panel">
+            <h4>Formatos disponibles</h4>
             <ul>
               <li><strong>CODE128:</strong> Más usado, soporta alfanuméricos</li>
               <li><strong>CODE39:</strong> Formato industrial estándar</li>
@@ -217,9 +266,11 @@ function GeneradorCodigoBarras() {
             </ul>
           </div>
 
-          <p className="nota">
-            <strong>💡 Tip:</strong> El código QR permite escaneo rápido con smartphones. El código de barras es para lectores láser tradicionales. Ambos contienen el mismo código del producto.
-          </p>
+          <div className="panel">
+            <p>
+              El código QR permite escaneo rápido con smartphones. El código de barras es para lectores láser tradicionales. Ambos contienen el mismo código del producto.
+            </p>
+          </div>
 
           <div className="categoria-stats">
             <h4>📊 Productos por categoría</h4>

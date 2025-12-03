@@ -19,6 +19,7 @@ export const movementService = {
 };
 
 export const alertService = {
+  obtenerTodos: () => api.get('/alertas/'),
   buscar: (params) => api.get('/alertas/', { params }),
   obtenerPorId: (id) => api.get(`/alertas/${id}/`),
   crear: (data) => api.post('/alertas/', data),
@@ -26,5 +27,4 @@ export const alertService = {
   eliminar: (id) => api.delete(`/alertas/${id}/`),
 };
 
-export const movimientoService = movementService eliminar: (id) => api.delete(`/alertas/${id}/`),
-};
+export const movimientoService = movementService;
