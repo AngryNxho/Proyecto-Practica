@@ -10,6 +10,7 @@ const enlaces = [
   { to: '/scanner', etiqueta: 'Scanner' },
   { to: '/generador', etiqueta: 'Etiquetas' },
   { to: '/dev', etiqueta: 'Pruebas' },
+  { to: '/logs', etiqueta: 'Logs' },
 ];
 
 function BarraNavegacion() {

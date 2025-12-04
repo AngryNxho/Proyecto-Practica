@@ -36,7 +36,7 @@ function Modal({ isOpen, onClose, titulo, children, maxWidth = '600px' }) {
             onClick={onClose}
             aria-label="Cerrar modal"
           >
-            ✕
+            ×
           </button>
         </div>
         <div className="modal-body">

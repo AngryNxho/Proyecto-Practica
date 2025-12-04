@@ -8,6 +8,7 @@ import Alertas from './pages/Alertas';
 import Scanner from './pages/Scanner';
 import GeneradorCodigoBarras from './pages/GeneradorCodigoBarras';
 import DevTools from './pages/DevTools';
+import LogViewer from './pages/LogViewer';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/generador" element={<GeneradorCodigoBarras />} />
           <Route path="/dev" element={<DevTools />} />
+          <Route path="/logs" element={<LogViewer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
