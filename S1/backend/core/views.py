@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.http import HttpResponse
@@ -12,9 +12,37 @@ from .filters import ProductoFilter, MovimientoFilter, AlertaFilter
 import csv
 from datetime import datetime
 import pytz
+import logging
+
+# Configurar logger para esta aplicación
+logger = logging.getLogger(__name__)
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    """ViewSet para operaciones CRUD de productos con paginación y filtros"""
+    """
+    ViewSet para operaciones CRUD de productos con paginación y filtros
+    
+    Endpoints disponibles:
+    - GET /api/productos/ - Lista todos los productos (paginado)
+    - POST /api/productos/ - Crea un nuevo producto
+    - GET /api/productos/{id}/ - Obtiene un producto específico
+    - PUT /api/productos/{id}/ - Actualiza un producto completo
+    - PATCH /api/productos/{id}/ - Actualiza parcialmente un producto
+    - DELETE /api/productos/{id}/ - Elimina un producto
+    - GET /api/productos/estadisticas/ - Estadísticas del inventario
+    - GET /api/productos/exportar_csv/ - Exporta productos a CSV
+    - POST /api/productos/{id}/registrar_entrada/ - Registra entrada de stock
+    - POST /api/productos/{id}/registrar_salida/ - Registra salida de stock
+    
+    Filtros disponibles:
+    - categoria: Filtra por categoría exacta
+    - marca: Filtra por marca exacta
+    - stock_min: Filtra productos con stock mayor o igual
+    - stock_max: Filtra productos con stock menor o igual
+    
+    Búsqueda (search): Busca en nombre, marca, modelo, descripción, categoría
+    
+    Ordenamiento (ordering): nombre, stock, precio, fecha_creacion, categoria
+    """
     queryset = Producto.objects.all().order_by('-fecha_creacion')
     serializer_class = ProductoSerializer
     pagination_class = PaginacionEstandar
@@ -26,32 +54,59 @@ class ProductoViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def estadisticas(self, request):
-        """Obtiene estadísticas generales del inventario"""
+        """
+        Obtiene estadísticas generales del inventario
+        
+        Optimizado con agregaciones de base de datos para mejorar performance.
+        
+        Returns:
+            Response con estadísticas completas del inventario incluyendo:
+            - total_productos: Número total de productos
+            - stock_critico: Productos con stock <= 5
+            - stock_bajo: Productos con stock entre 6 y 10
+            - stock_normal: Productos con stock > 10
+            - valor_inventario: Valor total del inventario
+            - por_categoria: Estadísticas agrupadas por categoría
+        """
+        from django.db.models import Sum, Count, Q, F
+        from decimal import Decimal
+        
+        # Optimización: usar agregaciones en lugar de iterar
         productos = Producto.objects.all()
         
+        # Contadores de stock
         total = productos.count()
         critico = productos.filter(stock__lte=5).count()
         bajo = productos.filter(stock__gt=5, stock__lte=10).count()
         normal = productos.filter(stock__gt=10).count()
         
-        # Calcular valor total del inventario
-        valor_total = sum(p.stock * p.precio for p in productos)
+        # Calcular valor total usando agregación de base de datos
+        valor_total = productos.aggregate(
+            total=Sum(F('stock') * F('precio'))
+        )['total'] or Decimal('0')
         
-        # Productos por categoría
-        categorias = {}
-        for producto in productos:
-            cat = producto.categoria
-            if cat not in categorias:
-                categorias[cat] = {'cantidad': 0, 'stock_total': 0}
-            categorias[cat]['cantidad'] += 1
-            categorias[cat]['stock_total'] += producto.stock
+        # Productos por categoría usando agregación
+        categorias_stats = productos.values('categoria').annotate(
+            cantidad=Count('id'),
+            stock_total=Sum('stock'),
+            valor_total=Sum(F('stock') * F('precio'))
+        ).order_by('-cantidad')
+        
+        categorias = {
+            stat['categoria']: {
+                'cantidad': stat['cantidad'],
+                'stock_total': stat['stock_total'] or 0,
+                'valor_total': float(stat['valor_total'] or 0)
+            }
+            for stat in categorias_stats
+        }
         
         return Response({
             'total_productos': total,
             'stock_critico': critico,
             'stock_bajo': bajo,
             'stock_normal': normal,
-            'valor_inventario': round(valor_total, 2),
+            'valor_inventario': round(float(valor_total), 2),
             'por_categoria': categorias
         })
     
@@ -89,34 +144,129 @@ class ProductoViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def registrar_entrada(self, request, pk=None):
-        """Registra entrada de stock"""
+        """
+        Registra entrada de stock para un producto
+        
+        Args:
+            cantidad (int): Cantidad a ingresar (debe ser > 0)
+            descripcion (str): Descripción del movimiento
+        
+        Returns:
+            MovimientoSerializer con los datos del movimiento creado
+        
+        Raises:
+            400: Si la cantidad es inválida o hay error en el registro
+        """
         producto = self.get_object()
         cantidad = request.data.get('cantidad', 0)
         descripcion = request.data.get('descripcion', '')
         
         try:
+            logger.info(
+                f"Registrando entrada - Producto: {producto.id} ({producto.nombre}), "
+                f"Cantidad: {cantidad}, Usuario: {request.user}"
+            )
             movimiento = producto.registrar_entrada(cantidad, descripcion)
             serializer = MovimientoSerializer(movimiento)
+            logger.info(f"Entrada registrada exitosamente - Movimiento ID: {movimiento.id}")
             return Response(serializer.data)
         except ValueError as e:
-            return Response({'error': str(e)}, status=400)
+            logger.warning(
+                f"Error al registrar entrada - Producto: {producto.id}, "
+                f"Cantidad: {cantidad}, Error: {str(e)}"
+            )
+            return Response(
+                {'error': str(e), 'producto': producto.nombre},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(
+                f"Error inesperado al registrar entrada - Producto: {producto.id}, "
+                f"Error: {str(e)}", exc_info=True
+            )
+            return Response(
+                {'error': 'Error interno al procesar la entrada'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     @action(detail=True, methods=['post'])
     def registrar_salida(self, request, pk=None):
-        """Registra salida de stock"""
+        """
+        Registra salida de stock para un producto
+        
+        Args:
+            cantidad (int): Cantidad a retirar (debe ser > 0 y <= stock actual)
+            descripcion (str): Descripción del movimiento
+        
+        Returns:
+            MovimientoSerializer con los datos del movimiento creado
+        
+        Raises:
+            400: Si la cantidad es inválida o hay stock insuficiente
+        """
         producto = self.get_object()
         cantidad = request.data.get('cantidad', 0)
         descripcion = request.data.get('descripcion', '')
         
         try:
+            logger.info(
+                f"Registrando salida - Producto: {producto.id} ({producto.nombre}), "
+                f"Cantidad: {cantidad}, Stock actual: {producto.stock}, Usuario: {request.user}"
+            )
             movimiento = producto.registrar_salida(cantidad, descripcion)
             serializer = MovimientoSerializer(movimiento)
+            logger.info(
+                f"Salida registrada exitosamente - Movimiento ID: {movimiento.id}, "
+                f"Stock restante: {producto.stock}"
+            )
             return Response(serializer.data)
         except ValueError as e:
-            return Response({'error': str(e)}, status=400)
+            logger.warning(
+                f"Error al registrar salida - Producto: {producto.id}, "
+                f"Cantidad solicitada: {cantidad}, Stock disponible: {producto.stock}, "
+                f"Error: {str(e)}"
+            )
+            return Response(
+                {
+                    'error': str(e),
+                    'producto': producto.nombre,
+                    'stock_disponible': producto.stock,
+                    'cantidad_solicitada': cantidad
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(
+                f"Error inesperado al registrar salida - Producto: {producto.id}, "
+                f"Error: {str(e)}", exc_info=True
+            )
+            return Response(
+                {'error': 'Error interno al procesar la salida'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class MovimientoViewSet(viewsets.ModelViewSet):
-    """ViewSet para movimientos de stock con paginación y filtros"""
+    """
+    ViewSet para movimientos de stock con paginación y filtros
+    
+    Endpoints disponibles:
+    - GET /api/movimientos/ - Lista todos los movimientos (paginado)
+    - POST /api/movimientos/ - Crea un nuevo movimiento (no recomendado, usar endpoints de producto)
+    - GET /api/movimientos/{id}/ - Obtiene un movimiento específico
+    - DELETE /api/movimientos/{id}/ - Elimina un movimiento
+    - GET /api/movimientos/exportar_csv/ - Exporta movimientos a CSV
+    
+    Filtros disponibles:
+    - tipo: Filtra por tipo de movimiento (ENTRADA/SALIDA)
+    - producto: Filtra por ID de producto
+    - fecha_desde: Filtra movimientos desde esta fecha
+    - fecha_hasta: Filtra movimientos hasta esta fecha
+    
+    Ordenamiento (ordering): fecha, cantidad
+    
+    Nota: Se recomienda usar los endpoints registrar_entrada y registrar_salida
+    del ProductoViewSet en lugar de crear movimientos directamente.
+    """
     queryset = Movimiento.objects.all().select_related('producto').order_by('-fecha')
     serializer_class = MovimientoSerializer
     pagination_class = PaginacionEstandar
@@ -155,7 +305,27 @@ class MovimientoViewSet(viewsets.ModelViewSet):
         return response
 
 class AlertaViewSet(viewsets.ModelViewSet):
-    """ViewSet para alertas de stock con paginación y filtros"""
+    """
+    ViewSet para alertas de stock con paginación y filtros
+    
+    Endpoints disponibles:
+    - GET /api/alertas/ - Lista todas las alertas (paginadas)
+    - POST /api/alertas/ - Crea una nueva alerta
+    - GET /api/alertas/{id}/ - Obtiene una alerta específica
+    - PUT /api/alertas/{id}/ - Actualiza una alerta completa
+    - PATCH /api/alertas/{id}/ - Actualiza parcialmente una alerta
+    - DELETE /api/alertas/{id}/ - Elimina una alerta
+    - GET /api/alertas/activas/ - Lista solo alertas activas
+    
+    Filtros disponibles:
+    - activa: Filtra por estado de alerta (true/false)
+    - producto: Filtra por ID de producto
+    
+    Ordenamiento (ordering): fecha_creacion, umbral
+    
+    Nota: Las alertas se activan/desactivan automáticamente cuando el stock
+    del producto cambia según el umbral configurado.
+    """
     queryset = Alerta.objects.all().select_related('producto').order_by('-fecha_creacion')
     serializer_class = AlertaSerializer
     pagination_class = PaginacionEstandar
