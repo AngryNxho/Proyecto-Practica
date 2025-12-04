@@ -2,3 +2,8 @@ export { default as Boton } from './Boton';
 export { default as CampoTexto } from './CampoTexto';
 export { default as Selector } from './Selector';
 export { default as Tarjeta } from './Tarjeta';
+export { default as Modal } from './Modal';
+export { default as Spinner } from './Spinner';
+export { default as Badge } from './Badge';
+export { default as Pagination } from './Pagination';
+export { default as Toast } from './Toast';
