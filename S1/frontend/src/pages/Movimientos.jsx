@@ -14,6 +14,9 @@ function Movimientos() {
   const [filtroTipo, setFiltroTipo] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [filtroProducto, setFiltroProducto] = useState('');
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('');
   const [ordenamiento, setOrdenamiento] = useState('-fecha');
   const [movimientoSeleccionado, setMovimientoSeleccionado] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -49,7 +52,27 @@ function Movimientos() {
     // Filtro por producto
     if (filtroProducto && m.producto !== parseInt(filtroProducto)) return false;
     
-    // B\u00fasqueda en nombre de producto o descripci\u00f3n
+    // Filtro por categoría
+    if (filtroCategoria) {
+      const producto = productos.find(p => p.id === m.producto);
+      if (!producto || producto.categoria !== filtroCategoria) return false;
+    }
+    
+    // Filtro por fecha desde
+    if (fechaDesde) {
+      const fechaMov = new Date(m.fecha);
+      const fechaDesdeObj = new Date(fechaDesde + 'T00:00:00');
+      if (fechaMov < fechaDesdeObj) return false;
+    }
+    
+    // Filtro por fecha hasta
+    if (fechaHasta) {
+      const fechaMov = new Date(m.fecha);
+      const fechaHastaObj = new Date(fechaHasta + 'T23:59:59');
+      if (fechaMov > fechaHastaObj) return false;
+    }
+    
+    // Búsqueda en nombre de producto o descripción
     if (busqueda) {
       const searchLower = busqueda.toLowerCase();
       const matchNombre = (m.producto_nombre || '').toLowerCase().includes(searchLower);
@@ -209,7 +232,23 @@ function Movimientos() {
             style={{ flex: '1 1 250px', padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
             aria-label="Campo de búsqueda de movimientos"
           />
-          {(busqueda || filtroTipo || filtroProducto) && (
+          <input
+            type="date"
+            placeholder="Fecha desde"
+            value={fechaDesde}
+            onChange={(e) => setFechaDesde(e.target.value)}
+            style={{ padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
+            aria-label="Filtro fecha desde"
+          />
+          <input
+            type="date"
+            placeholder="Fecha hasta"
+            value={fechaHasta}
+            onChange={(e) => setFechaHasta(e.target.value)}
+            style={{ padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
+            aria-label="Filtro fecha hasta"
+          />
+          {(busqueda || filtroTipo || filtroProducto || fechaDesde || fechaHasta || filtroCategoria) && (
             <button 
               className="btn btn-secondary" 
               type="button" 
@@ -217,6 +256,9 @@ function Movimientos() {
                 setBusqueda('');
                 setFiltroTipo('');
                 setFiltroProducto('');
+                setFechaDesde('');
+                setFechaHasta('');
+                setFiltroCategoria('');
               }}
             >
               Limpiar filtros
@@ -255,6 +297,26 @@ function Movimientos() {
             <option value="">Todos los movimientos</option>
             <option value="ENTRADA">Solo entradas</option>
             <option value="SALIDA">Solo salidas</option>
+          </select>
+          <label htmlFor="filtro-categoria" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+            Categoría:
+          </label>
+          <select 
+            id="filtro-categoria"
+            value={filtroCategoria} 
+            onChange={(e) => setFiltroCategoria(e.target.value)}
+            style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+            aria-label="Filtro de movimientos por categoría"
+          >
+            <option value="">Todas las categorías</option>
+            <option value="Impresora">Impresora</option>
+            <option value="Toner">Toner</option>
+            <option value="Tinta">Tinta</option>
+            <option value="Papel">Papel</option>
+            <option value="Tambor">Tambor</option>
+            <option value="Kit">Kit</option>
+            <option value="Repuesto">Repuesto</option>
+            <option value="Otro">Otro</option>
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
