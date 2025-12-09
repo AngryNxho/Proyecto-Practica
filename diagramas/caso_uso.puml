@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Calibri
+
+left to right direction
+
+actor "Usuario\nOperador" as OP
+actor "Supervisor" as SUP
+
+rectangle "Sistema de Inventario TISOL" {
+  usecase "Gestionar Productos\n(CRUD)" as UC1
+  usecase "Registrar Entrada\nde Stock" as UC2
+  usecase "Registrar Salida\nde Stock" as UC3
+  usecase "Consultar Stock\nActual" as UC4
+  usecase "Ver Alertas de\nStock Bajo" as UC5
+  usecase "Generar Reportes\nde Inventario" as UC6
+  usecase "Exportar Datos\n(CSV/PDF)" as UC7
+  usecase "Gestionar\nCódigos de Barras" as UC8
+}
+
+OP --> UC1 : "Crear, editar,\neliminar productos"
+OP --> UC2 : "Registrar\nentradas"
+OP --> UC3 : "Registrar\nsalidas"
+OP --> UC4 : "Consultar\ndisponibilidad"
+OP --> UC5 : "Revisar\nalertas"
+
+SUP --> UC1
+SUP --> UC4
+SUP --> UC5
+SUP --> UC6 : "Reportes\nperiódicos"
+SUP --> UC7 : "Exportar\ninformes"
+SUP --> UC8 : "Gestionar\nidentificadores"
+
+UC2 ..> UC5 : <<include>>\n"Verifica umbral"
+UC3 ..> UC5 : <<include>>\n"Verifica umbral"
+UC1 ..> UC8 : <<extend>>\n"Genera código"
+
+note right of UC5
+  Se activa automáticamente
+  cuando stock < umbral
+end note
+
+note left of UC6
+  Reportes incluyen:
+  - Movimientos
+  - Stock actual
+  - Productos críticos
+end note
+
+@enduml

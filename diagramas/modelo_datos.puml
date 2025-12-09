@@ -1,0 +1,75 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Calibri
+skinparam linetype ortho
+
+entity "Producto" as P {
+  * id : INTEGER <<PK>>
+  --
+  * nombre : VARCHAR(100)
+  descripcion : TEXT
+  marca : VARCHAR(50)
+  modelo : VARCHAR(100)
+  * precio : DECIMAL(10,2)
+  * stock : INTEGER
+  categoria : VARCHAR(50)
+  codigo_barras : VARCHAR(64) <<UK>>
+  * fecha_creacion : DATETIME
+}
+
+entity "Movimiento" as M {
+  * id : INTEGER <<PK>>
+  --
+  * producto_id : INTEGER <<FK>>
+  * tipo : VARCHAR(10)
+  * cantidad : INTEGER
+  * fecha : DATETIME
+  descripcion : TEXT
+}
+
+entity "Alerta" as A {
+  * id : INTEGER <<PK>>
+  --
+  * producto_id : INTEGER <<FK>>
+  * umbral : INTEGER
+  * activa : BOOLEAN
+  * fecha_creacion : DATETIME
+}
+
+entity "Device" as D {
+  * id : INTEGER <<PK>>
+  --
+  * nombre : VARCHAR(150)
+  * ip : IPAddress
+  marca : VARCHAR(50)
+  modelo : VARCHAR(100)
+  * producto_id : INTEGER <<FK>>
+  protocolo : VARCHAR(20)
+  version_snmp : VARCHAR(10)
+  comunidad_snmp : VARCHAR(100)
+  activo : BOOLEAN
+  ultima_lectura : DATETIME
+}
+
+P ||--o{ M : "registra\nmovimientos >"
+P ||--o{ A : "genera\nalertas >"
+P ||--o{ D : "< monitorea\ndispositivos"
+
+note right of M
+  Tipo: ENTRADA / SALIDA
+  Se registra automáticamente
+  al modificar stock
+end note
+
+note left of A
+  Alerta activa cuando:
+  stock < umbral
+end note
+
+note bottom of D
+  Monitoreo SNMP de
+  impresoras y consumibles
+  (funcionalidad avanzada)
+end note
+
+@enduml

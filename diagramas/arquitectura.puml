@@ -1,0 +1,63 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Calibri
+skinparam packageStyle rectangle
+
+package "Frontend - React + Vite" as FE {
+  component [Páginas\n- ProductosPage\n- MovimientosPage\n- AlertasPage] as Pages
+  component [Componentes\n- ProductForm\n- ProductTable\n- MovimientoForm] as Comp
+  component [Services\n- productService\n- movimientoService\n- apiClient] as Serv
+  component [Hooks\n- useProducts\n- useMovimientos] as Hooks
+  
+  Pages --> Comp : "usa"
+  Pages --> Hooks : "consume"
+  Hooks --> Serv : "llama"
+}
+
+package "Backend - Django + DRF" as BE {
+  component [API REST\nViewSets] as API
+  component [Serializers\n- ProductoSerializer\n- MovimientoSerializer] as Ser
+  component [Models\n- Producto\n- Movimiento\n- Alerta\n- Device] as Mod
+  component [Filters\nPagination] as Filt
+  component [URLs\nRouters] as URLs
+  
+  API --> Ser : "usa"
+  Ser --> Mod : "serializa"
+  API --> Filt : "aplica"
+  URLs --> API : "enruta"
+}
+
+database "Base de Datos\nSQLite" as DB {
+  storage [core_producto]
+  storage [core_movimiento]
+  storage [core_alerta]
+  storage [core_device]
+}
+
+cloud "Cliente Web\nNavegador" as Client
+
+Client -down-> FE : "HTTP/HTTPS\nPuerto 5173"
+Serv -down-> API : "REST API\nJSON\nPuerto 8000"
+Mod -down-> DB : "Django ORM"
+
+note right of Serv
+  axios HTTP client
+  CORS habilitado
+  Manejo de errores
+end note
+
+note left of API
+  Endpoints:
+  /api/productos/
+  /api/movimientos/
+  /api/alertas/
+  /api/devices/
+end note
+
+note bottom of DB
+  SQLite en desarrollo
+  PostgreSQL en producción
+  (recomendado)
+end note
+
+@enduml
