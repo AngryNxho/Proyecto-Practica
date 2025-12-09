@@ -19,6 +19,12 @@ class Producto(models.Model):
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['-fecha_creacion']
+        indexes = [
+            models.Index(fields=['categoria', '-fecha_creacion']),
+            models.Index(fields=['marca', 'modelo']),
+            models.Index(fields=['stock']),
+            models.Index(fields=['codigo_barras']),
+        ]
 
     def __str__(self):
         if self.marca and self.modelo:
@@ -108,6 +114,10 @@ class Movimiento(models.Model):
         verbose_name = 'Movimiento'
         verbose_name_plural = 'Movimientos'
         ordering = ['-fecha']
+        indexes = [
+            models.Index(fields=['producto', '-fecha']),
+            models.Index(fields=['tipo', '-fecha']),
+        ]
 
     def __str__(self):
         return f"{self.tipo} - {self.producto.nombre} ({self.cantidad})"
@@ -134,6 +144,9 @@ class Alerta(models.Model):
         verbose_name = 'Alerta'
         verbose_name_plural = 'Alertas'
         ordering = ['-fecha_creacion']
+        indexes = [
+            models.Index(fields=['activa', 'producto']),
+        ]
 
     def __str__(self):
         return f"Alerta: {self.producto.nombre} (Umbral: {self.umbral})"
@@ -163,6 +176,10 @@ class Device(models.Model):
     class Meta:
         verbose_name = 'Dispositivo'
         verbose_name_plural = 'Dispositivos'
+        indexes = [
+            models.Index(fields=['ip']),
+            models.Index(fields=['activo', 'producto']),
+        ]
 
     def __str__(self):
         return f"{self.nombre} ({self.ip})"
