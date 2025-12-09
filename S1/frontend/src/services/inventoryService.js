@@ -26,6 +26,7 @@ export const alertService = {
   crear: (data) => api.post('/alertas/', data),
   actualizar: (id, data) => api.put(`/alertas/${id}/`, data),
   eliminar: (id) => api.delete(`/alertas/${id}/`),
+  resolver: (id) => api.post(`/alertas/${id}/resolver/`),
 };
 
 export const movimientoService = movementService;

@@ -7,6 +7,11 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.alerta-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .alerta-item.is-active {
@@ -19,19 +24,70 @@
   border-color: rgba(39, 174, 96, 0.35);
 }
 
+.alerta-item__info {
+  flex: 1;
+}
+
 .alerta-item__producto {
   margin: 0;
   font-weight: 600;
   color: #1f2b50;
 }
 
+.alerta-item__stock {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.alerta-item__stock .stock-actual {
+  font-size: 0.85rem;
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.alerta-item__stock .stock-umbral {
+  font-size: 0.85rem;
+  color: #7c819b;
+}
+
 .alerta-item__meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 8px;
 }
 
-.alerta-item__meta strong {
-  font-size: 0.95rem;
+.alerta-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.alerta-badge.badge-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.alerta-badge.badge-success {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.btn-resolver {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-resolver:hover {
+  background: #059669;
+  transform: translateY(-1px);
 }

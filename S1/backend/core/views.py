@@ -343,6 +343,15 @@ class AlertaViewSet(viewsets.ModelViewSet):
             'total': alertas_activas.count(),
             'alertas': serializer.data
         })
+    
+    @action(detail=True, methods=['post'])
+    def resolver(self, request, pk=None):
+        """Marca una alerta como resuelta (desactiva)"""
+        alerta = self.get_object()
+        alerta.activa = False
+        alerta.save()
+        serializer = self.get_serializer(alerta)
+        return Response(serializer.data)
 
 
 # ========== ENDPOINTS DE DESARROLLO - ELIMINAR EN PRODUCCIÓN ==========

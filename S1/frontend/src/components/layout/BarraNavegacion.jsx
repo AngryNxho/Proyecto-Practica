@@ -1,20 +1,40 @@
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { alertService } from '../../services/inventoryService';
 import './BarraNavegacion.css';
 
 const enlaces = [
-  { to: '/', etiqueta: 'Tablero' },
-  { to: '/productos', etiqueta: 'Productos' },
-  { to: '/movimientos', etiqueta: 'Movimientos' },
-  { to: '/alertas', etiqueta: 'Alertas' },
-  { to: '/scanner', etiqueta: 'Scanner' },
-  { to: '/generador', etiqueta: 'Etiquetas' },
-  { to: '/dev', etiqueta: 'Pruebas' },
-  { to: '/logs', etiqueta: 'Logs' },
+  { to: '/', etiqueta: 'Tablero', icono: '📊' },
+  { to: '/productos', etiqueta: 'Productos', icono: '📦' },
+  { to: '/movimientos', etiqueta: 'Movimientos', icono: '🔄' },
+  { to: '/alertas', etiqueta: 'Alertas', icono: '⚠️', mostrarBadge: true },
+  { to: '/scanner', etiqueta: 'Scanner', icono: '📷' },
+  { to: '/generador', etiqueta: 'Etiquetas', icono: '🏷️' },
+  { to: '/dev', etiqueta: 'Pruebas', icono: '🧪' },
+  { to: '/logs', etiqueta: 'Logs', icono: '📋' },
 ];
 
 function BarraNavegacion() {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [alertasActivas, setAlertasActivas] = useState(0);
+
+  useEffect(() => {
+    cargarAlertasActivas();
+    // Actualizar cada 30 segundos
+    const interval = setInterval(cargarAlertasActivas, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const cargarAlertasActivas = async () => {
+    try {
+      const res = await alertService.obtenerTodos();
+      const alertas = res.data.results || res.data || [];
+      const activas = alertas.filter(a => a.activa).length;
+      setAlertasActivas(activas);
+    } catch (err) {
+      console.error('Error al cargar alertas:', err);
+    }
+  };
 
   const toggleMenu = () => setMenuAbierto(!menuAbierto);
   const cerrarMenu = () => setMenuAbierto(false);
@@ -50,14 +70,18 @@ function BarraNavegacion() {
                   end={enlace.to === '/'}
                   onClick={cerrarMenu}
                 >
+                  <span className="navbar__link-icon">{enlace.icono}</span>
                   {enlace.etiqueta}
+                  {enlace.mostrarBadge && alertasActivas > 0 && (
+                    <span className="navbar__badge">{alertasActivas}</span>
+                  )}
                 </NavLink>
               </li>
             ))}
           </ul>
         </nav>
         <div className="navbar__footer">
-          <p>Semana 2 · HU10</p>
+          <p>Sprint 3 · S05-HU04</p>
           <small>Última sincronización {new Date().toLocaleTimeString('es-CL')}</small>
         </div>
       </aside>

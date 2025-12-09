@@ -10,6 +10,7 @@ function Alertas() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('activas');
+  const [resolviendo, setResolviendo] = useState(null);
 
   useEffect(() => {
     cargarDatos();
@@ -32,6 +33,22 @@ function Alertas() {
       setError(null);
     } finally {
       setCargando(false);
+    }
+  };
+
+  const resolverAlerta = async (id) => {
+    try {
+      setResolviendo(id);
+      await alertService.resolver(id);
+      // Actualizar estado local inmediatamente
+      setAlertas(prev => prev.map(a => 
+        a.id === id ? { ...a, activa: false } : a
+      ));
+    } catch (err) {
+      console.error('Error al resolver alerta:', err);
+      setError('No se pudo resolver la alerta');
+    } finally {
+      setResolviendo(null);
     }
   };
 
@@ -84,7 +101,7 @@ function Alertas() {
         </div>
       </div>
 
-      <ListaAlertas alertas={alertasFiltradas} cargando={cargando} error={error} />
+      <ListaAlertas alertas={alertasFiltradas} cargando={cargando} error={error} onResolver={resolverAlerta} />
     </div>
   );
 }

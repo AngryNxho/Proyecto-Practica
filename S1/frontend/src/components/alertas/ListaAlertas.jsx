@@ -1,7 +1,7 @@
 import ItemAlerta from './ItemAlerta';
 import './ListaAlertas.css';
 
-function ListaAlertas({ alertas, cargando, error }) {
+function ListaAlertas({ alertas, cargando, error, onResolver }) {
   if (cargando) {
     return (
       <div className="panel">
@@ -16,13 +16,13 @@ function ListaAlertas({ alertas, cargando, error }) {
   }
 
   if (!alertas.length) {
-    return <div className="panel empty-state">No hay alertas activas.</div>;
+    return <div className="panel empty-state">No hay alertas que mostrar.</div>;
   }
 
   return (
     <div className="alertas-list">
       {alertas.map((alerta) => (
-        <ItemAlerta key={alerta.id} alerta={alerta} />
+        <ItemAlerta key={alerta.id} alerta={alerta} onResolver={onResolver} />
       ))}
     </div>
   );
