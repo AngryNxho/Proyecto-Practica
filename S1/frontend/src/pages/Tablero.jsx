@@ -46,6 +46,26 @@ function Tablero() {
   const stockBajo = datos.productos.filter(p => p.stock > 5 && p.stock <= 10).length;
   const recientes = datos.movimientos.slice(0, 5);
 
+  // Calcular categorías más populares
+  const categorias = {};
+  datos.productos.forEach(p => {
+    if (p.categoria) {
+      categorias[p.categoria] = (categorias[p.categoria] || 0) + 1;
+    }
+  });
+  const topCategorias = Object.entries(categorias)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
+  // Estadísticas de movimientos recientes
+  const movimientosHoy = datos.movimientos.filter(m => {
+    const hoy = new Date();
+    const fechaMov = new Date(m.fecha);
+    return fechaMov.toDateString() === hoy.toDateString();
+  });
+  const entradasHoy = movimientosHoy.filter(m => m.tipo === 'ENTRADA').length;
+  const salidasHoy = movimientosHoy.filter(m => m.tipo === 'SALIDA').length;
+
   return (
     <div className="page tablero">
       <header className="page-header animate-fade-in">
@@ -101,6 +121,57 @@ function Tablero() {
             <p style={{ fontSize: '12px', color: '#14532d', marginTop: '4px' }}>&gt;10 unidades</p>
           </div>
         </div>
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Actividad del día</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+          <div style={{ padding: '16px', background: '#ecfdf5', borderRadius: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: '#065f46', marginBottom: '8px', fontWeight: '500' }}>Entradas</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#10b981', margin: '0' }}>{entradasHoy}</p>
+          </div>
+          <div style={{ padding: '16px', background: '#fef2f2', borderRadius: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: '#991b1b', marginBottom: '8px', fontWeight: '500' }}>Salidas</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#ef4444', margin: '0' }}>{salidasHoy}</p>
+          </div>
+          <div style={{ padding: '16px', background: '#f0f9ff', borderRadius: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: '#075985', marginBottom: '8px', fontWeight: '500' }}>Total movimientos</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#0284c7', margin: '0' }}>{movimientosHoy.length}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Categorías principales</h2>
+        {topCategorias.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {topCategorias.map(([categoria, cantidad], index) => {
+              const porcentaje = ((cantidad / productosRegistrados) * 100).toFixed(1);
+              const colores = ['#3b82f6', '#8b5cf6', '#ec4899'];
+              return (
+                <div key={categoria} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '120px', fontSize: '14px', fontWeight: '500', color: '#52525b' }}>
+                    {categoria}
+                  </div>
+                  <div style={{ flex: 1, background: '#f1f5f9', borderRadius: '8px', height: '24px', overflow: 'hidden' }}>
+                    <div style={{ 
+                      width: `${porcentaje}%`, 
+                      height: '100%', 
+                      background: colores[index], 
+                      borderRadius: '8px',
+                      transition: 'width 0.3s ease'
+                    }}></div>
+                  </div>
+                  <div style={{ width: '80px', textAlign: 'right', fontSize: '14px', fontWeight: '600', color: colores[index] }}>
+                    {cantidad} ({porcentaje}%)
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="empty-state">No hay categorías registradas</div>
+        )}
       </section>
 
       <section className="grid-two">

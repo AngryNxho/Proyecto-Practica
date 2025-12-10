@@ -140,6 +140,18 @@ function Movimientos() {
     };
   };
 
+  // Obtener productos más movidos
+  const obtenerProductosMasMovidos = () => {
+    const productosCount = {};
+    movimientos.forEach(m => {
+      const nombre = m.producto_nombre || 'Sin nombre';
+      productosCount[nombre] = (productosCount[nombre] || 0) + m.cantidad;
+    });
+    return Object.entries(productosCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+  };
+
   const exportarMovimientosCSV = async () => {
     try {
       const response = await movementService.exportarCSV();
@@ -221,6 +233,47 @@ function Movimientos() {
           </div>
         </div>
       </section>
+
+      <div className="panel" style={{ marginBottom: '24px' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#52525b' }}>🔥 Productos más movidos</h3>
+        {obtenerProductosMasMovidos().length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {obtenerProductosMasMovidos().map(([producto, cantidad], index) => (
+              <div key={producto} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ 
+                  width: '28px', 
+                  height: '28px', 
+                  borderRadius: '50%', 
+                  background: index === 0 ? '#fbbf24' : index === 1 ? '#94a3b8' : '#d97706',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '700',
+                  fontSize: '12px',
+                  color: 'white'
+                }}>
+                  {index + 1}
+                </div>
+                <div style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: '#3f3f46' }}>
+                  {producto}
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '700', 
+                  color: '#6366f1',
+                  background: '#eef2ff',
+                  padding: '4px 12px',
+                  borderRadius: '12px'
+                }}>
+                  {cantidad} unidades
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">No hay movimientos registrados</div>
+        )}
+      </div>
 
       <div className="panel" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
