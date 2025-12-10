@@ -10,6 +10,7 @@ function Productos() {
   const [alertas, setAlertas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
   const [productoEditar, setProductoEditar] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [filtroStock, setFiltroStock] = useState('');
@@ -72,11 +73,21 @@ function Productos() {
   };
 
   const manejarEliminar = async (id) => {
+    const producto = productos.find(p => p.id === id);
+    const confirmar = window.confirm(
+      `¿Estás seguro de eliminar "${producto?.nombre}"?\n\nEsta acción no se puede deshacer y se eliminará:\n- El producto\n- Su historial de movimientos\n- Sus alertas asociadas`
+    );
+    
+    if (!confirmar) return;
+
     try {
       await productService.eliminar(id);
+      setMensaje({ tipo: 'success', texto: '✓ Producto eliminado correctamente.' });
       await cargarDatos();
+      setTimeout(() => setMensaje(null), 3000);
     } catch (err) {
-      setError('No se pudo eliminar el producto.');
+      setMensaje({ tipo: 'error', texto: 'No se pudo eliminar el producto. Inténtalo de nuevo.' });
+      setTimeout(() => setMensaje(null), 3000);
     }
   };
 
@@ -137,6 +148,12 @@ function Productos() {
           Da de alta nuevos equipos o tóners y controla su estado en tiempo real.
         </p>
       </header>
+
+      {mensaje && (
+        <div className={`panel ${mensaje.tipo === 'error' ? 'error-state' : 'success-state'}`} style={{ marginBottom: '16px', animation: 'slideDown 0.3s ease' }}>
+          {mensaje.texto}
+        </div>
+      )}
 
       <div className="panel" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -211,36 +228,42 @@ function Productos() {
           <div style={{ marginBottom: '16px' }}>
             <p className="stats-value">{totalResultados}</p>
             <p className="stats-label">
-              {busqueda || filtroStock ? 'Resultados encontrados' : 'Productos totales'}
+              {busqueda || filtroStock ? 'Encontrados' : 'Total productos'}
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <div className="stats-divider"></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div>
-              <p className="stats-value smaller">{productos.filter(p => p.stock <= 5).length}</p>
-              <p className="stats-label" style={{ fontSize: '12px' }}>Stock crítico</p>
-            </div>
-            <div>
-              <p className="stats-value smaller">{alertas.filter(a => a.activa).length}</p>
-              <p className="stats-label" style={{ fontSize: '12px' }}>Alertas activas</p>
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-            <div>
-              <p className="stats-value smaller" style={{ color: '#10b981' }}>
-                {productos.filter(p => p.stock > 10).length}
+              <p className="stats-value smaller" style={{ color: '#ef4444' }}>
+                {productos.filter(p => p.stock <= 5).length}
               </p>
-              <p className="stats-label" style={{ fontSize: '12px' }}>Stock normal</p>
+              <p className="stats-label">Crítico</p>
             </div>
             <div>
               <p className="stats-value smaller" style={{ color: '#f59e0b' }}>
                 {productos.filter(p => p.stock > 5 && p.stock <= 10).length}
               </p>
-              <p className="stats-label" style={{ fontSize: '12px' }}>Stock bajo</p>
+              <p className="stats-label">Bajo</p>
             </div>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div>
+              <p className="stats-value smaller" style={{ color: '#10b981' }}>
+                {productos.filter(p => p.stock > 10).length}
+              </p>
+              <p className="stats-label">Normal</p>
+            </div>
+            <div>
+              <p className="stats-value smaller" style={{ color: '#8b5cf6' }}>
+                {alertas.filter(a => a.activa).length}
+              </p>
+              <p className="stats-label">Alertas</p>
+            </div>
+          </div>
+          <div className="stats-divider"></div>
           <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
             <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando} style={{ width: '100%' }}>
-              {cargando ? 'Cargando...' : '🔄 Actualizar'}
+              {cargando ? '⏳ Cargando...' : '🔄 Actualizar'}
             </button>
             <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!productos.length} style={{ width: '100%' }}>
               📥 Exportar CSV

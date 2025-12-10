@@ -4,20 +4,40 @@
   gap: 12px;
   justify-content: center;
   align-items: flex-start;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
 }
 
 .stats-value {
   margin: 0;
   font-size: 2.5rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #1a2849;
+  line-height: 1;
 }
 
 .stats-value.smaller {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
 }
 
 .stats-label {
-  margin: -12px 0 6px;
-  color: #7c819b;
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
+.stats-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  margin: 8px 0;
+}
+
+.producto-eliminado {
+  opacity: 0.5;
+  pointer-events: none;
+}
+

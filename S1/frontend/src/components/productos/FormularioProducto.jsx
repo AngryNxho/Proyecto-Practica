@@ -75,9 +75,14 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
   const manejarEnvio = async (event) => {
     event.preventDefault();
 
-    // Validaciones básicas
+    // Validaciones mejoradas
     if (!datosFormulario.nombre.trim()) {
       setMensaje({ tipo: 'error', texto: 'El nombre del producto es obligatorio.' });
+      return;
+    }
+
+    if (datosFormulario.nombre.trim().length < 3) {
+      setMensaje({ tipo: 'error', texto: 'El nombre debe tener al menos 3 caracteres.' });
       return;
     }
 
@@ -86,8 +91,23 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       return;
     }
 
+    if (datosFormulario.precio && Number(datosFormulario.precio) > 99999999) {
+      setMensaje({ tipo: 'error', texto: 'El precio es demasiado alto.' });
+      return;
+    }
+
     if (datosFormulario.stock && Number(datosFormulario.stock) < 0) {
       setMensaje({ tipo: 'error', texto: 'El stock no puede ser negativo.' });
+      return;
+    }
+
+    if (datosFormulario.stock && Number(datosFormulario.stock) > 999999) {
+      setMensaje({ tipo: 'error', texto: 'El stock es demasiado alto.' });
+      return;
+    }
+
+    if (datosFormulario.codigo_barras && datosFormulario.codigo_barras.length > 0 && datosFormulario.codigo_barras.length < 8) {
+      setMensaje({ tipo: 'error', texto: 'El código de barras debe tener al menos 8 dígitos.' });
       return;
     }
 
@@ -103,20 +123,31 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       
       if (modoEdicion) {
         await productService.actualizar(productoEditar.id, payload);
-        setMensaje({ tipo: 'success', texto: 'Producto actualizado correctamente.' });
+        setMensaje({ tipo: 'success', texto: '✓ Producto actualizado correctamente.' });
       } else {
         await productService.crear(payload);
-        setMensaje({ tipo: 'success', texto: 'Producto registrado correctamente.' });
+        setMensaje({ tipo: 'success', texto: '✓ Producto registrado correctamente.' });
       }
       
-      setDatosFormulario(formularioInicial);
-      alCrear?.();
-      alCancelar?.();
+      setTimeout(() => {
+        setDatosFormulario(formularioInicial);
+        setMensaje(null);
+        alCrear?.();
+        alCancelar?.();
+      }, 1500);
     } catch (error) {
-      setMensaje({
-        tipo: 'error',
-        texto: error.response?.data?.detail || `No se pudo ${modoEdicion ? 'actualizar' : 'crear'} el producto.`,
-      });
+      const errorMsg = error.response?.data;
+      let textoError = `No se pudo ${modoEdicion ? 'actualizar' : 'crear'} el producto.`;
+      
+      if (errorMsg?.codigo_barras) {
+        textoError = 'Este código de barras ya está registrado.';
+      } else if (errorMsg?.nombre) {
+        textoError = 'Ya existe un producto con este nombre.';
+      } else if (errorMsg?.detail) {
+        textoError = errorMsg.detail;
+      }
+      
+      setMensaje({ tipo: 'error', texto: textoError });
     } finally {
       setCargando(false);
     }
