@@ -111,6 +111,110 @@ class ProductoViewSet(viewsets.ModelViewSet):
         })
     
     @action(detail=False, methods=['get'])
+    def metricas_dashboard(self, request):
+        """
+        Endpoint completo para el dashboard con todas las métricas necesarias
+        Optimizado para una sola consulta
+        """
+        from django.db.models import Sum, Count, Q, F, Avg, Max, Min
+        from decimal import Decimal
+        
+        productos = Producto.objects.all()
+        movimientos = Movimiento.objects.all()
+        alertas = Alerta.objects.all()
+        
+        # Métricas básicas de productos
+        total_productos = productos.count()
+        stock_total = productos.aggregate(total=Sum('stock'))['total'] or 0
+        valor_total = productos.aggregate(
+            total=Sum(F('stock') * F('precio'))
+        )['total'] or Decimal('0')
+        
+        # Clasificación por stock
+        stock_critico = productos.filter(stock__lte=5).count()
+        stock_bajo = productos.filter(stock__gt=5, stock__lte=10).count()
+        stock_normal = productos.filter(stock__gt=10).count()
+        
+        # Alertas activas
+        alertas_activas = alertas.filter(activa=True).count()
+        
+        # Top 5 productos más movidos
+        from django.db.models import Count as CountAgg
+        productos_mas_movidos = movimientos.values('producto__nombre').annotate(
+            total_movimientos=CountAgg('id')
+        ).order_by('-total_movimientos')[:5]
+        
+        # Movimientos del día
+        hoy = timezone.now().date()
+        movimientos_hoy = movimientos.filter(fecha__date=hoy)
+        entradas_hoy = movimientos_hoy.filter(tipo='ENTRADA').count()
+        salidas_hoy = movimientos_hoy.filter(tipo='SALIDA').count()
+        
+        # Top 3 categorías por cantidad
+        top_categorias = productos.values('categoria').annotate(
+            cantidad=CountAgg('id')
+        ).order_by('-cantidad')[:3]
+        
+        # Top 3 categorías por valor
+        top_valor_categoria = productos.values('categoria').annotate(
+            valor=Sum(F('stock') * F('precio'))
+        ).order_by('-valor')[:3]
+        
+        # Estadísticas de precios
+        precio_stats = productos.aggregate(
+            precio_promedio=Avg('precio'),
+            precio_max=Max('precio'),
+            precio_min=Min('precio')
+        )
+        
+        # Movimientos de última semana
+        hace_7_dias = timezone.now() - timezone.timedelta(days=7)
+        movimientos_semana = movimientos.filter(fecha__gte=hace_7_dias)
+        movimientos_por_dia = []
+        for i in range(7):
+            dia = timezone.now() - timezone.timedelta(days=i)
+            movs_dia = movimientos_semana.filter(fecha__date=dia.date())
+            movimientos_por_dia.append({
+                'fecha': dia.strftime('%Y-%m-%d'),
+                'entradas': movs_dia.filter(tipo='ENTRADA').count(),
+                'salidas': movs_dia.filter(tipo='SALIDA').count()
+            })
+        
+        return Response({
+            'resumen': {
+                'total_productos': total_productos,
+                'stock_total': stock_total,
+                'valor_total': round(float(valor_total), 2),
+                'alertas_activas': alertas_activas,
+            },
+            'stock': {
+                'critico': stock_critico,
+                'bajo': stock_bajo,
+                'normal': stock_normal
+            },
+            'actividad_hoy': {
+                'entradas': entradas_hoy,
+                'salidas': salidas_hoy,
+                'total': entradas_hoy + salidas_hoy
+            },
+            'productos_mas_movidos': list(productos_mas_movidos),
+            'top_categorias': list(top_categorias),
+            'top_valor_categoria': [
+                {
+                    'categoria': item['categoria'],
+                    'valor': round(float(item['valor'] or 0), 2)
+                }
+                for item in top_valor_categoria
+            ],
+            'precio_stats': {
+                'promedio': round(float(precio_stats['precio_promedio'] or 0), 2),
+                'maximo': round(float(precio_stats['precio_max'] or 0), 2),
+                'minimo': round(float(precio_stats['precio_min'] or 0), 2)
+            },
+            'movimientos_semana': movimientos_por_dia
+        })
+    
+    @action(detail=False, methods=['get'])
     def exportar_csv(self, request):
         """Exporta todos los productos a CSV"""
         response = HttpResponse(content_type='text/csv; charset=utf-8')

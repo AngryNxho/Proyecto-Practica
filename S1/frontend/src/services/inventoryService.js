@@ -10,6 +10,7 @@ export const productService = {
   registrarEntrada: (id, data) => api.post(`/productos/${id}/registrar_entrada/`, data),
   registrarSalida: (id, data) => api.post(`/productos/${id}/registrar_salida/`, data),
   obtenerEstadisticas: () => api.get('/productos/estadisticas/'),
+  obtenerMetricasDashboard: () => api.get('/productos/metricas_dashboard/'),
 };
 
 export const movementService = {

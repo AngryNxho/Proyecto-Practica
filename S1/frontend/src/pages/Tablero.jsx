@@ -4,93 +4,46 @@ import { formatCurrency, formatDateTime } from '../utils/utils';
 import './Tablero.css';
 
 function Tablero() {
-  const [datos, setDatos] = useState({ productos: [], movimientos: [], alertas: [] });
+  const [metricas, setMetricas] = useState(null);
+  const [movimientos, setMovimientos] = useState([]);
+  const [alertas, setAlertas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     cargarDatos();
+    const interval = setInterval(cargarDatos, 60000); // actualizar cada minuto
+    return () => clearInterval(interval);
   }, []);
 
   const cargarDatos = async () => {
     try {
       setCargando(true);
-      const [productosRes, movimientosRes, alertasRes] = await Promise.all([
-        productService.obtenerTodos(),
+      const [metricasRes, movimientosRes, alertasRes] = await Promise.all([
+        productService.obtenerMetricasDashboard(),
         movementService.obtenerTodos(),
         alertService.obtenerTodos(),
       ]);
-      setDatos({
-        productos: productosRes.data.results || productosRes.data || [],
-        movimientos: movimientosRes.data.results || movimientosRes.data || [],
-        alertas: alertasRes.data.results || alertasRes.data || [],
-      });
+      
+      setMetricas(metricasRes.data);
+      setMovimientos(movimientosRes.data.results || movimientosRes.data || []);
+      setAlertas(alertasRes.data.results || alertasRes.data || []);
       setError(null);
     } catch (err) {
       console.error('Error al cargar tablero:', err);
-      setDatos({ productos: [], movimientos: [], alertas: [] });
-      setError(null);
+      setError('Error al cargar datos del dashboard');
     } finally {
       setCargando(false);
     }
   };
 
-  const stockTotal = datos.productos.reduce((acc, producto) => acc + (producto.stock || 0), 0);
-  const valorTotal = datos.productos.reduce(
-    (acc, producto) => acc + (Number(producto.precio) || 0) * (producto.stock || 0),
-    0
-  );
-  const alertasActivas = datos.alertas.filter((alerta) => alerta.activa).length;
-  const productosRegistrados = datos.productos.length;
-  const stockCritico = datos.productos.filter(p => p.stock <= 5).length;
-  const stockBajo = datos.productos.filter(p => p.stock > 5 && p.stock <= 10).length;
-  const recientes = datos.movimientos.slice(0, 5);
+  if (!metricas) {
+    return <div className="page tablero"><p>Cargando dashboard...</p></div>;
+  }
 
-  // Calcular categorías más populares
-  const categorias = {};
-  datos.productos.forEach(p => {
-    if (p.categoria) {
-      categorias[p.categoria] = (categorias[p.categoria] || 0) + 1;
-    }
-  });
-  const topCategorias = Object.entries(categorias)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3);
-
-  // Estadísticas de movimientos recientes
-  const movimientosHoy = datos.movimientos.filter(m => {
-    const hoy = new Date();
-    const fechaMov = new Date(m.fecha);
-    return fechaMov.toDateString() === hoy.toDateString();
-  });
-  const entradasHoy = movimientosHoy.filter(m => m.tipo === 'ENTRADA').length;
-  const salidasHoy = movimientosHoy.filter(m => m.tipo === 'SALIDA').length;
-
-  // Productos más movidos
-  const contadorMovimientos = {};
-  datos.movimientos.forEach(m => {
-    const id = m.producto;
-    contadorMovimientos[id] = (contadorMovimientos[id] || 0) + 1;
-  });
-  const productosMasMovidos = Object.entries(contadorMovimientos)
-    .map(([id, cantidad]) => {
-      const producto = datos.productos.find(p => p.id === parseInt(id));
-      return { nombre: producto?.nombre || 'Desconocido', cantidad };
-    })
-    .sort((a, b) => b.cantidad - a.cantidad)
-    .slice(0, 5);
-
-  // Valor por categoría
-  const valorPorCategoria = {};
-  datos.productos.forEach(p => {
-    if (p.categoria) {
-      const valor = (Number(p.precio) || 0) * (p.stock || 0);
-      valorPorCategoria[p.categoria] = (valorPorCategoria[p.categoria] || 0) + valor;
-    }
-  });
-  const topValorCategoria = Object.entries(valorPorCategoria)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3);
+  const { resumen, stock, actividad_hoy, productos_mas_movidos, top_categorias, top_valor_categoria, precio_stats, movimientos_semana } = metricas;
+  const recientes = movimientos.slice(0, 5);
+  const alertasActivas = alertas.filter(a => a.activa).length;
 
   return (
     <div className="page tablero">
@@ -106,22 +59,22 @@ function Tablero() {
       <section className="cards-grid">
         <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #4f3df8, #7a72ff)' }}>
           <h3>Productos registrados</h3>
-          <strong>{cargando ? '...' : productosRegistrados}</strong>
+          <strong>{cargando ? '...' : resumen.total_productos}</strong>
           <span>Catálogo total</span>
         </div>
         <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #08aeea, #2af598)' }}>
           <h3>Stock acumulado</h3>
-          <strong>{cargando ? '...' : stockTotal}</strong>
+          <strong>{cargando ? '...' : resumen.stock_total}</strong>
           <span>Unidades disponibles</span>
         </div>
         <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #f7971e, #ffd200)' }}>
           <h3>Valor estimado</h3>
-          <strong>{cargando ? '...' : formatCurrency(valorTotal)}</strong>
+          <strong>{cargando ? '...' : formatCurrency(resumen.valor_total)}</strong>
           <span>En base a stock actual</span>
         </div>
         <div className="data-card stagger-item" style={{ background: 'linear-gradient(135deg, #ff5f6d, #ffc371)' }}>
           <h3>Alertas activas</h3>
-          <strong>{cargando ? '...' : alertasActivas}</strong>
+          <strong>{cargando ? '...' : resumen.alertas_activas}</strong>
           <span>Productos críticos</span>
         </div>
       </section>
@@ -131,19 +84,17 @@ function Tablero() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div style={{ padding: '12px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca' }}>
             <p style={{ fontSize: '14px', color: '#991b1b', marginBottom: '4px', fontWeight: '500' }}>Stock crítico</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626' }}>{cargando ? '...' : stockCritico}</p>
+            <p style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626' }}>{cargando ? '...' : stock.critico}</p>
             <p style={{ fontSize: '12px', color: '#991b1b', marginTop: '4px' }}>≤5 unidades</p>
           </div>
           <div style={{ padding: '12px', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fde68a' }}>
             <p style={{ fontSize: '14px', color: '#92400e', marginBottom: '4px', fontWeight: '500' }}>Stock bajo</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#d97706' }}>{cargando ? '...' : stockBajo}</p>
+            <p style={{ fontSize: '24px', fontWeight: '700', color: '#d97706' }}>{cargando ? '...' : stock.bajo}</p>
             <p style={{ fontSize: '12px', color: '#92400e', marginTop: '4px' }}>6-10 unidades</p>
           </div>
           <div style={{ padding: '12px', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
             <p style={{ fontSize: '14px', color: '#14532d', marginBottom: '4px', fontWeight: '500' }}>Stock normal</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a' }}>
-              {cargando ? '...' : productosRegistrados - stockCritico - stockBajo}
-            </p>
+            <p style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a' }}>{cargando ? '...' : stock.normal}</p>
             <p style={{ fontSize: '12px', color: '#14532d', marginTop: '4px' }}>&gt;10 unidades</p>
           </div>
         </div>
@@ -154,30 +105,30 @@ function Tablero() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
           <div style={{ padding: '16px', background: '#ecfdf5', borderRadius: '10px', textAlign: 'center' }}>
             <p style={{ fontSize: '14px', color: '#065f46', marginBottom: '8px', fontWeight: '500' }}>Entradas</p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#10b981', margin: '0' }}>{entradasHoy}</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#10b981', margin: '0' }}>{actividad_hoy.entradas}</p>
           </div>
           <div style={{ padding: '16px', background: '#fef2f2', borderRadius: '10px', textAlign: 'center' }}>
             <p style={{ fontSize: '14px', color: '#991b1b', marginBottom: '8px', fontWeight: '500' }}>Salidas</p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#ef4444', margin: '0' }}>{salidasHoy}</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#ef4444', margin: '0' }}>{actividad_hoy.salidas}</p>
           </div>
           <div style={{ padding: '16px', background: '#f0f9ff', borderRadius: '10px', textAlign: 'center' }}>
             <p style={{ fontSize: '14px', color: '#075985', marginBottom: '8px', fontWeight: '500' }}>Total movimientos</p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#0284c7', margin: '0' }}>{movimientosHoy.length}</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#0284c7', margin: '0' }}>{actividad_hoy.total}</p>
           </div>
         </div>
       </section>
 
       <section className="panel" style={{ marginBottom: '24px' }}>
         <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Categorías principales</h2>
-        {topCategorias.length > 0 ? (
+        {top_categorias.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {topCategorias.map(([categoria, cantidad], index) => {
-              const porcentaje = ((cantidad / productosRegistrados) * 100).toFixed(1);
+            {top_categorias.map((item, index) => {
+              const porcentaje = ((item.cantidad / resumen.total_productos) * 100).toFixed(1);
               const colores = ['#3b82f6', '#8b5cf6', '#ec4899'];
               return (
-                <div key={categoria} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div key={item.categoria} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '120px', fontSize: '14px', fontWeight: '500', color: '#52525b' }}>
-                    {categoria}
+                    {item.categoria}
                   </div>
                   <div style={{ flex: 1, background: '#f1f5f9', borderRadius: '8px', height: '24px', overflow: 'hidden' }}>
                     <div style={{ 
@@ -189,7 +140,7 @@ function Tablero() {
                     }}></div>
                   </div>
                   <div style={{ width: '80px', textAlign: 'right', fontSize: '14px', fontWeight: '600', color: colores[index] }}>
-                    {cantidad} ({porcentaje}%)
+                    {item.cantidad} ({porcentaje}%)
                   </div>
                 </div>
               );
@@ -202,9 +153,9 @@ function Tablero() {
 
       <section className="panel" style={{ marginBottom: '24px' }}>
         <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Productos más movidos</h2>
-        {productosMasMovidos.length > 0 ? (
+        {productos_mas_movidos.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {productosMasMovidos.map((item, index) => (
+            {productos_mas_movidos.map((item, index) => (
               <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: '#fafbff', borderRadius: '8px' }}>
                 <div style={{ 
                   width: '32px', 
@@ -221,10 +172,10 @@ function Tablero() {
                   {index + 1}
                 </div>
                 <div style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
-                  {item.nombre}
+                  {item.producto__nombre}
                 </div>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#6366f1' }}>
-                  {item.cantidad} movimientos
+                  {item.total_movimientos} movimientos
                 </div>
               </div>
             ))}
@@ -236,9 +187,9 @@ function Tablero() {
 
       <section className="panel" style={{ marginBottom: '24px' }}>
         <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Valor por categoría</h2>
-        {topValorCategoria.length > 0 ? (
+        {top_valor_categoria.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-            {topValorCategoria.map(([categoria, valor], index) => {
+            {top_valor_categoria.map((item, index) => {
               const colores = [
                 { bg: '#eff6ff', text: '#1e40af', border: '#93c5fd' },
                 { bg: '#f0fdf4', text: '#166534', border: '#86efac' },
@@ -246,7 +197,7 @@ function Tablero() {
               ];
               const color = colores[index] || colores[0];
               return (
-                <div key={categoria} style={{ 
+                <div key={item.categoria} style={{ 
                   padding: '16px', 
                   background: color.bg, 
                   borderRadius: '10px', 
@@ -254,10 +205,10 @@ function Tablero() {
                   textAlign: 'center'
                 }}>
                   <p style={{ fontSize: '13px', color: color.text, marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>
-                    {categoria}
+                    {item.categoria}
                   </p>
                   <p style={{ fontSize: '20px', fontWeight: '700', color: color.text, margin: '0' }}>
-                    {formatCurrency(valor)}
+                    {formatCurrency(item.valor)}
                   </p>
                 </div>
               );
@@ -266,6 +217,76 @@ function Tablero() {
         ) : (
           <div className="empty-state">No hay categorías con valor</div>
         )}
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Estadísticas de precios</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          <div style={{ padding: '14px', background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)', borderRadius: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: '#3730a3', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase' }}>
+              Precio Promedio
+            </p>
+            <p style={{ fontSize: '20px', fontWeight: '700', color: '#4338ca', margin: '0' }}>
+              {formatCurrency(precio_stats.promedio)}
+            </p>
+          </div>
+          <div style={{ padding: '14px', background: 'linear-gradient(135deg, #dcfce7, #bbf7d0)', borderRadius: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: '#14532d', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase' }}>
+              Precio Mínimo
+            </p>
+            <p style={{ fontSize: '20px', fontWeight: '700', color: '#15803d', margin: '0' }}>
+              {formatCurrency(precio_stats.minimo)}
+            </p>
+          </div>
+          <div style={{ padding: '14px', background: 'linear-gradient(135deg, #fef3c7, #fde047)', borderRadius: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: '#713f12', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase' }}>
+              Precio Máximo
+            </p>
+            <p style={{ fontSize: '20px', fontWeight: '700', color: '#854d0e', margin: '0' }}>
+              {formatCurrency(precio_stats.maximo)}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Movimientos últimos 7 días</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {movimientos_semana.map((dia, index) => {
+            const total = dia.entradas + dia.salidas;
+            const maxTotal = Math.max(...movimientos_semana.map(d => d.entradas + d.salidas), 1);
+            const porcentaje = (total / maxTotal) * 100;
+            return (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '90px', fontSize: '13px', fontWeight: '500', color: '#64748b' }}>
+                  {new Date(dia.fecha).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })}
+                </div>
+                <div style={{ flex: 1, display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <div style={{ position: 'relative', flex: 1, background: '#f1f5f9', borderRadius: '6px', height: '28px', overflow: 'hidden' }}>
+                    <div style={{ 
+                      width: `${porcentaje}%`, 
+                      height: '100%', 
+                      background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)', 
+                      borderRadius: '6px',
+                      transition: 'width 0.5s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      paddingLeft: '8px'
+                    }}>
+                      <span style={{ fontSize: '11px', color: 'white', fontWeight: '600' }}>
+                        {total > 0 && `${total} mov.`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ width: '140px', display: 'flex', gap: '8px', fontSize: '12px', fontWeight: '500' }}>
+                  <span style={{ color: '#10b981' }}>↑{dia.entradas}</span>
+                  <span style={{ color: '#ef4444' }}>↓{dia.salidas}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       <section className="grid-two">
@@ -316,7 +337,7 @@ function Tablero() {
             <p>Consultando alertas...</p>
           ) : alertasActivas ? (
             <ul className="alertas-mini-list">
-              {datos.alertas
+              {alertas
                 .filter((alerta) => alerta.activa)
                 .map((alerta) => (
                   <li key={alerta.id}>
