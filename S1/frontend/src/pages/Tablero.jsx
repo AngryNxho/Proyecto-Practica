@@ -66,6 +66,32 @@ function Tablero() {
   const entradasHoy = movimientosHoy.filter(m => m.tipo === 'ENTRADA').length;
   const salidasHoy = movimientosHoy.filter(m => m.tipo === 'SALIDA').length;
 
+  // Productos más movidos
+  const contadorMovimientos = {};
+  datos.movimientos.forEach(m => {
+    const id = m.producto;
+    contadorMovimientos[id] = (contadorMovimientos[id] || 0) + 1;
+  });
+  const productosMasMovidos = Object.entries(contadorMovimientos)
+    .map(([id, cantidad]) => {
+      const producto = datos.productos.find(p => p.id === parseInt(id));
+      return { nombre: producto?.nombre || 'Desconocido', cantidad };
+    })
+    .sort((a, b) => b.cantidad - a.cantidad)
+    .slice(0, 5);
+
+  // Valor por categoría
+  const valorPorCategoria = {};
+  datos.productos.forEach(p => {
+    if (p.categoria) {
+      const valor = (Number(p.precio) || 0) * (p.stock || 0);
+      valorPorCategoria[p.categoria] = (valorPorCategoria[p.categoria] || 0) + valor;
+    }
+  });
+  const topValorCategoria = Object.entries(valorPorCategoria)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
   return (
     <div className="page tablero">
       <header className="page-header animate-fade-in">
@@ -171,6 +197,74 @@ function Tablero() {
           </div>
         ) : (
           <div className="empty-state">No hay categorías registradas</div>
+        )}
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Productos más movidos</h2>
+        {productosMasMovidos.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {productosMasMovidos.map((item, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: '#fafbff', borderRadius: '8px' }}>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '50%', 
+                  background: index === 0 ? '#fbbf24' : index === 1 ? '#94a3b8' : '#fb923c',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '700',
+                  color: 'white',
+                  fontSize: '14px'
+                }}>
+                  {index + 1}
+                </div>
+                <div style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
+                  {item.nombre}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: '#6366f1' }}>
+                  {item.cantidad} movimientos
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">No hay movimientos registrados</div>
+        )}
+      </section>
+
+      <section className="panel" style={{ marginBottom: '24px' }}>
+        <h2 className="section-title" style={{ marginBottom: '16px', fontSize: '18px' }}>Valor por categoría</h2>
+        {topValorCategoria.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+            {topValorCategoria.map(([categoria, valor], index) => {
+              const colores = [
+                { bg: '#eff6ff', text: '#1e40af', border: '#93c5fd' },
+                { bg: '#f0fdf4', text: '#166534', border: '#86efac' },
+                { bg: '#fef3c7', text: '#92400e', border: '#fde047' }
+              ];
+              const color = colores[index] || colores[0];
+              return (
+                <div key={categoria} style={{ 
+                  padding: '16px', 
+                  background: color.bg, 
+                  borderRadius: '10px', 
+                  border: `1px solid ${color.border}`,
+                  textAlign: 'center'
+                }}>
+                  <p style={{ fontSize: '13px', color: color.text, marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>
+                    {categoria}
+                  </p>
+                  <p style={{ fontSize: '20px', fontWeight: '700', color: color.text, margin: '0' }}>
+                    {formatCurrency(valor)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="empty-state">No hay categorías con valor</div>
         )}
       </section>
 
