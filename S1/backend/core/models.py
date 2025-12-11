@@ -56,27 +56,33 @@ class Producto(models.Model):
         return movimiento
     
     def registrar_salida(self, cantidad, descripcion=''):
-        """Registra una salida de stock con validación estricta"""
+        """Registra una salida de stock con validación estricta y protección contra race conditions"""
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser mayor a cero")
         
-        if cantidad > self.stock:
-            raise ValueError(
-                f"Stock insuficiente para '{self.nombre}'. "
-                f"Disponible: {self.stock}, Solicitado: {cantidad}, "
-                f"Faltante: {cantidad - self.stock}"
-            )
-        
         with transaction.atomic():
+            # Usar select_for_update para evitar race conditions en operaciones concurrentes
+            producto = Producto.objects.select_for_update().get(pk=self.pk)
+            
+            if cantidad > producto.stock:
+                raise ValueError(
+                    f"Stock insuficiente para '{producto.nombre}'. "
+                    f"Disponible: {producto.stock}, Solicitado: {cantidad}, "
+                    f"Faltante: {cantidad - producto.stock}"
+                )
+            
             movimiento = Movimiento.objects.create(
-                producto=self,
+                producto=producto,
                 tipo='SALIDA',
                 cantidad=cantidad,
                 descripcion=descripcion
             )
-            self.stock -= cantidad
-            self.save(update_fields=['stock'])
-            self._verificar_alertas()
+            producto.stock -= cantidad
+            producto.save(update_fields=['stock'])
+            producto._verificar_alertas()
+            
+            # Actualizar self para reflejar cambios
+            self.refresh_from_db()
         return movimiento
     
     def _verificar_alertas(self):

@@ -51,6 +51,44 @@ class ProductoSerializer(serializers.ModelSerializer):
         return value
     
     def validate_codigo_barras(self, value):
+        """Valida formato de código de barras"""
+        if value:
+            value = value.strip()
+            if not value.isdigit():
+                raise serializers.ValidationError("El código de barras solo debe contener números.")
+            if len(value) < 8:
+                raise serializers.ValidationError("El código de barras debe tener al menos 8 dígitos.")
+            if len(value) > 13:
+                raise serializers.ValidationError("El código de barras no puede tener más de 13 dígitos.")
+        return value
+    
+    def validate(self, data):
+        """Validaciones a nivel de objeto completo"""
+        # Evitar nombres duplicados (case-insensitive)
+        if 'nombre' in data:
+            nombre = data['nombre'].strip().lower()
+            queryset = Producto.objects.filter(nombre__iexact=nombre)
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise serializers.ValidationError({
+                    'nombre': 'Ya existe un producto con este nombre.'
+                })
+        
+        # Evitar códigos de barras duplicados
+        if 'codigo_barras' in data and data.get('codigo_barras'):
+            codigo = data['codigo_barras'].strip()
+            queryset = Producto.objects.filter(codigo_barras=codigo)
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise serializers.ValidationError({
+                    'codigo_barras': 'Este código de barras ya está registrado.'
+                })
+        
+        return data
+    
+    def validate_codigo_barras(self, value):
         """Valida formato de código de barras si se proporciona"""
         if value:
             # Permitir solo caracteres alfanuméricos y guiones
@@ -119,3 +157,29 @@ class AlertaSerializer(serializers.ModelSerializer):
                 "El umbral es muy alto. Considere un valor más razonable (máx. 1000)."
             )
         return value
+    
+    def validate(self, data):
+        """Validaciones a nivel de objeto completo"""
+        producto = data.get('producto')
+        umbral = data.get('umbral')
+        
+        # Evitar alertas duplicadas para el mismo producto y umbral
+        if producto and umbral:
+            queryset = Alerta.objects.filter(producto=producto, umbral=umbral, activa=True)
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise serializers.ValidationError(
+                    f"Ya existe una alerta activa para '{producto.nombre}' con umbral {umbral}."
+                )
+        
+        # Validar que el umbral sea mayor que el stock actual si se crea nueva alerta
+        if not self.instance and producto and umbral:
+            if umbral <= producto.stock:
+                raise serializers.ValidationError(
+                    f"El umbral ({umbral}) debe ser mayor al stock actual ({producto.stock}) "
+                    f"para que la alerta tenga sentido."
+                )
+        
+        return data
+
