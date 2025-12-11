@@ -360,3 +360,50 @@ class AlertaAPITestCase(APITestCase):
         }
         response = self.client.post('/api/alertas/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_resolver_alerta(self):
+        """Verifica que POST /api/alertas/{id}/resolver/ desactive la alerta"""
+        self.assertTrue(self.alerta.activa)
+        response = self.client.post(f'/api/alertas/{self.alerta.id}/resolver/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.alerta.refresh_from_db()
+        self.assertFalse(self.alerta.activa)
+    
+    def test_actualizar_alerta_umbral(self):
+        """Verifica que se pueda actualizar el umbral de una alerta"""
+        data = {'umbral': 15, 'activa': True}
+        response = self.client.patch(f'/api/alertas/{self.alerta.id}/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.alerta.refresh_from_db()
+        self.assertEqual(self.alerta.umbral, 15)
+    
+    def test_eliminar_alerta(self):
+        """Verifica que DELETE /api/alertas/{id}/ elimine la alerta"""
+        alerta_id = self.alerta.id
+        response = self.client.delete(f'/api/alertas/{alerta_id}/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Alerta.objects.filter(id=alerta_id).exists())
+    
+    def test_filtrar_alertas_por_estado(self):
+        """Verifica que se puedan filtrar alertas por estado activo"""
+        Alerta.objects.create(producto=self.producto, umbral=5, activa=False)
+        response = self.client.get('/api/alertas/?activa=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for alerta in response.data['results']:
+            self.assertTrue(alerta['activa'])
+    
+    def test_alertas_multiples_productos(self):
+        """Verifica que se listen alertas de múltiples productos"""
+        producto2 = Producto.objects.create(nombre="Producto 2", precio=2000, stock=2)
+        Alerta.objects.create(producto=producto2, umbral=5, activa=True)
+        response = self.client.get('/api/alertas/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data['results']), 2)
+    
+    def test_alerta_incluye_datos_producto(self):
+        """Verifica que la alerta incluya información del producto relacionado"""
+        response = self.client.get(f'/api/alertas/{self.alerta.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('producto_nombre', response.data)
+        self.assertEqual(response.data['producto_nombre'], self.producto.nombre)
+
