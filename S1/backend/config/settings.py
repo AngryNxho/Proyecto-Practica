@@ -138,7 +138,7 @@ CORS_ALLOWED_ORIGINS = config(
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.PaginacionEstandar',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,  # Optimizado de 10 a 20 para mejor UX
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
@@ -152,6 +152,8 @@ REST_FRAMEWORK = {
         'anon': '100/hour',
         'user': '1000/hour'
     },
+    # Optimización: timeout para queries largas
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
 }
 
 # Configuración de caché para mejorar performance

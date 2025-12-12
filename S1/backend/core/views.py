@@ -43,7 +43,10 @@ class ProductoViewSet(viewsets.ModelViewSet):
     
     Ordenamiento (ordering): nombre, stock, precio, fecha_creacion, categoria
     """
-    queryset = Producto.objects.all().order_by('-fecha_creacion')
+    queryset = Producto.objects.select_related().prefetch_related(
+        Prefetch('alertas', queryset=Alerta.objects.filter(activa=True)),
+        Prefetch('movimientos', queryset=Movimiento.objects.order_by('-fecha')[:5])
+    ).all().order_by('-fecha_creacion')
     serializer_class = ProductoSerializer
     pagination_class = PaginacionEstandar
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -487,7 +490,10 @@ class MovimientoViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def exportar_csv(self, request):
-        """Exporta todos los movimientos a CSV"""
+        """
+        Exporta movimientos a CSV con optimización de queries
+        Aplica filtros de la queryset actual para exportar solo datos relevantes
+        """
         response = HttpResponse(content_type='text/csv; charset=utf-8')
         response['Content-Disposition'] = f'attachment; filename="movimientos_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
         response.write('\ufeff')
@@ -495,11 +501,13 @@ class MovimientoViewSet(viewsets.ModelViewSet):
         writer = csv.writer(response)
         writer.writerow(['ID', 'Producto', 'Tipo', 'Cantidad', 'Fecha', 'Descripción'])
         
-        # Forzar consulta fresca desde la base de datos
-        movimientos = Movimiento.objects.all().select_related('producto').order_by('-fecha')
+        # Optimización: usar select_related para evitar N+1 queries
+        # Aplicar filtros del request para exportar solo datos filtrados
+        movimientos = self.filter_queryset(self.get_queryset()).select_related('producto').order_by('-fecha')
         tz_chile = pytz.timezone('America/Santiago')
         
-        for mov in movimientos:
+        # Usar iterator() para manejar grandes datasets sin cargar todo en memoria
+        for mov in movimientos.iterator(chunk_size=1000):
             # Convertir UTC a hora local de Chile
             fecha_local = mov.fecha.astimezone(tz_chile)
             
