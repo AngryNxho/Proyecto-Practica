@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
 import Movimientos from './pages/Movimientos';
 import Alertas from './pages/Alertas';
+import Reportes from './pages/Reportes';
 import Scanner from './pages/Scanner';
 import GeneradorCodigoBarras from './pages/GeneradorCodigoBarras';
 import DevTools from './pages/DevTools';
@@ -22,6 +23,7 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/movimientos" element={<Movimientos />} />
           <Route path="/alertas" element={<Alertas />} />
+          <Route path="/reportes" element={<Reportes />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/generador" element={<GeneradorCodigoBarras />} />
           <Route path="/dev" element={<DevTools />} />

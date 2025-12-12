@@ -245,6 +245,112 @@ class ProductoViewSet(viewsets.ModelViewSet):
             ])
         
         return response
+
+    @action(detail=False, methods=['get'])
+    def exportar_reporte(self, request):
+        """
+        Exporta reporte filtrado de productos con análisis adicional
+        Parámetros opcionales:
+        - categoria: filtrar por categoría
+        - fecha_desde: fecha inicio (YYYY-MM-DD)
+        - fecha_hasta: fecha fin (YYYY-MM-DD)
+        - formato: csv (por defecto)
+        """
+        from django.db.models import Sum, F
+        
+        categoria = request.query_params.get('categoria')
+        fecha_desde = request.query_params.get('fecha_desde')
+        fecha_hasta = request.query_params.get('fecha_hasta')
+        
+        productos = Producto.objects.all()
+        
+        if categoria and categoria != 'todas':
+            productos = productos.filter(categoria=categoria)
+        
+        if fecha_desde:
+            productos = productos.filter(fecha_creacion__gte=fecha_desde)
+        
+        if fecha_hasta:
+            productos = productos.filter(fecha_creacion__lte=fecha_hasta + ' 23:59:59')
+        
+        productos = productos.order_by('categoria', 'nombre')
+        
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="reporte_inventario_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+        response.write('\ufeff')
+        
+        writer = csv.writer(response)
+        
+        # Encabezado del reporte
+        writer.writerow(['REPORTE DE INVENTARIO'])
+        writer.writerow(['Generado:', datetime.now().strftime('%d/%m/%Y %H:%M:%S')])
+        writer.writerow(['Categoría:', categoria if categoria and categoria != 'todas' else 'Todas'])
+        writer.writerow([])
+        
+        # Datos de productos
+        writer.writerow(['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Stock', 'Precio Unit.', 'Valor Total', 'Estado Stock'])
+        
+        total_productos = 0
+        stock_total = 0
+        valor_total = 0
+        tz_chile = pytz.timezone('America/Santiago')
+        
+        for producto in productos:
+            valor_producto = float(producto.precio) * producto.stock
+            
+            # Determinar estado del stock
+            if producto.stock <= 5:
+                estado = 'CRÍTICO'
+            elif producto.stock <= 10:
+                estado = 'BAJO'
+            else:
+                estado = 'NORMAL'
+            
+            writer.writerow([
+                producto.id,
+                producto.nombre,
+                producto.marca,
+                producto.modelo,
+                producto.categoria,
+                producto.stock,
+                f"${producto.precio:,.0f}",
+                f"${valor_producto:,.0f}",
+                estado
+            ])
+            
+            total_productos += 1
+            stock_total += producto.stock
+            valor_total += valor_producto
+        
+        # Resumen
+        writer.writerow([])
+        writer.writerow(['RESUMEN'])
+        writer.writerow(['Total Productos:', total_productos])
+        writer.writerow(['Stock Total:', stock_total])
+        writer.writerow(['Valor Total Inventario:', f"${valor_total:,.0f}"])
+        
+        # Análisis por categoría
+        if not categoria or categoria == 'todas':
+            writer.writerow([])
+            writer.writerow(['ANÁLISIS POR CATEGORÍA'])
+            writer.writerow(['Categoría', 'Cantidad Productos', 'Stock Total', 'Valor Total'])
+            
+            from django.db.models import Count
+            categorias = Producto.objects.values('categoria').annotate(
+                cantidad=Count('id'),
+                stock_total=Sum('stock'),
+                valor=Sum(F('stock') * F('precio'))
+            ).order_by('-valor')
+            
+            for cat in categorias:
+                writer.writerow([
+                    cat['categoria'],
+                    cat['cantidad'],
+                    cat['stock_total'],
+                    f"${cat['valor']:,.0f}"
+                ])
+        
+        return response
     
     @action(detail=True, methods=['post'])
     def registrar_entrada(self, request, pk=None):
