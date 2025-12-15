@@ -407,3 +407,79 @@ class AlertaAPITestCase(APITestCase):
         self.assertIn('producto_nombre', response.data)
         self.assertEqual(response.data['producto_nombre'], self.producto.nombre)
 
+
+class PerformanceTestCase(APITestCase):
+    """Tests de rendimiento para endpoints principales"""
+    
+    def setUp(self):
+        """Crear datos de prueba para tests de rendimiento"""
+        # Crear 50 productos de prueba
+        self.productos = []
+        for i in range(50):
+            producto = Producto.objects.create(
+                nombre=f"Producto Test {i}",
+                marca=f"Marca {i % 5}",
+                modelo=f"Modelo-{i}",
+                precio=10000 + (i * 100),
+                stock=10 + (i % 20),
+                categoria=["Toner", "Tinta", "Papel", "Impresora", "Repuesto"][i % 5],
+                codigo_barras=f"TEST{i:05d}"
+            )
+            self.productos.append(producto)
+        
+        # Crear 100 movimientos de prueba
+        for i in range(100):
+            producto = self.productos[i % 50]
+            tipo = 'ENTRADA' if i % 2 == 0 else 'SALIDA'
+            cantidad = (i % 5) + 1
+            
+            Movimiento.objects.create(
+                producto=producto,
+                tipo=tipo,
+                cantidad=cantidad,
+                descripcion=f"Movimiento de prueba {i}"
+            )
+    
+    def test_listar_movimientos_performance(self):
+        """Verifica que listar movimientos sea rápido"""
+        import time
+        
+        start_time = time.time()
+        response = self.client.get('/api/movimientos/?page_size=20')
+        end_time = time.time()
+        
+        elapsed_time = end_time - start_time
+        
+        # Debe responder en menos de 1.5 segundos
+        self.assertLess(elapsed_time, 1.5,
+            f"Listar movimientos tomó {elapsed_time:.3f}s, debe ser < 1.5s")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Log para análisis
+        print(f"✓ Movimientos listados en {elapsed_time:.3f}s")
+    
+    def test_dashboard_metricas_performance(self):
+        """Verifica que el endpoint de métricas del dashboard sea rápido"""
+        import time
+        
+        start_time = time.time()
+        response = self.client.get('/api/productos/metricas_dashboard/')
+        end_time = time.time()
+        
+        elapsed_time = end_time - start_time
+        
+        # Debe responder en menos de 3 segundos (más complejo con múltiples agregaciones)
+        self.assertLess(elapsed_time, 3.0,
+            f"Dashboard tomó {elapsed_time:.3f}s, debe ser < 3s")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Verificar que retorna las métricas esperadas
+        self.assertIn('resumen', response.data)
+        self.assertIn('stock', response.data)
+        self.assertIn('actividad_hoy', response.data)
+        
+        # Log para análisis
+        print(f"✓ Dashboard métricas cargadas en {elapsed_time:.3f}s")
+        print(f"  - Total productos: {response.data['resumen']['total_productos']}")
+        print(f"  - Alertas activas: {response.data['resumen']['alertas_activas']}")
+
