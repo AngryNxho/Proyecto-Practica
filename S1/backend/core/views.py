@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Prefetch
 from django.utils import timezone
+from django.core.cache import cache
 from .models import Producto, Movimiento, Alerta
 from .serializers import ProductoSerializer, MovimientoSerializer, AlertaSerializer
 from .pagination import PaginacionEstandar
@@ -554,13 +555,30 @@ class AlertaViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def activas(self, request):
-        """Obtiene solo las alertas activas"""
+        """
+        Obtiene solo las alertas activas con caché de 5 minutos
+        para reducir carga en la base de datos
+        """
+        # Intentar obtener desde caché
+        cache_key = 'alertas_activas'
+        alertas_cached = cache.get(cache_key)
+        
+        if alertas_cached is not None:
+            return Response(alertas_cached)
+        
+        # Si no está en caché, consultar BD
         alertas_activas = self.queryset.filter(activa=True)
         serializer = self.get_serializer(alertas_activas, many=True)
-        return Response({
+        
+        response_data = {
             'total': alertas_activas.count(),
             'alertas': serializer.data
-        })
+        }
+        
+        # Guardar en caché por 5 minutos
+        cache.set(cache_key, response_data, 300)
+        
+        return Response(response_data)
     
     @action(detail=True, methods=['post'])
     def resolver(self, request, pk=None):

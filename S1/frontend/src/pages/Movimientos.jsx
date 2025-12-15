@@ -20,6 +20,8 @@ function Movimientos() {
   const [ordenamiento, setOrdenamiento] = useState('-fecha');
   const [movimientoSeleccionado, setMovimientoSeleccionado] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [itemsPorPagina, setItemsPorPagina] = useState(20);
+  const [paginaActual, setPaginaActual] = useState(1);
 
   useEffect(() => {
     cargarDatos();
@@ -150,6 +152,24 @@ function Movimientos() {
     return Object.entries(productosCount)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
+  };
+
+  // Calcular paginación
+  const totalPaginas = Math.ceil(movimientosOrdenados.length / itemsPorPagina);
+  const indexInicio = (paginaActual - 1) * itemsPorPagina;
+  const indexFin = indexInicio + itemsPorPagina;
+  const movimientosPaginados = movimientosOrdenados.slice(indexInicio, indexFin);
+
+  const cambiarPagina = (nuevaPagina) => {
+    if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+      setPaginaActual(nuevaPagina);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const cambiarItemsPorPagina = (nuevoValor) => {
+    setItemsPorPagina(parseInt(nuevoValor));
+    setPaginaActual(1);
   };
 
   const exportarMovimientosCSV = async () => {
@@ -320,6 +340,21 @@ function Movimientos() {
           <span style={{ fontSize: '14px', color: '#52525b', padding: '0 8px' }}>
             {movimientosFiltrados.length} {movimientosFiltrados.length === 1 ? 'resultado' : 'resultados'}
           </span>
+          <label htmlFor="items-por-pagina" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
+            Mostrar:
+          </label>
+          <select 
+            id="items-por-pagina"
+            value={itemsPorPagina} 
+            onChange={(e) => cambiarItemsPorPagina(e.target.value)}
+            style={{ padding: '8px 12px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}
+            aria-label="Cantidad de items por página"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <label htmlFor="filtro-producto" style={{ fontSize: '14px', color: '#52525b', fontWeight: '500' }}>
@@ -394,11 +429,47 @@ function Movimientos() {
       </div>
 
       <ListaMovimientos 
-        movimientos={movimientosOrdenados} 
+        movimientos={movimientosPaginados} 
         cargando={cargando} 
         error={error}
         onVerDetalle={abrirDetalle}
       />
+
+      {totalPaginas > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '24px' }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => cambiarPagina(1)}
+            disabled={paginaActual === 1}
+          >
+            ««
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => cambiarPagina(paginaActual - 1)}
+            disabled={paginaActual === 1}
+          >
+            « Anterior
+          </button>
+          <span style={{ fontSize: '14px', color: '#52525b', padding: '0 16px' }}>
+            Página {paginaActual} de {totalPaginas}
+          </span>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => cambiarPagina(paginaActual + 1)}
+            disabled={paginaActual === totalPaginas}
+          >
+            Siguiente »
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => cambiarPagina(totalPaginas)}
+            disabled={paginaActual === totalPaginas}
+          >
+            »»
+          </button>
+        </div>
+      )}
 
       {mostrarModal && movimientoSeleccionado && (
         <ModalDetalleMovimiento 
