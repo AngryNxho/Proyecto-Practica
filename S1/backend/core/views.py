@@ -45,8 +45,8 @@ class ProductoViewSet(viewsets.ModelViewSet):
     Ordenamiento (ordering): nombre, stock, precio, fecha_creacion, categoria
     """
     queryset = Producto.objects.select_related().prefetch_related(
-        Prefetch('alertas', queryset=Alerta.objects.filter(activa=True)),
-        Prefetch('movimientos', queryset=Movimiento.objects.order_by('-fecha')[:5])
+        'alertas',
+        'movimientos'
     ).all().order_by('-fecha_creacion')
     serializer_class = ProductoSerializer
     pagination_class = PaginacionEstandar
@@ -118,105 +118,132 @@ class ProductoViewSet(viewsets.ModelViewSet):
     def metricas_dashboard(self, request):
         """
         Endpoint completo para el dashboard con todas las métricas necesarias
-        Optimizado para una sola consulta
+        Optimizado con caché y consultas eficientes
         """
         from django.db.models import Sum, Count, Q, F, Avg, Max, Min
         from decimal import Decimal
         
-        productos = Producto.objects.all()
-        movimientos = Movimiento.objects.all()
-        alertas = Alerta.objects.all()
+        # Verificar si hay datos en caché (TTL 5 minutos)
+        cache_key = 'metricas_dashboard'
+        cached_data = cache.get(cache_key)
         
-        # Métricas básicas de productos
-        total_productos = productos.count()
-        stock_total = productos.aggregate(total=Sum('stock'))['total'] or 0
-        valor_total = productos.aggregate(
-            total=Sum(F('stock') * F('precio'))
-        )['total'] or Decimal('0')
+        if cached_data is not None and not request.query_params.get('refresh'):
+            logger.info("Métricas dashboard obtenidas desde caché")
+            return Response(cached_data)
         
-        # Clasificación por stock
-        stock_critico = productos.filter(stock__lte=5).count()
-        stock_bajo = productos.filter(stock__gt=5, stock__lte=10).count()
-        stock_normal = productos.filter(stock__gt=10).count()
+        logger.info("Generando métricas dashboard (no en caché)")
+        
+        # Optimización: usar select_related y prefetch_related para reducir queries
+        productos = Producto.objects.only('id', 'nombre', 'stock', 'precio', 'categoria')
+        movimientos = Movimiento.objects.select_related('producto').only(
+            'id', 'producto__nombre', 'tipo', 'fecha', 'cantidad'
+        )
+        alertas = Alerta.objects.only('activa')
+        
+        # Métricas básicas de productos (optimizado con una sola query)
+        stats = productos.aggregate(
+            total_productos=Count('id'),
+            stock_total=Sum('stock'),
+            valor_total=Sum(F('stock') * F('precio')),
+            precio_promedio=Avg('precio'),
+            precio_max=Max('precio'),
+            precio_min=Min('precio')
+        )
+        
+        # Clasificación por stock (optimizado con una sola query)
+        stock_clasificacion = productos.aggregate(
+            critico=Count('id', filter=Q(stock__lte=5)),
+            bajo=Count('id', filter=Q(stock__gt=5, stock__lte=10)),
+            normal=Count('id', filter=Q(stock__gt=10))
+        )
         
         # Alertas activas
         alertas_activas = alertas.filter(activa=True).count()
         
         # Top 5 productos más movidos
         from django.db.models import Count as CountAgg
-        productos_mas_movidos = movimientos.values('producto__nombre').annotate(
-            total_movimientos=CountAgg('id')
-        ).order_by('-total_movimientos')[:5]
-        
-        # Movimientos del día
-        hoy = timezone.now().date()
-        movimientos_hoy = movimientos.filter(fecha__date=hoy)
-        entradas_hoy = movimientos_hoy.filter(tipo='ENTRADA').count()
-        salidas_hoy = movimientos_hoy.filter(tipo='SALIDA').count()
-        
-        # Top 3 categorías por cantidad
-        top_categorias = productos.values('categoria').annotate(
-            cantidad=CountAgg('id')
-        ).order_by('-cantidad')[:3]
-        
-        # Top 3 categorías por valor
-        top_valor_categoria = productos.values('categoria').annotate(
-            valor=Sum(F('stock') * F('precio'))
-        ).order_by('-valor')[:3]
-        
-        # Estadísticas de precios
-        precio_stats = productos.aggregate(
-            precio_promedio=Avg('precio'),
-            precio_max=Max('precio'),
-            precio_min=Min('precio')
+        productos_mas_movidos = list(
+            movimientos.values('producto__nombre').annotate(
+                total_movimientos=CountAgg('id')
+            ).order_by('-total_movimientos')[:5]
         )
         
-        # Movimientos de última semana
+        # Movimientos del día (optimizado)
+        hoy = timezone.now().date()
+        movimientos_hoy_stats = movimientos.filter(fecha__date=hoy).aggregate(
+            entradas=Count('id', filter=Q(tipo='ENTRADA')),
+            salidas=Count('id', filter=Q(tipo='SALIDA'))
+        )
+        
+        # Top 3 categorías por cantidad
+        top_categorias = list(
+            productos.values('categoria').annotate(
+                cantidad=CountAgg('id')
+            ).order_by('-cantidad')[:3]
+        )
+        
+        # Top 3 categorías por valor
+        top_valor_categoria = [
+            {
+                'categoria': item['categoria'],
+                'valor': round(float(item['valor'] or 0), 2)
+            }
+            for item in productos.values('categoria').annotate(
+                valor=Sum(F('stock') * F('precio'))
+            ).order_by('-valor')[:3]
+        ]
+        
+        # Movimientos de última semana (optimizado con una query)
         hace_7_dias = timezone.now() - timezone.timedelta(days=7)
         movimientos_semana = movimientos.filter(fecha__gte=hace_7_dias)
+        
+        # Generar datos por día usando agregación
         movimientos_por_dia = []
         for i in range(7):
             dia = timezone.now() - timezone.timedelta(days=i)
-            movs_dia = movimientos_semana.filter(fecha__date=dia.date())
+            stats_dia = movimientos_semana.filter(fecha__date=dia.date()).aggregate(
+                entradas=Count('id', filter=Q(tipo='ENTRADA')),
+                salidas=Count('id', filter=Q(tipo='SALIDA'))
+            )
             movimientos_por_dia.append({
                 'fecha': dia.strftime('%Y-%m-%d'),
-                'entradas': movs_dia.filter(tipo='ENTRADA').count(),
-                'salidas': movs_dia.filter(tipo='SALIDA').count()
+                'entradas': stats_dia['entradas'],
+                'salidas': stats_dia['salidas']
             })
         
-        return Response({
+        data = {
             'resumen': {
-                'total_productos': total_productos,
-                'stock_total': stock_total,
-                'valor_total': round(float(valor_total), 2),
+                'total_productos': stats['total_productos'] or 0,
+                'stock_total': stats['stock_total'] or 0,
+                'valor_total': round(float(stats['valor_total'] or 0), 2),
                 'alertas_activas': alertas_activas,
             },
             'stock': {
-                'critico': stock_critico,
-                'bajo': stock_bajo,
-                'normal': stock_normal
+                'critico': stock_clasificacion['critico'],
+                'bajo': stock_clasificacion['bajo'],
+                'normal': stock_clasificacion['normal']
             },
             'actividad_hoy': {
-                'entradas': entradas_hoy,
-                'salidas': salidas_hoy,
-                'total': entradas_hoy + salidas_hoy
+                'entradas': movimientos_hoy_stats['entradas'],
+                'salidas': movimientos_hoy_stats['salidas'],
+                'total': movimientos_hoy_stats['entradas'] + movimientos_hoy_stats['salidas']
             },
-            'productos_mas_movidos': list(productos_mas_movidos),
-            'top_categorias': list(top_categorias),
-            'top_valor_categoria': [
-                {
-                    'categoria': item['categoria'],
-                    'valor': round(float(item['valor'] or 0), 2)
-                }
-                for item in top_valor_categoria
-            ],
+            'productos_mas_movidos': productos_mas_movidos,
+            'top_categorias': top_categorias,
+            'top_valor_categoria': top_valor_categoria,
             'precio_stats': {
-                'promedio': round(float(precio_stats['precio_promedio'] or 0), 2),
-                'maximo': round(float(precio_stats['precio_max'] or 0), 2),
-                'minimo': round(float(precio_stats['precio_min'] or 0), 2)
+                'promedio': round(float(stats['precio_promedio'] or 0), 2),
+                'maximo': round(float(stats['precio_max'] or 0), 2),
+                'minimo': round(float(stats['precio_min'] or 0), 2)
             },
             'movimientos_semana': movimientos_por_dia
-        })
+        }
+        
+        # Guardar en caché por 5 minutos (300 segundos)
+        cache.set(cache_key, data, 300)
+        logger.info("Métricas dashboard guardadas en caché")
+        
+        return Response(data)
     
     @action(detail=False, methods=['get'])
     def exportar_csv(self, request):
