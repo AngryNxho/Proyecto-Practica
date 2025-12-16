@@ -1,0 +1,30 @@
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+  | node_modules
+  | htmlcov
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip_gitignore = true
+known_django = "django"
+known_rest_framework = "rest_framework"
+sections = ["FUTURE", "STDLIB", "DJANGO", "REST_FRAMEWORK", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
