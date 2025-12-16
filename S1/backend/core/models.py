@@ -38,27 +38,34 @@ class Producto(models.Model):
             return self.stock < alerta.umbral
         return False
     
-    def registrar_entrada(self, cantidad, descripcion=''):
-        """Registra una entrada de stock con validación"""
+    def registrar_entrada(self, cantidad, descripcion='', usuario=None):
+        """Registra una entrada de stock con validación y auditoría"""
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser mayor a cero")
+        
+        if not descripcion:
+            raise ValueError("La descripción es obligatoria")
         
         with transaction.atomic():
             movimiento = Movimiento.objects.create(
                 producto=self,
                 tipo='ENTRADA',
                 cantidad=cantidad,
-                descripcion=descripcion
+                descripcion=descripcion,
+                usuario=usuario or 'Sistema'
             )
             self.stock += cantidad
             self.save(update_fields=['stock'])
             self._verificar_alertas()
         return movimiento
     
-    def registrar_salida(self, cantidad, descripcion=''):
+    def registrar_salida(self, cantidad, descripcion='', usuario=None):
         """Registra una salida de stock con validación estricta y protección contra race conditions"""
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser mayor a cero")
+        
+        if not descripcion:
+            raise ValueError("La descripción es obligatoria")
         
         with transaction.atomic():
             # Usar select_for_update para evitar race conditions en operaciones concurrentes
@@ -75,7 +82,8 @@ class Producto(models.Model):
                 producto=producto,
                 tipo='SALIDA',
                 cantidad=cantidad,
-                descripcion=descripcion
+                descripcion=descripcion,
+                usuario=usuario or 'Sistema'
             )
             producto.stock -= cantidad
             producto.save(update_fields=['stock'])
@@ -115,6 +123,7 @@ class Movimiento(models.Model):
     cantidad = models.IntegerField(verbose_name="Cantidad")
     fecha = models.DateTimeField(auto_now_add=True, verbose_name="Fecha del movimiento")
     descripcion = models.TextField(blank=True, verbose_name="Descripción")
+    usuario = models.CharField(max_length=150, blank=True, null=True, verbose_name="Usuario que realizó el movimiento")
 
     class Meta:
         verbose_name = 'Movimiento'

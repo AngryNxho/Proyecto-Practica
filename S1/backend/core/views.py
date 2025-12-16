@@ -403,11 +403,12 @@ class ProductoViewSet(viewsets.ModelViewSet):
         descripcion = request.data.get('descripcion', '')
         
         try:
+            usuario_str = str(request.user) if request.user.is_authenticated else 'Anónimo'
             logger.info(
                 f"Registrando entrada - Producto: {producto.id} ({producto.nombre}), "
-                f"Cantidad: {cantidad}, Usuario: {request.user}"
+                f"Cantidad: {cantidad}, Usuario: {usuario_str}"
             )
-            movimiento = producto.registrar_entrada(cantidad, descripcion)
+            movimiento = producto.registrar_entrada(cantidad, descripcion, usuario=usuario_str)
             serializer = MovimientoSerializer(movimiento)
             logger.info(f"Entrada registrada exitosamente - Movimiento ID: {movimiento.id}")
             return Response(serializer.data)
@@ -450,11 +451,12 @@ class ProductoViewSet(viewsets.ModelViewSet):
         descripcion = request.data.get('descripcion', '')
         
         try:
+            usuario_str = str(request.user) if request.user.is_authenticated else 'Anónimo'
             logger.info(
                 f"Registrando salida - Producto: {producto.id} ({producto.nombre}), "
-                f"Cantidad: {cantidad}, Stock actual: {producto.stock}, Usuario: {request.user}"
+                f"Cantidad: {cantidad}, Stock actual: {producto.stock}, Usuario: {usuario_str}"
             )
-            movimiento = producto.registrar_salida(cantidad, descripcion)
+            movimiento = producto.registrar_salida(cantidad, descripcion, usuario=usuario_str)
             serializer = MovimientoSerializer(movimiento)
             logger.info(
                 f"Salida registrada exitosamente - Movimiento ID: {movimiento.id}, "
