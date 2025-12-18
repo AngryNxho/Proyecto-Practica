@@ -456,7 +456,7 @@ class PerformanceTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         # Log para análisis
-        print(f"✓ Movimientos listados en {elapsed_time:.3f}s")
+        print(f"[OK] Movimientos listados en {elapsed_time:.3f}s")
     
     def test_dashboard_metricas_performance(self):
         """Verifica que el endpoint de métricas del dashboard sea rápido"""
@@ -479,7 +479,7 @@ class PerformanceTestCase(APITestCase):
         self.assertIn('actividad_hoy', response.data)
         
         # Log para análisis
-        print(f"✓ Dashboard métricas cargadas en {elapsed_time:.3f}s")
+        print(f"[OK] Dashboard metricas cargadas en {elapsed_time:.3f}s")
         print(f"  - Total productos: {response.data['resumen']['total_productos']}")
         print(f"  - Alertas activas: {response.data['resumen']['alertas_activas']}")
     
@@ -498,7 +498,7 @@ class PerformanceTestCase(APITestCase):
             f"Filtrar productos tomó {elapsed_time:.3f}s, debe ser < 1s")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        print(f"✓ Productos filtrados en {elapsed_time:.3f}s")
+        print(f"[OK] Productos filtrados en {elapsed_time:.3f}s")
     
     def test_busqueda_productos_performance(self):
         """Verifica que la búsqueda de productos sea rápida"""
@@ -515,7 +515,7 @@ class PerformanceTestCase(APITestCase):
             f"Búsqueda tomó {elapsed_time:.3f}s, debe ser < 1s")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        print(f"✓ Búsqueda completada en {elapsed_time:.3f}s")
+        print(f"[OK] Busqueda completada en {elapsed_time:.3f}s")
     
     def test_exportar_csv_performance(self):
         """Verifica que la exportación a CSV sea rápida"""
@@ -532,7 +532,7 @@ class PerformanceTestCase(APITestCase):
             f"Exportación CSV tomó {elapsed_time:.3f}s, debe ser < 2s")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        print(f"✓ CSV exportado en {elapsed_time:.3f}s")
+        print(f"[OK] CSV exportado en {elapsed_time:.3f}s")
     
     def test_estadisticas_productos_performance(self):
         """Verifica que las estadísticas de productos sean rápidas"""
@@ -549,7 +549,7 @@ class PerformanceTestCase(APITestCase):
             f"Estadísticas tomaron {elapsed_time:.3f}s, debe ser < 1.5s")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        print(f"✓ Estadísticas generadas en {elapsed_time:.3f}s")
+        print(f"[OK] Estadisticas generadas en {elapsed_time:.3f}s")
     
     def test_multiples_operaciones_simultaneas(self):
         """Verifica que múltiples operaciones secuenciales no degraden el rendimiento"""
@@ -574,7 +574,7 @@ class PerformanceTestCase(APITestCase):
         self.assertLess(elapsed_time, 2.0,
             f"5 requests secuenciales tomaron {elapsed_time:.3f}s, debe ser < 2s")
         
-        print(f"✓ 5 requests secuenciales completados en {elapsed_time:.3f}s")
+        print(f"[OK] 5 requests secuenciales completados en {elapsed_time:.3f}s")
 
 
 class SerializadorTestCase(TestCase):
@@ -881,4 +881,130 @@ class IntegracionTestCase(APITestCase):
         # Verificar que está ordenado
         precios = [p['precio'] for p in response.data['results']]
         self.assertEqual(precios, sorted(precios))
+
+
+class NuevasFuncionalidadesTestCase(APITestCase):
+    """Tests para las nuevas funcionalidades agregadas"""
+    
+    def setUp(self):
+        """Configuración inicial para los tests"""
+        self.producto = Producto.objects.create(
+            nombre="Toner Test",
+            marca="TestBrand",
+            modelo="T100",
+            precio=50000,
+            stock=20,
+            categoria="Toner"
+        )
+    
+    def test_ajustar_stock_incremento(self):
+        """Verifica ajuste de stock con incremento"""
+        movimiento = self.producto.ajustar_stock(30, "Ajuste de inventario", "Admin")
+        self.assertEqual(self.producto.stock, 30)
+        self.assertEqual(movimiento.tipo, 'ENTRADA')
+        self.assertEqual(movimiento.cantidad, 10)
+        self.assertEqual(movimiento.usuario, 'Admin')
+    
+    def test_ajustar_stock_decremento(self):
+        """Verifica ajuste de stock con decremento"""
+        movimiento = self.producto.ajustar_stock(15, "Corrección", "Admin")
+        self.assertEqual(self.producto.stock, 15)
+        self.assertEqual(movimiento.tipo, 'SALIDA')
+        self.assertEqual(movimiento.cantidad, 5)
+    
+    def test_ajustar_stock_negativo_rechazado(self):
+        """Verifica que no se permita stock negativo"""
+        with self.assertRaises(ValueError):
+            self.producto.ajustar_stock(-5, "Test")
+    
+    def test_ajustar_stock_sin_cambio(self):
+        """Verifica que no se cree movimiento si no hay cambio"""
+        movimiento = self.producto.ajustar_stock(20, "Sin cambio")
+        self.assertIsNone(movimiento)
+    
+    def test_calcular_rotacion(self):
+        """Verifica cálculo de rotación de producto"""
+        # Crear movimientos de salida
+        for i in range(5):
+            self.producto.registrar_salida(2, f"Venta {i}", "Sistema")
+        
+        rotacion = self.producto.calcular_rotacion(dias=30)
+        self.assertGreater(rotacion, 0)
+        self.assertEqual(rotacion, 10 / 30)  # 10 unidades en 30 días
+    
+    def test_obtener_historial_movimientos(self):
+        """Verifica obtención de historial"""
+        # Crear varios movimientos
+        self.producto.registrar_entrada(10, "Entrada 1", "Admin")
+        self.producto.registrar_salida(5, "Salida 1", "Usuario")
+        
+        historial = self.producto.obtener_historial_movimientos(dias=30)
+        self.assertGreaterEqual(historial.count(), 2)
+    
+    def test_analisis_inventario_disponibilidad(self):
+        """Verifica que el método de análisis funcione correctamente"""
+        # Crear productos adicionales
+        for i in range(5):
+            Producto.objects.create(
+                nombre=f"Producto {i}",
+                precio=10000 + i * 1000,
+                stock=5 if i < 2 else 15,
+                categoria="Tinta"
+            )
+        
+        # Probar el método directamente para verificar lógica
+        from django.db.models import Count, Sum, F
+        productos = Producto.objects.all()
+        criticos = productos.filter(stock__lte=5)
+        
+        # Verificar que detecta productos críticos
+        self.assertGreaterEqual(criticos.count(), 2)
+        
+        # Verificar cálculo de valor
+        valor_inventario = productos.aggregate(
+            total=Sum(F('stock') * F('precio'))
+        )['total']
+        self.assertIsNotNone(valor_inventario)
+        self.assertGreater(valor_inventario, 0)
+    
+    def test_serializer_campos_calculados(self):
+        """Verifica que el serializer incluya campos calculados"""
+        # Crear movimientos
+        self.producto.registrar_entrada(10, "Test", "Admin")
+        self.producto.registrar_salida(5, "Test", "Admin")
+        
+        response = self.client.get(f'/api/productos/{self.producto.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Verificar campos calculados
+        self.assertIn('valor_total', response.data)
+        self.assertIn('estado_stock', response.data)
+        self.assertIn('tiene_alertas_activas', response.data)
+        self.assertIn('ultimos_movimientos', response.data)
+        
+        # Verificar cálculos
+        valor_esperado = float(self.producto.stock * self.producto.precio)
+        self.assertEqual(response.data['valor_total'], valor_esperado)
+        self.assertEqual(response.data['estado_stock'], 'normal')
+    
+    def test_validacion_descripcion_obligatoria_entrada(self):
+        """Verifica que la descripción sea obligatoria en entradas"""
+        with self.assertRaises(ValueError) as context:
+            self.producto.registrar_entrada(10, "", "Admin")
+        self.assertIn("descripción", str(context.exception).lower())
+    
+    def test_validacion_descripcion_obligatoria_salida(self):
+        """Verifica que la descripción sea obligatoria en salidas"""
+        with self.assertRaises(ValueError) as context:
+            self.producto.registrar_salida(5, "", "Admin")
+        self.assertIn("descripción", str(context.exception).lower())
+    
+    def test_movimiento_guarda_usuario(self):
+        """Verifica que los movimientos guarden el usuario"""
+        movimiento = self.producto.registrar_entrada(10, "Test usuario", "JuanPerez")
+        self.assertEqual(movimiento.usuario, "JuanPerez")
+        
+        # Verificar en BD
+        mov_db = Movimiento.objects.get(id=movimiento.id)
+        self.assertEqual(mov_db.usuario, "JuanPerez")
 

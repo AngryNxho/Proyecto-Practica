@@ -3,7 +3,40 @@ from django.db import models, transaction
 
 class Producto(models.Model):
     """
-    Modelo para gestionar productos del inventario (impresoras, tóners, etc.)
+    Modelo para gestionar productos del inventario
+    
+    Representa un producto en el sistema de inventario (impresoras, tóners, 
+    tintas, repuestos, etc.). Maneja el stock, precios, alertas de 
+    reabastecimiento y trazabilidad de movimientos.
+    
+    Attributes:
+        nombre: Nombre descriptivo del producto
+        descripcion: Descripción detallada opcional
+        marca: Marca del producto (HP, Canon, Brother, etc.)
+        modelo: Modelo específico del producto
+        precio: Precio unitario en pesos chilenos
+        stock: Cantidad actual en inventario
+        categoria: Categoría (Impresora, Toner, Tinta, etc.)
+        fecha_creacion: Fecha y hora de creación del registro
+        codigo_barras: Código de barras único para identificación
+    
+    Related Objects:
+        movimientos: Historial de entradas y salidas
+        alertas: Alertas de stock bajo configuradas
+        dispositivos: Dispositivos asociados (para monitoreo SNMP)
+    
+    Example:
+        >>> producto = Producto.objects.create(
+        ...     nombre="Toner HP 80A",
+        ...     marca="HP",
+        ...     modelo="80A",
+        ...     precio=25000,
+        ...     stock=10,
+        ...     categoria="Toner"
+        ... )
+        >>> producto.registrar_salida(5, "Venta cliente X", "admin")
+        >>> producto.stock
+        5
     """
     nombre = models.CharField(max_length=100, verbose_name="Nombre del producto")
     descripcion = models.TextField(blank=True, verbose_name="Descripción")
@@ -102,6 +135,60 @@ class Producto(models.Model):
         for alerta in self.alertas.all():
             alerta.activa = self.stock < alerta.umbral
             alerta.save(update_fields=['activa'])
+    
+    def ajustar_stock(self, nuevo_stock, descripcion='Ajuste manual', usuario=None):
+        """
+        Ajusta el stock directamente a un valor específico
+        Registra un movimiento de entrada o salida según corresponda
+        """
+        if nuevo_stock < 0:
+            raise ValueError("El nuevo stock no puede ser negativo")
+        
+        diferencia = nuevo_stock - self.stock
+        if diferencia == 0:
+            return None
+        
+        tipo = 'ENTRADA' if diferencia > 0 else 'SALIDA'
+        cantidad = abs(diferencia)
+        
+        with transaction.atomic():
+            movimiento = Movimiento.objects.create(
+                producto=self,
+                tipo=tipo,
+                cantidad=cantidad,
+                descripcion=descripcion,
+                usuario=usuario or 'Sistema'
+            )
+            self.stock = nuevo_stock
+            self.save(update_fields=['stock'])
+            self._verificar_alertas()
+        
+        return movimiento
+    
+    def obtener_historial_movimientos(self, dias=30):
+        """Obtiene historial de movimientos de los últimos N días"""
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        fecha_inicio = timezone.now() - timedelta(days=dias)
+        return self.movimientos.filter(fecha__gte=fecha_inicio).order_by('-fecha')
+    
+    def calcular_rotacion(self, dias=30):
+        """
+        Calcula la rotación del producto (salidas / días)
+        Útil para proyectar necesidades de reabastecimiento
+        """
+        from datetime import timedelta
+        from django.utils import timezone
+        from django.db.models import Sum
+        
+        fecha_inicio = timezone.now() - timedelta(days=dias)
+        salidas = self.movimientos.filter(
+            tipo='SALIDA',
+            fecha__gte=fecha_inicio
+        ).aggregate(total=Sum('cantidad'))['total'] or 0
+        
+        return salidas / dias if dias > 0 else 0
 
 
 class Movimiento(models.Model):

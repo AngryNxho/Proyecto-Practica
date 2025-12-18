@@ -888,3 +888,89 @@ def populate_database(request):
         })
     except Exception as e:
         return Response({'message': str(e), 'status': 'error'}, status=500)
+    
+    @action(detail=False, methods=['get'])
+    def analisis_inventario(self, request):
+        """
+        Endpoint de análisis avanzado del inventario
+        Proporciona métricas detalladas, proyecciones y recomendaciones
+        """
+        from django.db.models import Avg, StdDev, Max, Min
+        from datetime import timedelta
+        
+        productos = Producto.objects.all()
+        
+        # Análisis de stock
+        stock_stats = productos.aggregate(
+            promedio=Avg('stock'),
+            desviacion=StdDev('stock'),
+            maximo=Max('stock'),
+            minimo=Min('stock')
+        )
+        
+        # Productos críticos
+        criticos = productos.filter(stock__lte=5).values('id', 'nombre', 'stock', 'categoria')
+        
+        # Análisis de movimientos recientes (últimos 30 días)
+        hace_30_dias = timezone.now() - timedelta(days=30)
+        movimientos_recientes = Movimiento.objects.filter(fecha__gte=hace_30_dias)
+        
+        entradas_recientes = movimientos_recientes.filter(tipo='ENTRADA').count()
+        salidas_recientes = movimientos_recientes.filter(tipo='SALIDA').count()
+        
+        # Productos más movidos
+        from django.db.models import Count
+        productos_activos = movimientos_recientes.values('producto__nombre').annotate(
+            total_movimientos=Count('id')
+        ).order_by('-total_movimientos')[:10]
+        
+        # Análisis de valor
+        from django.db.models import F
+        valor_inventario = productos.aggregate(
+            total=Sum(F('stock') * F('precio'))
+        )['total'] or 0
+        
+        # Distribución por categoría
+        distribucion = productos.values('categoria').annotate(
+            cantidad_productos=Count('id'),
+            stock_total=Sum('stock'),
+            valor_categoria=Sum(F('stock') * F('precio'))
+        ).order_by('-valor_categoria')
+        
+        # Productos sin movimientos
+        productos_sin_movimiento = productos.filter(
+            movimientos__isnull=True
+        ).count()
+        
+        # Recomendaciones
+        recomendaciones = []
+        if criticos.count() > 5:
+            recomendaciones.append("Alto número de productos críticos. Considere reabastecer.")
+        if productos_sin_movimiento > 0:
+            recomendaciones.append(f"{productos_sin_movimiento} productos sin movimientos registrados.")
+        if salidas_recientes > entradas_recientes * 2:
+            recomendaciones.append("Salidas superan significativamente a entradas. Revisar política de compras.")
+        
+        return Response({
+            'fecha_analisis': timezone.now().isoformat(),
+            'stock_estadisticas': {
+                'promedio': round(stock_stats['promedio'] or 0, 2),
+                'desviacion_estandar': round(stock_stats['desviacion'] or 0, 2),
+                'maximo': stock_stats['maximo'] or 0,
+                'minimo': stock_stats['minimo'] or 0
+            },
+            'productos_criticos': {
+                'cantidad': len(criticos),
+                'lista': list(criticos)
+            },
+            'movimientos_30_dias': {
+                'entradas': entradas_recientes,
+                'salidas': salidas_recientes,
+                'ratio': round(salidas_recientes / entradas_recientes, 2) if entradas_recientes > 0 else 0
+            },
+            'productos_mas_activos': list(productos_activos),
+            'valor_inventario': float(valor_inventario),
+            'distribucion_categorias': list(distribucion),
+            'productos_sin_movimiento': productos_sin_movimiento,
+            'recomendaciones': recomendaciones
+        })

@@ -13,10 +13,43 @@ class ProductoSerializer(serializers.ModelSerializer):
         'Tambor', 'Kit', 'Repuesto', 'Otro'
     ]
     
+    # Campos calculados
+    valor_total = serializers.SerializerMethodField()
+    estado_stock = serializers.SerializerMethodField()
+    tiene_alertas_activas = serializers.SerializerMethodField()
+    ultimos_movimientos = serializers.SerializerMethodField()
+    
     class Meta:
         model = Producto
         fields = '__all__'
         read_only_fields = ['fecha_creacion']
+    
+    def get_valor_total(self, obj):
+        """Calcula valor total del inventario de este producto"""
+        return float(obj.stock * obj.precio)
+    
+    def get_estado_stock(self, obj):
+        """Determina el estado del stock según niveles"""
+        if obj.stock <= 5:
+            return 'critico'
+        elif obj.stock <= 10:
+            return 'bajo'
+        return 'normal'
+    
+    def get_tiene_alertas_activas(self, obj):
+        """Indica si el producto tiene alertas activas"""
+        return obj.alertas.filter(activa=True).exists()
+    
+    def get_ultimos_movimientos(self, obj):
+        """Retorna los últimos 3 movimientos"""
+        movimientos = obj.movimientos.order_by('-fecha')[:3]
+        return [{
+            'id': m.id,
+            'tipo': m.tipo,
+            'cantidad': m.cantidad,
+            'fecha': m.fecha.isoformat(),
+            'usuario': m.usuario
+        } for m in movimientos]
     
     def validate_precio(self, value):
         """Valida que el precio sea positivo y razonable"""
