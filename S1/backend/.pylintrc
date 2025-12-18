@@ -4,12 +4,12 @@ jobs=1
 
 [MESSAGES CONTROL]
 disable=
-    C0111,  # missing-docstring
-    C0103,  # invalid-name
-    R0903,  # too-few-public-methods (modelos Django)
-    R0801,  # duplicate-code
-    W0212,  # protected-access (Django usa _meta)
-    E1101,  # no-member (Django dynamic attributes)
+    C0111,  # falta docstring
+    C0103,  # nombre invalido
+    R0903,  # muy pocos metodos publicos (modelos Django)
+    R0801,  # codigo duplicado
+    W0212,  # acceso protegido (Django usa _meta)
+    E1101,  # no-member (atributos dinamicos de Django)
 
 [FORMAT]
 max-line-length=120

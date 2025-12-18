@@ -16,12 +16,12 @@ def run_check(name, command):
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
     if result.returncode == 0:
-        print(f"✓ {name}: PASSED")
+        print(f"✓ {name}: EXITOSO")
         if result.stdout:
             print(result.stdout)
         return True
     else:
-        print(f"✗ {name}: FAILED")
+        print(f"✗ {name}: FALLIDO")
         if result.stdout:
             print(result.stdout)
         if result.stderr:
@@ -36,9 +36,9 @@ def main():
     print("="*60)
     
     checks = [
-        ("Flake8 Linter", "flake8 core/"),
-        ("Black Format Check", "black core/ --check"),
-        ("isort Import Check", "isort core/ --check-only"),
+        ("Linter Flake8", "flake8 core/"),
+        ("Verificacion de Formato Black", "black core/ --check"),
+        ("Verificacion de Imports isort", "isort core/ --check-only"),
     ]
     
     results = []
@@ -52,13 +52,13 @@ def main():
     passed = sum(results)
     total = len(results)
     
-    print(f"Passed: {passed}/{total}")
+    print(f"Exitosos: {passed}/{total}")
     
     if all(results):
-        print("\n✓ Todos los checks pasaron correctamente")
+        print("\n✓ Todas las verificaciones pasaron correctamente")
         return 0
     else:
-        print("\n✗ Algunos checks fallaron")
+        print("\n✗ Algunas verificaciones fallaron")
         print("\nPara corregir automaticamente:")
         print("  black core/")
         print("  isort core/")

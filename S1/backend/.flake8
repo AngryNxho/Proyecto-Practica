@@ -13,11 +13,11 @@ exclude =
     build,
     dist
 ignore = 
-    E203,  # whitespace before ':'
-    E501,  # line too long (handled by max-line-length)
-    W503,  # line break before binary operator
-    F401,  # imported but unused (en __init__.py)
-    E731,  # lambda assignment
+    E203,  # espacio antes de ':'
+    E501,  # linea muy larga (manejado por max-line-length)
+    W503,  # salto de linea antes de operador binario
+    F401,  # importado pero no usado (en __init__.py)
+    E731,  # asignacion de lambda
 per-file-ignores =
     __init__.py:F401
     tests.py:E501
