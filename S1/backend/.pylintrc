@@ -1,0 +1,23 @@
+[MASTER]
+ignore=migrations,venv,htmlcov,node_modules
+jobs=1
+
+[MESSAGES CONTROL]
+disable=
+    C0111,  # missing-docstring
+    C0103,  # invalid-name
+    R0903,  # too-few-public-methods (modelos Django)
+    R0801,  # duplicate-code
+    W0212,  # protected-access (Django usa _meta)
+    E1101,  # no-member (Django dynamic attributes)
+
+[FORMAT]
+max-line-length=120
+indent-string='    '
+
+[BASIC]
+good-names=i,j,k,e,f,id,pk,db
+
+[DESIGN]
+max-attributes=10
+max-args=7
