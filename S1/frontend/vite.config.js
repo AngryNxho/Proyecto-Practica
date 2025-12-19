@@ -9,19 +9,18 @@ export default defineConfig({
     port: 5173,
   },
   build: {
-    // Optimizaciones de build
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Eliminar console.log en producción
-        drop_debugger: true
-      }
-    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'axios-vendor': ['axios'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            if (id.includes('axios')) {
+              return 'axios-vendor';
+            }
+            return 'vendor';
+          }
         }
       }
     },
