@@ -197,9 +197,9 @@ function Movimientos() {
       </header>
 
       {/* Estadísticas mejoradas */}
-      <div className="estadisticas-movimientos">
+      <div className="estadisticas-movimientos" role="region" aria-label="Estadísticas de movimientos">
         <div className="stat-card-mov entrada">
-          <div className="stat-icono">E</div>
+          <div className="stat-icono" aria-hidden="true">E</div>
           <div className="stat-info">
             <span className="stat-numero">{obtenerEstadisticas().totalEntradas}</span>
             <span className="stat-label">Entradas</span>

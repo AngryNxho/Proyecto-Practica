@@ -67,7 +67,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="page animate-fade-in">
+    <div className="page animate-fade-in" role="main" aria-label="Panel principal de control">
       <header className="page-header">
         <h1 className="page-title">Dashboard</h1>
         <p className="page-description">

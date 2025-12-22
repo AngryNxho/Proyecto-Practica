@@ -70,11 +70,12 @@ function BarraNavegacion() {
                   }
                   end={enlace.to === '/'}
                   onClick={cerrarMenu}
+                  aria-label={`Navegar a ${enlace.etiqueta}`}
                 >
-                  <span className="navbar__link-icon">{enlace.icono}</span>
+                  <span className="navbar__link-icon" aria-hidden="true">{enlace.icono}</span>
                   {enlace.etiqueta}
                   {enlace.mostrarBadge && alertasActivas > 0 && (
-                    <span className="navbar__badge">{alertasActivas}</span>
+                    <span className="navbar__badge" aria-label={`${alertasActivas} alertas activas`}>{alertasActivas}</span>
                   )}
                 </NavLink>
               </li>

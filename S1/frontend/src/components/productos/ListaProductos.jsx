@@ -15,8 +15,8 @@ function ListaProductos({ productos, alertas, cargando, error, alEliminar, alEdi
 
   if (cargando) {
     return (
-      <div className="panel">
-        <div className="spinner"></div>
+      <div className="panel loading-state" role="status" aria-live="polite">
+        <div className="spinner" aria-hidden="true"></div>
         <p style={{ textAlign: 'center', color: '#7c819b', marginTop: '12px' }}>Cargando productos...</p>
       </div>
     );

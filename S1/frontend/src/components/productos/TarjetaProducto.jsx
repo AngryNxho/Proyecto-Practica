@@ -57,17 +57,17 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar, alRegistrarMo
         <p className="producto-card__descripcion">{producto.descripcion}</p>
       )}
 
-      <div className="producto-card__actions">
-        <button className="btn-icon btn-success" onClick={() => alRegistrarMovimiento?.(producto, 'entrada')} title="Registrar entrada">
+      <div className="producto-card__actions" role="group" aria-label="Acciones del producto">
+        <button className="btn-icon btn-success" onClick={() => alRegistrarMovimiento?.(producto, 'entrada')} title="Registrar entrada" aria-label="Agregar entrada de stock">
           +
         </button>
-        <button className="btn-icon btn-warning" onClick={() => alRegistrarMovimiento?.(producto, 'salida')} title="Registrar salida">
+        <button className="btn-icon btn-warning" onClick={() => alRegistrarMovimiento?.(producto, 'salida')} title="Registrar salida" aria-label="Registrar salida de stock">
           -
         </button>
-        <button className="btn-icon btn-primary" onClick={manejarEditar} title="Editar">
+        <button className="btn-icon btn-primary" onClick={manejarEditar} title="Editar" aria-label="Editar producto">
           E
         </button>
-        <button className="btn-icon btn-danger" onClick={manejarEliminar} title="Eliminar">
+        <button className="btn-icon btn-danger" onClick={manejarEliminar} title="Eliminar" aria-label="Eliminar producto">
           X
         </button>
       </div>
