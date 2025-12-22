@@ -82,7 +82,7 @@ function BarraNavegacion() {
           </ul>
         </nav>
         <div className="navbar__footer">
-          <p>Sprint 3 · S05-HU04</p>
+          <p>Sprint 4 · Optimizaciones</p>
           <small>Última sincronización {new Date().toLocaleTimeString('es-CL')}</small>
         </div>
       </aside>
