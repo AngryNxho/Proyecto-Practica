@@ -60,7 +60,7 @@ function Dashboard() {
     return (
       <div className="page animate-fade-in">
         <div className="panel" style={{ textAlign: 'center', padding: '40px' }}>
-          <p style={{ fontSize: '16px', color: '#71717a' }}>⏳ Cargando dashboard...</p>
+          <p style={{ fontSize: '16px', color: '#71717a' }}>Cargando dashboard...</p>
         </div>
       </div>
     );
@@ -78,7 +78,7 @@ function Dashboard() {
       {/* Estadísticas principales */}
       <div className="dashboard-stats-grid">
         <div className="stat-card stat-card-primary">
-          <div className="stat-icon">📦</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.total_productos}</p>
             <p className="stat-label">Productos totales</p>
@@ -86,7 +86,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-danger">
-          <div className="stat-icon">🚨</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.stock_critico}</p>
             <p className="stat-label">Stock crítico (≤5)</p>
@@ -94,7 +94,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-warning">
-          <div className="stat-icon">⚠️</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.stock_bajo}</p>
             <p className="stat-label">Stock bajo (6-10)</p>
@@ -102,7 +102,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-success">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.stock_normal}</p>
             <p className="stat-label">Stock normal (&gt;10)</p>
@@ -110,7 +110,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-info">
-          <div className="stat-icon">💰</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <p className="stat-value" style={{ fontSize: '24px' }}>
               {formatearMoneda(estadisticas.valor_inventario)}
@@ -162,7 +162,7 @@ function Dashboard() {
               {movimientosRecientes.map((mov) => (
                 <div key={mov.id} className="movimiento-item">
                   <div className="movimiento-icon">
-                    {mov.tipo_movimiento === 'entrada' ? '📥' : '📤'}
+                    {mov.tipo_movimiento === 'entrada' ? '+' : '-'}
                   </div>
                   <div className="movimiento-info">
                     <div className="movimiento-producto">{mov.producto_nombre}</div>
@@ -187,7 +187,7 @@ function Dashboard() {
             <div className="alertas-lista">
               {alertasActivas.map((alerta) => (
                 <div key={alerta.id} className="alerta-item">
-                  <div className="alerta-icon">🚨</div>
+                  <div className="alerta-icon">!</div>
                   <div className="alerta-info">
                     <div className="alerta-producto">{alerta.producto_nombre}</div>
                     <div className="alerta-mensaje">{alerta.mensaje}</div>
@@ -197,7 +197,7 @@ function Dashboard() {
               ))}
             </div>
           ) : (
-            <p className="empty-state">✅ No hay alertas activas</p>
+            <p className="empty-state">No hay alertas activas</p>
           )}
         </div>
       </div>

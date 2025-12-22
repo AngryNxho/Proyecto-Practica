@@ -104,7 +104,7 @@ function Alertas() {
           <p>Alertas inactivas: <strong>{alertas.filter((a) => !a.activa).length}</strong></p>
           <p>Productos monitoreados: <strong>{productos.filter(p => alertas.some(a => a.producto === p.id)).length}</strong></p>
           <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando} style={{ marginTop: '12px', width: '100%' }}>
-            🔄 Actualizar
+            Actualizar
           </button>
         </div>
       </section>
@@ -114,7 +114,7 @@ function Alertas() {
           <div style={{ flex: '1 1 250px' }}>
             <input
               type="text"
-              placeholder="🔍 Buscar por producto..."
+              placeholder="Buscar por producto..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               style={{ 

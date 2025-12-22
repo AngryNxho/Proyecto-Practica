@@ -6,7 +6,7 @@ function DevTools() {
   const [message, setMessage] = useState(null);
 
   const resetDatabase = async () => {
-    if (!window.confirm('⚠️ ¿Estás seguro? Esto borrará TODOS los datos de la base de datos.')) {
+    if (!window.confirm('¿Estás seguro? Esto borrará TODOS los datos de la base de datos.')) {
       return;
     }
 
@@ -24,12 +24,12 @@ function DevTools() {
       const data = await response.json();
       
       if (data.status === 'success') {
-        setMessage({ type: 'success', text: '✅ Base de datos limpiada exitosamente' });
+        setMessage({ type: 'success', text: 'Base de datos limpiada exitosamente' });
       } else {
-        setMessage({ type: 'error', text: '❌ Error: ' + data.message });
+        setMessage({ type: 'error', text: 'Error: ' + data.message });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: '❌ Error de conexión: ' + error.message });
+      setMessage({ type: 'error', text: 'Error de conexión: ' + error.message });
     } finally {
       setLoading(false);
     }
@@ -56,13 +56,13 @@ function DevTools() {
       if (data.status === 'success') {
         setMessage({ 
           type: 'success', 
-          text: `✅ Base de datos poblada: ${data.productos} productos creados` 
+          text: `Base de datos poblada: ${data.productos} productos creados` 
         });
       } else {
-        setMessage({ type: 'error', text: '❌ Error: ' + data.message });
+        setMessage({ type: 'error', text: 'Error: ' + data.message });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: '❌ Error de conexión: ' + error.message });
+      setMessage({ type: 'error', text: 'Error de conexión: ' + error.message });
     } finally {
       setLoading(false);
     }

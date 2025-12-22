@@ -160,7 +160,7 @@ function Productos() {
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="🔍 Buscar por nombre, marca, modelo..."
+              placeholder="Buscar por nombre, marca, modelo..."
               value={busqueda}
               onChange={manejarBusqueda}
               style={{ flex: '1 1 200px', padding: '10px 14px', border: '1px solid #e4e4e7', borderRadius: '6px', fontSize: '14px' }}
@@ -173,7 +173,7 @@ function Productos() {
             )}
             {totalResultados > 0 && (
               <span style={{ fontSize: '14px', color: '#52525b', padding: '0 8px' }}>
-                {cargando ? '⏳ Buscando...' : `${totalResultados} ${totalResultados === 1 ? 'resultado' : 'resultados'}`}
+                {cargando ? 'Buscando...' : `${totalResultados} ${totalResultados === 1 ? 'resultado' : 'resultados'}`}
               </span>
             )}
           </div>
@@ -263,10 +263,10 @@ function Productos() {
           <div className="stats-divider"></div>
           <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
             <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando} style={{ width: '100%' }}>
-              {cargando ? '⏳ Cargando...' : '🔄 Actualizar'}
+              {cargando ? 'Cargando...' : 'Actualizar'}
             </button>
             <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!productos.length} style={{ width: '100%' }}>
-              📥 Exportar CSV
+              Exportar CSV
             </button>
           </div>
         </div>

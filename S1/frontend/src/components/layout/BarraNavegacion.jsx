@@ -4,15 +4,15 @@ import { alertService } from '../../services/inventoryService';
 import './BarraNavegacion.css';
 
 const enlaces = [
-  { to: '/', etiqueta: 'Tablero', icono: '📊' },
-  { to: '/productos', etiqueta: 'Productos', icono: '📦' },
-  { to: '/movimientos', etiqueta: 'Movimientos', icono: '🔄' },
-  { to: '/alertas', etiqueta: 'Alertas', icono: '⚠️', mostrarBadge: true },
-  { to: '/reportes', etiqueta: 'Reportes', icono: '📈' },
-  { to: '/scanner', etiqueta: 'Scanner', icono: '📷' },
-  { to: '/generador', etiqueta: 'Etiquetas', icono: '🏷️' },
-  { to: '/dev', etiqueta: 'Pruebas', icono: '🧪' },
-  { to: '/logs', etiqueta: 'Logs', icono: '📋' },
+  { to: '/', etiqueta: 'Tablero', icono: '' },
+  { to: '/productos', etiqueta: 'Productos', icono: '' },
+  { to: '/movimientos', etiqueta: 'Movimientos', icono: '' },
+  { to: '/alertas', etiqueta: 'Alertas', icono: '', mostrarBadge: true },
+  { to: '/reportes', etiqueta: 'Reportes', icono: '' },
+  { to: '/scanner', etiqueta: 'Scanner', icono: '' },
+  { to: '/generador', etiqueta: 'Etiquetas', icono: '' },
+  { to: '/dev', etiqueta: 'Pruebas', icono: '' },
+  { to: '/logs', etiqueta: 'Logs', icono: '' },
 ];
 
 function BarraNavegacion() {

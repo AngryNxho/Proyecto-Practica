@@ -59,16 +59,16 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar, alRegistrarMo
 
       <div className="producto-card__actions">
         <button className="btn-icon btn-success" onClick={() => alRegistrarMovimiento?.(producto, 'entrada')} title="Registrar entrada">
-          ⬆️
+          +
         </button>
         <button className="btn-icon btn-warning" onClick={() => alRegistrarMovimiento?.(producto, 'salida')} title="Registrar salida">
-          ⬇️
+          -
         </button>
         <button className="btn-icon btn-primary" onClick={manejarEditar} title="Editar">
-          ✏️
+          E
         </button>
         <button className="btn-icon btn-danger" onClick={manejarEliminar} title="Eliminar">
-          🗑️
+          X
         </button>
       </div>
     </article>

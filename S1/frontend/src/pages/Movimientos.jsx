@@ -199,7 +199,7 @@ function Movimientos() {
       {/* Estadísticas mejoradas */}
       <div className="estadisticas-movimientos">
         <div className="stat-card-mov entrada">
-          <div className="stat-icono">📥</div>
+          <div className="stat-icono">E</div>
           <div className="stat-info">
             <span className="stat-numero">{obtenerEstadisticas().totalEntradas}</span>
             <span className="stat-label">Entradas</span>
@@ -207,7 +207,7 @@ function Movimientos() {
           </div>
         </div>
         <div className="stat-card-mov salida">
-          <div className="stat-icono">📤</div>
+          <div className="stat-icono">S</div>
           <div className="stat-info">
             <span className="stat-numero">{obtenerEstadisticas().totalSalidas}</span>
             <span className="stat-label">Salidas</span>
@@ -215,7 +215,7 @@ function Movimientos() {
           </div>
         </div>
         <div className="stat-card-mov balance">
-          <div className="stat-icono">⚖️</div>
+          <div className="stat-icono">B</div>
           <div className="stat-info">
             <span className="stat-numero">{obtenerEstadisticas().balance}</span>
             <span className="stat-label">Balance neto</span>
@@ -227,13 +227,13 @@ function Movimientos() {
       <section className="grid-two">
         <FormularioMovimiento productos={productos} alRegistrar={cargarDatos} />
         <div className="panel resumen-movimientos-acciones">
-          <h3>⚡ Acciones rápidas</h3>
+          <h3>Acciones rápidas</h3>
           <div className="acciones-grid">
             <button className="btn btn-secondary" type="button" onClick={cargarDatos} disabled={cargando}>
-              🔄 Actualizar lista
+              Actualizar lista
             </button>
             <button className="btn btn-success" type="button" onClick={exportarMovimientosCSV}>
-              📊 Exportar CSV
+              Exportar CSV
             </button>
           </div>
           
@@ -248,14 +248,14 @@ function Movimientos() {
           </div>
           <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
             <button className="btn btn-primary" type="button" onClick={exportarCSV} disabled={!movimientos.length}>
-              📥 Exportar CSV
+              Exportar CSV
             </button>
           </div>
         </div>
       </section>
 
       <div className="panel" style={{ marginBottom: '24px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#52525b' }}>🔥 Productos más movidos</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#52525b' }}>Productos más movidos</h3>
         {obtenerProductosMasMovidos().length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {obtenerProductosMasMovidos().map(([producto, cantidad], index) => (

@@ -165,7 +165,7 @@ function Reportes() {
           onClick={exportarReporte}
           disabled={cargando}
         >
-          📥 Exportar Reporte CSV
+          Exportar Reporte CSV
         </button>
       </header>
 
