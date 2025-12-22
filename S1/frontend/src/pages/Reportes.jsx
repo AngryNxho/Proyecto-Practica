@@ -155,7 +155,7 @@ function Reportes() {
     <div className="page reportes">
       <header className="page-header">
         <div>
-          <h1 className="page-title">Reportes y Análisis</h1>
+          <h1 className="page-title">📈 Reportes y Análisis</h1>
           <p className="page-description">
             Visualiza métricas y tendencias con filtros personalizados
           </p>
@@ -165,7 +165,7 @@ function Reportes() {
           onClick={exportarReporte}
           disabled={cargando}
         >
-          Exportar Reporte CSV
+          📄 Exportar Reporte CSV
         </button>
       </header>
 

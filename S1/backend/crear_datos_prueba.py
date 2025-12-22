@@ -1,10 +1,26 @@
 import os
 import django
+import random
+from datetime import datetime, timedelta
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from core.models import Producto, Movimiento
+from core.models import Producto, Movimiento, Alerta
+from django.contrib.auth.models import User
+
+# Crear o obtener usuario por defecto
+usuario, _ = User.objects.get_or_create(
+    username='sistema',
+    defaults={'email': 'sistema@inventario.com', 'is_staff': True}
+)
+
+# Limpiar datos existentes
+print("Limpiando datos anteriores...")
+Movimiento.objects.all().delete()
+Alerta.objects.all().delete()
+Producto.objects.all().delete()
+print("✓ Datos limpiados")
 
 # Crear productos de prueba
 productos_data = [
@@ -15,6 +31,7 @@ productos_data = [
         'categoria': 'Toner',
         'stock': 15,
         'precio': 25000,
+        'codigo_barras': '0886111963119',
         'descripcion': 'Toner original HP para LaserJet Pro P1102'
     },
     {
@@ -24,6 +41,7 @@ productos_data = [
         'categoria': 'Toner',
         'stock': 8,
         'precio': 28000,
+        'codigo_barras': '0013803188567',
         'descripcion': 'Toner original Canon para imageCLASS MF212w'
     },
     {
@@ -33,6 +51,7 @@ productos_data = [
         'categoria': 'Impresora',
         'stock': 3,
         'precio': 350000,
+        'codigo_barras': '0193905543540',
         'descripcion': 'Impresora láser monocromática de alto rendimiento'
     },
     {
@@ -42,6 +61,7 @@ productos_data = [
         'categoria': 'Toner',
         'stock': 2,
         'precio': 22000,
+        'codigo_barras': '8808993469888',
         'descripcion': 'Toner original Samsung ML-2165'
     },
     {
@@ -51,36 +71,86 @@ productos_data = [
         'categoria': 'Toner',
         'stock': 20,
         'precio': 26000,
+        'codigo_barras': '4977766753654',
         'descripcion': 'Toner original Brother HL-L2395DW'
+    },
+    {
+        'nombre': 'Papel Resma A4 75g',
+        'marca': 'Champion',
+        'modelo': 'A4-75',
+        'categoria': 'Papel',
+        'stock': 50,
+        'precio': 4500,
+        'codigo_barras': '7891027009089',
+        'descripcion': 'Resma de papel bond blanco A4 500 hojas'
+    },
+    {
+        'nombre': 'Tinta Epson T664 Cian',
+        'marca': 'Epson',
+        'modelo': 'T664220',
+        'categoria': 'Tinta',
+        'stock': 12,
+        'precio': 8500,
+        'codigo_barras': '0010343921962',
+        'descripcion': 'Botella de tinta para EcoTank L210/L355'
+    },
+    {
+        'nombre': 'Tambor HP 19A',
+        'marca': 'HP',
+        'modelo': 'CF219A',
+        'categoria': 'Repuesto',
+        'stock': 4,
+        'precio': 85000,
+        'codigo_barras': '0889894752659',
+        'descripcion': 'Tambor de imagen para LaserJet Pro M102/M130'
     },
 ]
 
-print("Creando productos de prueba...")
+print("\nCreando productos de prueba...")
 productos_creados = []
 for data in productos_data:
-    producto, created = Producto.objects.get_or_create(
-        nombre=data['nombre'],
-        defaults=data
-    )
-    if created:
-        print(f"✓ Creado: {producto.nombre}")
-        productos_creados.append(producto)
-    else:
-        print(f"- Ya existe: {producto.nombre}")
+    producto = Producto.objects.create(**data)
+    print(f"✓ Creado: {producto.nombre} (Stock: {producto.stock})")
+    productos_creados.append(producto)
+    
+    # Crear alerta si el stock es bajo
+    if producto.stock <= 10:
+        Alerta.objects.create(
+            producto=producto,
+            tipo='stock_bajo',
+            mensaje=f'Stock bajo: {producto.nombre}',
+            umbral=10,
+            stock_actual=producto.stock,
+            activa=True
+        )
+        print(f"  → Alerta creada para {producto.nombre}")
 
-# Crear algunos movimientos
-if productos_creados:
-    print("\nCreando movimientos de prueba...")
-    for producto in productos_creados[:3]:
-        # Entrada
-        producto.registrar_entrada(10, f"Entrada inicial de {producto.nombre}")
-        print(f"✓ Entrada registrada para {producto.nombre}")
+# Crear movimientos históricos
+print("\nCreando historial de movimientos...")
+movimientos_count = 0
+for producto in productos_creados:
+    # Simular movimientos de los últimos 30 días
+    for i in range(random.randint(3, 8)):
+        dias_atras = random.randint(0, 30)
+        fecha = datetime.now() - timedelta(days=dias_atras)
         
-        # Salida
-        if producto.stock >= 5:
-            producto.registrar_salida(3, f"Salida de prueba de {producto.nombre}")
-            print(f"✓ Salida registrada para {producto.nombre}")
+        tipo = random.choice(['ENTRADA', 'SALIDA'])
+        cantidad = random.randint(1, 5)
+        
+        movimiento = Movimiento.objects.create(
+            producto=producto,
+            tipo=tipo,
+            cantidad=cantidad,
+            descripcion=f"{tipo.capitalize()} de {producto.nombre}",
+            usuario=usuario,
+            fecha=fecha
+        )
+        movimientos_count += 1
+
+print(f"✓ {movimientos_count} movimientos creados")
 
 print(f"\n✅ Proceso completado!")
 print(f"Total productos: {Producto.objects.count()}")
 print(f"Total movimientos: {Movimiento.objects.count()}")
+print(f"Total alertas: {Alerta.objects.count()}")
+print(f"\nUsuario creado: {usuario.username}")

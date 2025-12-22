@@ -69,7 +69,7 @@ function Dashboard() {
   return (
     <div className="page animate-fade-in" role="main" aria-label="Panel principal de control">
       <header className="page-header">
-        <h1 className="page-title">Dashboard</h1>
+        <h1 className="page-title">📊 Dashboard</h1>
         <p className="page-description">
           Resumen general del inventario y actividad reciente
         </p>
@@ -78,7 +78,7 @@ function Dashboard() {
       {/* Estadísticas principales */}
       <div className="dashboard-stats-grid">
         <div className="stat-card stat-card-primary">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">📦</div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.total_productos}</p>
             <p className="stat-label">Productos totales</p>
@@ -86,7 +86,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-danger">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">🚨</div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.stock_critico}</p>
             <p className="stat-label">Stock crítico (≤5)</p>
@@ -94,7 +94,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-warning">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">⚠️</div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.stock_bajo}</p>
             <p className="stat-label">Stock bajo (6-10)</p>
@@ -102,7 +102,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-success">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">✅</div>
           <div className="stat-content">
             <p className="stat-value">{estadisticas.stock_normal}</p>
             <p className="stat-label">Stock normal (&gt;10)</p>
@@ -110,7 +110,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card stat-card-info">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">💰</div>
           <div className="stat-content">
             <p className="stat-value" style={{ fontSize: '24px' }}>
               {formatearMoneda(estadisticas.valor_inventario)}

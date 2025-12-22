@@ -143,7 +143,7 @@ function Productos() {
   return (
     <div className="page animate-fade-in">
       <header className="page-header">
-        <h1 className="page-title">Gestión de productos</h1>
+        <h1 className="page-title">📦 Gestión de productos</h1>
         <p className="page-description">
           Da de alta nuevos equipos o tóners y controla su estado en tiempo real.
         </p>

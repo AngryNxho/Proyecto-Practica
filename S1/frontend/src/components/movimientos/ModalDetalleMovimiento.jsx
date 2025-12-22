@@ -27,7 +27,7 @@ function ModalDetalleMovimiento({ movimiento, onCerrar }) {
             <label>Tipo de Movimiento</label>
             <p>
               <span className={`badge-tipo ${movimiento.tipo.toLowerCase()}`}>
-                {movimiento.tipo === 'ENTRADA' ? 'ENTRADA' : 'SALIDA'}
+                {movimiento.tipo === 'ENTRADA' ? '📥 ENTRADA' : '📤 SALIDA'}
               </span>
             </p>
           </div>

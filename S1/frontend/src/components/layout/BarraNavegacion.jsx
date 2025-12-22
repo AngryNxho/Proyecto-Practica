@@ -21,8 +21,8 @@ function BarraNavegacion() {
 
   useEffect(() => {
     cargarAlertasActivas();
-    // Actualizar cada 30 segundos
-    const interval = setInterval(cargarAlertasActivas, 30000);
+    // Actualizar cada 5 segundos para reflejar cambios rápidamente
+    const interval = setInterval(cargarAlertasActivas, 5000);
     return () => clearInterval(interval);
   }, []);
 

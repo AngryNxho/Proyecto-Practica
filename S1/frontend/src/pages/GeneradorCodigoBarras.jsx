@@ -8,16 +8,20 @@ function GeneradorCodigoBarras() {
   const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [tipoEtiqueta, setTipoEtiqueta] = useState('ambos'); // 'barcode', 'qr', 'ambos'
 
   useEffect(() => {
     cargarProductos();
   }, []);
 
   useEffect(() => {
-    if (productoSeleccionado?.codigo_barras) {
-      generarImagenBarcode(productoSeleccionado.codigo_barras);
+    if (productoSeleccionado?.codigo_barras && (tipoEtiqueta === 'barcode' || tipoEtiqueta === 'ambos')) {
+      // Pequeño delay para asegurar que el SVG está en el DOM
+      setTimeout(() => {
+        generarImagenBarcode(productoSeleccionado.codigo_barras);
+      }, 50);
     }
-  }, [productoSeleccionado]);
+  }, [productoSeleccionado, tipoEtiqueta]);
 
   const cargarProductos = async () => {
     try {
@@ -99,6 +103,39 @@ function GeneradorCodigoBarras() {
                 </select>
               </div>
 
+              <div className="selector-tipo-etiqueta">
+                <label>Tipo de etiqueta:</label>
+                <div className="tipo-options">
+                  <label className="radio-option">
+                    <input 
+                      type="radio" 
+                      value="barcode" 
+                      checked={tipoEtiqueta === 'barcode'}
+                      onChange={(e) => setTipoEtiqueta(e.target.value)}
+                    />
+                    <span>📊 Solo código de barras</span>
+                  </label>
+                  <label className="radio-option">
+                    <input 
+                      type="radio" 
+                      value="qr" 
+                      checked={tipoEtiqueta === 'qr'}
+                      onChange={(e) => setTipoEtiqueta(e.target.value)}
+                    />
+                    <span>📱 Solo código QR</span>
+                  </label>
+                  <label className="radio-option">
+                    <input 
+                      type="radio" 
+                      value="ambos" 
+                      checked={tipoEtiqueta === 'ambos'}
+                      onChange={(e) => setTipoEtiqueta(e.target.value)}
+                    />
+                    <span>🏷️ Ambos códigos</span>
+                  </label>
+                </div>
+              </div>
+
               {productoSeleccionado && (
                 <div className="etiqueta-preview">
                   <div className="etiqueta-contenido">
@@ -106,20 +143,24 @@ function GeneradorCodigoBarras() {
                     {productoSeleccionado.marca && <p>Marca: {productoSeleccionado.marca}</p>}
                     {productoSeleccionado.modelo && <p>Modelo: {productoSeleccionado.modelo}</p>}
                     
-                    <div className="codigos-container">
-                      <div className="barcode-section">
-                        <svg id="barcode-svg"></svg>
-                      </div>
+                    <div className={`codigos-container tipo-${tipoEtiqueta}`}>
+                      {(tipoEtiqueta === 'barcode' || tipoEtiqueta === 'ambos') && (
+                        <div className="barcode-section">
+                          <svg id="barcode-svg"></svg>
+                        </div>
+                      )}
                       
-                      <div className="qr-section">
-                        <QRCodeSVG 
-                          value={productoSeleccionado.codigo_barras}
-                          size={120}
-                          level="M"
-                          includeMargin={true}
-                        />
-                        <p className="qr-label">Escanear con móvil</p>
-                      </div>
+                      {(tipoEtiqueta === 'qr' || tipoEtiqueta === 'ambos') && (
+                        <div className="qr-section">
+                          <QRCodeSVG 
+                            value={productoSeleccionado.codigo_barras}
+                            size={120}
+                            level="M"
+                            includeMargin={true}
+                          />
+                          <p className="qr-label">Escanear con móvil</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button 

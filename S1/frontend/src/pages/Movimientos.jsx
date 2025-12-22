@@ -192,7 +192,7 @@ function Movimientos() {
   return (
     <div className="page animate-fade-in">
       <header className="page-header">
-        <h1 className="page-title">Movimientos de inventario</h1>
+        <h1 className="page-title">📦 Movimientos de inventario</h1>
         <p className="page-description">Registra entradas y salidas de stock con validación automática.</p>
       </header>
 

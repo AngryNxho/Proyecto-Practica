@@ -20,7 +20,7 @@ function ItemAlerta({ alerta, onResolver }) {
       </div>
       <div className="alerta-item__meta">
         <span className={`alerta-badge ${alerta.activa ? 'badge-danger' : 'badge-success'}`}>
-          {alerta.activa ? 'Activa' : 'Resuelta'}
+          {alerta.activa ? '⚠️ Activa' : '✅ Resuelta'}
         </span>
         {alerta.activa && onResolver && (
           <button 

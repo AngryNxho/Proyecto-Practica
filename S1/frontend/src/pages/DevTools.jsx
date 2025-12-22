@@ -72,33 +72,33 @@ function DevTools() {
     <div className="page dev-tools-page">
       <div className="dev-tools-container">
         <div className="tool-card">
-          <h2>Limpiar Base de Datos</h2>
+          <h2>🗑️ Limpiar Base de Datos</h2>
           <p>Elimina todos los productos, movimientos y alertas de la base de datos.</p>
           <button 
             className="btn btn-danger btn-lg" 
             onClick={resetDatabase}
             disabled={loading}
           >
-            {loading ? 'Procesando...' : 'Borrar Todo'}
+            {loading ? '🔄 Procesando...' : '⚠️ Borrar Todo'}
           </button>
         </div>
 
         <div className="tool-card">
-          <h2>Insertar Datos de Ejemplo</h2>
+          <h2>🎲 Insertar Datos de Ejemplo</h2>
           <p>Borra los datos actuales e inserta 20 productos de ejemplo (impresoras, tóners CMYK, tintas, papel) con sus alertas y movimientos.</p>
           <button 
             className="btn btn-primary btn-lg" 
             onClick={populateDatabase}
             disabled={loading}
           >
-            {loading ? 'Procesando...' : 'Insertar Datos'}
+            {loading ? '🔄 Procesando...' : '➕ Insertar Datos'}
           </button>
         </div>
       </div>
 
       {message && (
         <div className={`dev-message ${message.type}`}>
-          {message.text}
+          {message.type === 'success' ? '✅ ' : '❌ '}{message.text}
         </div>
       )}
     </div>

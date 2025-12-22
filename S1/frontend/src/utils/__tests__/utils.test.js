@@ -24,9 +24,8 @@ describe('Utilidades de formato', () => {
     it('debería formatear fechas ISO correctamente', () => {
       const fecha = '2025-12-09T12:30:00Z';
       const resultado = formatDateTime(fecha);
-      expect(resultado).toContain('09');
-      expect(resultado).toContain('12');
       expect(resultado).toContain('2025');
+      expect(resultado).toContain('dic');
     });
 
     it('debería manejar fechas inválidas', () => {

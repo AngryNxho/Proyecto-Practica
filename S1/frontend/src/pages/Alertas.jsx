@@ -91,7 +91,7 @@ function Alertas() {
   return (
     <div className="page animate-fade-in">
       <header className="page-header">
-        <h1 className="page-title">Alertas de stock</h1>
+        <h1 className="page-title">⚠️ Alertas de stock</h1>
         <p className="page-description">
           Configura umbrales de alerta y revisa qué productos necesitan reposición.
         </p>
