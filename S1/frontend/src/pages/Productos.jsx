@@ -3,6 +3,8 @@ import FormularioProducto from '../components/productos/FormularioProducto';
 import ListaProductos from '../components/productos/ListaProductos';
 import ModalMovimiento from '../components/productos/ModalMovimiento';
 import { productService, alertService } from '../services/inventoryService';
+import { useConfirmacion, useMensaje } from '../hooks/useCommon';
+import { useDebounce } from '../hooks/useDebounce';
 import './Productos.css';
 
 function Productos() {
@@ -10,7 +12,6 @@ function Productos() {
   const [alertas, setAlertas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [mensaje, setMensaje] = useState(null);
   const [productoEditar, setProductoEditar] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [filtroStock, setFiltroStock] = useState('');
@@ -19,29 +20,20 @@ function Productos() {
   const [totalResultados, setTotalResultados] = useState(0);
   const [modalMovimiento, setModalMovimiento] = useState(null);
   const [ordenamiento, setOrdenamiento] = useState('-fecha_creacion');
+  
+  const confirmar = useConfirmacion();
+  const { mensaje, mostrar: mostrarMensaje } = useMensaje();
+  const busquedaDebounced = useDebounce(busqueda, 500);
 
   useEffect(() => {
     cargarDatos();
-  }, [paginaActual]);
-
-  // Búsqueda automática con debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (paginaActual === 1) {
-        cargarDatos();
-      } else {
-        setPaginaActual(1);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [busqueda, filtroStock, ordenamiento]);
+  }, [paginaActual, busquedaDebounced, filtroStock, ordenamiento]);
 
   const cargarDatos = async () => {
     try {
       setCargando(true);
       const parametros = { page: paginaActual };
-      if (busqueda) parametros.search = busqueda;
+      if (busquedaDebounced) parametros.search = busquedaDebounced;
       if (filtroStock === 'bajo') parametros.stock_max = 10;
       if (filtroStock === 'critico') parametros.stock_max = 5;
       if (filtroStock === 'normal') parametros.stock_min = 11;
@@ -66,7 +58,7 @@ function Productos() {
       console.error('Error al cargar datos:', err);
       setProductos([]);
       setAlertas([]);
-      setError(null); // No mostrar error si simplemente no hay datos
+      setError(null);
     } finally {
       setCargando(false);
     }
@@ -74,20 +66,19 @@ function Productos() {
 
   const manejarEliminar = async (id) => {
     const producto = productos.find(p => p.id === id);
-    const confirmar = window.confirm(
-      `¿Estás seguro de eliminar "${producto?.nombre}"?\n\nEsta acción no se puede deshacer y se eliminará:\n- El producto\n- Su historial de movimientos\n- Sus alertas asociadas`
+    const confirmado = confirmar(
+      `¿Estás seguro de eliminar "${producto?.nombre}"?\n\nEsta acción no se puede deshacer y se eliminará:\n- El producto\n- Su historial de movimientos\n- Sus alertas asociadas`,
+      'danger'
     );
     
-    if (!confirmar) return;
-
+if (!confirmado) return;
+    
     try {
       await productService.eliminar(id);
-      setMensaje({ tipo: 'success', texto: '✓ Producto eliminado correctamente.' });
+      mostrarMensaje('✓ Producto eliminado correctamente.', 'success');
       await cargarDatos();
-      setTimeout(() => setMensaje(null), 3000);
     } catch (err) {
-      setMensaje({ tipo: 'error', texto: 'No se pudo eliminar el producto. Inténtalo de nuevo.' });
-      setTimeout(() => setMensaje(null), 3000);
+      mostrarMensaje('No se pudo eliminar el producto. Inténtalo de nuevo.', 'error');
     }
   };
 
