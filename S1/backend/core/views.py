@@ -621,19 +621,40 @@ class AlertaViewSet(viewsets.ModelViewSet):
 
 # ========== ENDPOINTS DE DESARROLLO - ELIMINAR EN PRODUCCIÓN ==========
 
+from .decoradores import solo_desarrollo, requiere_confirmacion, registrar_operacion
+
 @api_view(['POST'])
+@solo_desarrollo
+@requiere_confirmacion('confirmar_borrado')
+@registrar_operacion('limpieza de base de datos')
 def reset_database(request):
     """SOLO DESARROLLO: Borra todos los datos de la base de datos"""
     try:
+        cantidad_movimientos = Movimiento.objects.count()
+        cantidad_alertas = Alerta.objects.count()
+        cantidad_productos = Producto.objects.count()
+        
         Movimiento.objects.all().delete()
         Alerta.objects.all().delete()
         Producto.objects.all().delete()
-        return Response({'message': 'Base de datos limpiada', 'status': 'success'})
+        
+        return Response({
+            'message': 'Base de datos limpiada exitosamente',
+            'status': 'success',
+            'eliminados': {
+                'productos': cantidad_productos,
+                'movimientos': cantidad_movimientos,
+                'alertas': cantidad_alertas
+            }
+        })
     except Exception as e:
+        logger.error(f"Error al limpiar base de datos: {str(e)}", exc_info=True)
         return Response({'message': str(e), 'status': 'error'}, status=500)
 
 
 @api_view(['POST'])
+@solo_desarrollo
+@registrar_operacion('población de base de datos')
 def populate_database(request):
     """SOLO DESARROLLO: Inserta datos de ejemplo"""
     try:
