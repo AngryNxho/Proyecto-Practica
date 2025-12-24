@@ -74,9 +74,11 @@ class Producto(models.Model):
     def registrar_entrada(self, cantidad, descripcion='', usuario=None):
         """Registra una entrada de stock con validación y auditoría"""
         if cantidad <= 0:
+            logger.warning(f"Intento de entrada con cantidad inválida: {cantidad}")
             raise ValueError("La cantidad debe ser mayor a cero")
         
         if not descripcion:
+            logger.warning(f"Intento de entrada sin descripción - Producto: {self.nombre}")
             raise ValueError("La descripción es obligatoria")
         
         with transaction.atomic():
@@ -90,14 +92,21 @@ class Producto(models.Model):
             self.stock += cantidad
             self.save(update_fields=['stock'])
             self._verificar_alertas()
+            
+            logger.info(
+                f"Entrada registrada - Producto: {self.nombre}, "
+                f"Cantidad: {cantidad}, Stock nuevo: {self.stock}"
+            )
         return movimiento
     
     def registrar_salida(self, cantidad, descripcion='', usuario=None):
         """Registra una salida de stock con validación estricta y protección contra race conditions"""
         if cantidad <= 0:
+            logger.warning(f"Intento de salida con cantidad inválida: {cantidad}")
             raise ValueError("La cantidad debe ser mayor a cero")
         
         if not descripcion:
+            logger.warning(f"Intento de salida sin descripción - Producto: {self.nombre}")
             raise ValueError("La descripción es obligatoria")
         
         with transaction.atomic():
@@ -105,6 +114,10 @@ class Producto(models.Model):
             producto = Producto.objects.select_for_update().get(pk=self.pk)
             
             if cantidad > producto.stock:
+                logger.warning(
+                    f"Stock insuficiente - Producto: {producto.nombre}, "
+                    f"Stock: {producto.stock}, Solicitado: {cantidad}"
+                )
                 raise ValueError(
                     f"Stock insuficiente para '{producto.nombre}'. "
                     f"Disponible: {producto.stock}, Solicitado: {cantidad}, "
@@ -121,6 +134,11 @@ class Producto(models.Model):
             producto.stock -= cantidad
             producto.save(update_fields=['stock'])
             producto._verificar_alertas()
+            
+            logger.info(
+                f"Salida registrada - Producto: {producto.nombre}, "
+                f"Cantidad: {cantidad}, Stock restante: {producto.stock}"
+            )
             
             # Actualizar self para reflejar cambios
             self.refresh_from_db()
@@ -142,10 +160,12 @@ class Producto(models.Model):
         Registra un movimiento de entrada o salida según corresponda
         """
         if nuevo_stock < 0:
+            logger.warning(f"Intento de ajuste con stock negativo: {nuevo_stock}")
             raise ValueError("El nuevo stock no puede ser negativo")
         
         diferencia = nuevo_stock - self.stock
         if diferencia == 0:
+            logger.info(f"Ajuste sin cambios - Producto: {self.nombre}, Stock: {self.stock}")
             return None
         
         tipo = 'ENTRADA' if diferencia > 0 else 'SALIDA'
@@ -159,9 +179,16 @@ class Producto(models.Model):
                 descripcion=descripcion,
                 usuario=usuario or 'Sistema'
             )
+            stock_anterior = self.stock
             self.stock = nuevo_stock
             self.save(update_fields=['stock'])
             self._verificar_alertas()
+            
+            logger.info(
+                f"Stock ajustado - Producto: {self.nombre}, "
+                f"Stock anterior: {stock_anterior}, Nuevo: {nuevo_stock}, "
+                f"Tipo: {tipo}, Cantidad: {cantidad}"
+            )
         
         return movimiento
     
