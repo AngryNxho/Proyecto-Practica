@@ -3,7 +3,8 @@ class Logger {
   constructor() {
     this.logs = [];
     this.maxLogs = 100; // Mantener solo los últimos 100 logs
-    this.enabled = import.meta.env.DEV; // Solo en desarrollo por defecto
+    this.enabled = import.meta.env.VITE_ENABLE_LOGS === 'true' || import.meta.env.DEV;
+    this.environment = import.meta.env.VITE_APP_ENV || 'development';
   }
 
   log(level, message, data = null) {
@@ -12,7 +13,8 @@ class Logger {
       level,
       message,
       data,
-      url: window.location.pathname
+      url: window.location.pathname,
+      environment: this.environment
     };
 
     this.logs.push(logEntry);
@@ -25,7 +27,7 @@ class Logger {
     // Guardar en localStorage para persistencia
     this.saveToStorage();
 
-    // Log en consola según el nivel
+    // Log en consola según el nivel (solo si está habilitado)
     if (this.enabled) {
       const style = this.getStyle(level);
       console.log(

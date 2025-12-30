@@ -1,0 +1,24 @@
+# Dependencias para producción
+# Incluye todas las de desarrollo más herramientas de servidor
+
+# Core Django y dependencias base
+-r requirements.txt
+
+# Servidor WSGI para producción
+gunicorn==21.2.0
+
+# Manejo de archivos estáticos
+whitenoise==6.6.0
+
+# Monitoreo y performance
+sentry-sdk==1.39.2
+
+# Cache con Redis (opcional)
+django-redis==5.4.0
+redis==5.0.1
+
+# Tareas asíncronas (opcional)
+celery==5.3.4
+
+# Seguridad adicional
+django-security==0.18.0
