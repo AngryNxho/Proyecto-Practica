@@ -10,6 +10,7 @@ import Scanner from './pages/Scanner';
 import GeneradorCodigoBarras from './pages/GeneradorCodigoBarras';
 import DevTools from './pages/DevTools';
 import LogViewer from './pages/LogViewer';
+import MonitorSistema from './pages/MonitorSistema';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/generador" element={<GeneradorCodigoBarras />} />
+          <Route path="/monitor" element={<MonitorSistema />} />
           <Route path="/dev" element={<DevTools />} />
           <Route path="/logs" element={<LogViewer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
