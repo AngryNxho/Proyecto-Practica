@@ -86,8 +86,8 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       return;
     }
 
-    if (datosFormulario.precio && Number(datosFormulario.precio) < 0) {
-      setMensaje({ tipo: 'error', texto: 'El precio no puede ser negativo.' });
+    if (datosFormulario.precio && Number(datosFormulario.precio) <= 0) {
+      setMensaje({ tipo: 'error', texto: 'El precio debe ser mayor a cero.' });
       return;
     }
 
@@ -139,12 +139,25 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
       const errorMsg = error.response?.data;
       let textoError = `No se pudo ${modoEdicion ? 'actualizar' : 'crear'} el producto.`;
       
-      if (errorMsg?.codigo_barras) {
-        textoError = 'Este código de barras ya está registrado.';
+      // Usar mensaje personalizado del interceptor si existe
+      if (error.mensajeUsuario) {
+        textoError = error.mensajeUsuario;
+      } else if (errorMsg?.codigo_barras) {
+        if (Array.isArray(errorMsg.codigo_barras)) {
+          textoError = errorMsg.codigo_barras[0];
+        } else {
+          textoError = 'Este código de barras ya está registrado.';
+        }
       } else if (errorMsg?.nombre) {
-        textoError = 'Ya existe un producto con este nombre.';
+        if (Array.isArray(errorMsg.nombre)) {
+          textoError = errorMsg.nombre[0];
+        } else {
+          textoError = 'Ya existe un producto con este nombre.';
+        }
       } else if (errorMsg?.detail) {
         textoError = errorMsg.detail;
+      } else if (errorMsg?.error) {
+        textoError = errorMsg.error;
       }
       
       setMensaje({ tipo: 'error', texto: textoError });

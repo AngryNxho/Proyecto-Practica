@@ -1,13 +1,20 @@
+import { useState } from 'react';
 import { formatCurrency, getStockStatus, getStockLabel } from '../../utils/utils';
 import './TarjetaProducto.css';
 
 function TarjetaProducto({ producto, alerta, alEliminar, alEditar, alRegistrarMovimiento }) {
+  const [confirmandoEliminacion, setConfirmandoEliminacion] = useState(false);
   const variante = getStockStatus(producto.stock, alerta?.umbral);
 
   const manejarEliminar = async () => {
-    if (window.confirm(`¿Eliminar "${producto.nombre}"?`)) {
-      alEliminar?.(producto.id);
+    if (!confirmandoEliminacion) {
+      setConfirmandoEliminacion(true);
+      setTimeout(() => setConfirmandoEliminacion(false), 3000);
+      return;
     }
+    
+    alEliminar?.(producto.id);
+    setConfirmandoEliminacion(false);
   };
 
   const manejarEditar = () => {
@@ -67,8 +74,13 @@ function TarjetaProducto({ producto, alerta, alEliminar, alEditar, alRegistrarMo
         <button className="btn-icon btn-primary" onClick={manejarEditar} title="Editar" aria-label="Editar producto">
           ✏️
         </button>
-        <button className="btn-icon btn-danger" onClick={manejarEliminar} title="Eliminar" aria-label="Eliminar producto">
-          🗑️
+        <button 
+          className={`btn-icon ${confirmandoEliminacion ? 'btn-danger-confirm' : 'btn-danger'}`}
+          onClick={manejarEliminar} 
+          title={confirmandoEliminacion ? '¡Confirma para eliminar!' : 'Eliminar'}
+          aria-label="Eliminar producto"
+        >
+          {confirmandoEliminacion ? '⚠️' : '🗑️'}
         </button>
       </div>
     </article>

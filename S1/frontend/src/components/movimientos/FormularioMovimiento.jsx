@@ -35,6 +35,11 @@ function FormularioMovimiento({ productos, alRegistrar }) {
       return;
     }
 
+    if (Number(datosFormulario.cantidad) > 100000) {
+      setMensaje({ tipo: 'error', texto: 'La cantidad no puede exceder 100,000 unidades.' });
+      return;
+    }
+
     // Validar stock suficiente para salidas
     if (datosFormulario.tipo === 'SALIDA') {
       const productoSeleccionado = productos.find(p => p.id === Number(datosFormulario.productoId));
@@ -67,12 +72,21 @@ function FormularioMovimiento({ productos, alRegistrar }) {
       alRegistrar?.();
     } catch (error) {
       console.error('Error al registrar movimiento:', error);
+      
+      let textoError = error.mensajeUsuario || 'No se pudo registrar el movimiento.';
+      
+      // Manejar errores específicos del backend
+      if (error.response?.data?.detail) {
+        textoError = error.response.data.detail;
+      } else if (error.response?.data?.error) {
+        textoError = error.response.data.error;
+      } else if (error.response?.status === 400) {
+        textoError = 'Datos inválidos. Verifica la información ingresada.';
+      }
+      
       setMensaje({
         tipo: 'error',
-        texto:
-          error.response?.data?.detail ||
-          error.response?.data?.error ||
-          'No se pudo registrar el movimiento.',
+        texto: textoError,
       });
     } finally {
       setCargando(false);
