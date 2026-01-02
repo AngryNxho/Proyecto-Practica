@@ -383,6 +383,164 @@ class ProductoViewSet(viewsets.ModelViewSet):
         
         return response
     
+    @action(detail=False, methods=['post'])
+    def importar_csv(self, request):
+        """
+        Importa productos desde un archivo CSV
+        
+        Formato esperado del CSV:
+        nombre,categoria,marca,modelo,precio,stock,descripcion,codigo_barras
+        
+        Args:
+            archivo: archivo CSV con codificación UTF-8
+        
+        Returns:
+            JSON con resumen de la importación:
+            - creados: cantidad de productos creados
+            - errores: lista de errores encontrados
+            - advertencias: lista de advertencias (productos duplicados, etc.)
+        
+        Ejemplo de respuesta:
+            {
+                "creados": 15,
+                "actualizados": 3,
+                "errores": ["Línea 5: precio inválido", ...],
+                "advertencias": ["Línea 10: producto duplicado, actualizado"]
+            }
+        """
+        import io
+        from decimal import Decimal, InvalidOperation
+        
+        archivo = request.FILES.get('archivo')
+        
+        if not archivo:
+            return Response(
+                {'error': 'No se proporcionó ningún archivo'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not archivo.name.endswith('.csv'):
+            return Response(
+                {'error': 'El archivo debe ser un CSV'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Leer archivo CSV
+            archivo_texto = io.TextIOWrapper(archivo, encoding='utf-8')
+            lector = csv.DictReader(archivo_texto)
+            
+            creados = 0
+            actualizados = 0
+            errores = []
+            advertencias = []
+            
+            for idx, fila in enumerate(lector, start=2):  # start=2 porque línea 1 es header
+                try:
+                    # Validar campos requeridos
+                    nombre = fila.get('nombre', '').strip()
+                    if not nombre:
+                        errores.append(f"Línea {idx}: nombre es obligatorio")
+                        continue
+                    
+                    # Obtener precio y validar
+                    precio_str = fila.get('precio', '0').strip()
+                    try:
+                        precio = Decimal(precio_str.replace(',', '.'))
+                        if precio < 0:
+                            errores.append(f"Línea {idx}: precio no puede ser negativo")
+                            continue
+                    except (InvalidOperation, ValueError):
+                        errores.append(f"Línea {idx}: precio '{precio_str}' no es válido")
+                        continue
+                    
+                    # Obtener stock y validar
+                    stock_str = fila.get('stock', '0').strip()
+                    try:
+                        stock = int(stock_str)
+                        if stock < 0:
+                            errores.append(f"Línea {idx}: stock no puede ser negativo")
+                            continue
+                    except ValueError:
+                        errores.append(f"Línea {idx}: stock '{stock_str}' no es válido")
+                        continue
+                    
+                    # Obtener otros campos
+                    categoria = fila.get('categoria', '').strip()
+                    marca = fila.get('marca', '').strip()
+                    modelo = fila.get('modelo', '').strip()
+                    descripcion = fila.get('descripcion', '').strip()
+                    codigo_barras = fila.get('codigo_barras', '').strip()
+                    
+                    # Validar código de barras único si existe
+                    if codigo_barras:
+                        existe = Producto.objects.filter(codigo_barras=codigo_barras).exists()
+                        if existe:
+                            advertencias.append(
+                                f"Línea {idx}: código de barras '{codigo_barras}' ya existe, "
+                                f"producto '{nombre}' no importado"
+                            )
+                            continue
+                    
+                    # Verificar si ya existe producto con mismo nombre
+                    producto_existente = Producto.objects.filter(nombre=nombre).first()
+                    
+                    if producto_existente:
+                        # Actualizar producto existente
+                        producto_existente.categoria = categoria
+                        producto_existente.marca = marca
+                        producto_existente.modelo = modelo
+                        producto_existente.precio = precio
+                        producto_existente.stock = stock
+                        producto_existente.descripcion = descripcion
+                        if codigo_barras:
+                            producto_existente.codigo_barras = codigo_barras
+                        producto_existente.save()
+                        
+                        actualizados += 1
+                        advertencias.append(f"Línea {idx}: producto '{nombre}' actualizado")
+                    else:
+                        # Crear nuevo producto
+                        Producto.objects.create(
+                            nombre=nombre,
+                            categoria=categoria,
+                            marca=marca,
+                            modelo=modelo,
+                            precio=precio,
+                            stock=stock,
+                            descripcion=descripcion,
+                            codigo_barras=codigo_barras if codigo_barras else None
+                        )
+                        creados += 1
+                    
+                except Exception as e:
+                    errores.append(f"Línea {idx}: error inesperado - {str(e)}")
+            
+            logger.info(
+                f"Importación CSV completada - Creados: {creados}, "
+                f"Actualizados: {actualizados}, Errores: {len(errores)}"
+            )
+            
+            return Response({
+                'creados': creados,
+                'actualizados': actualizados,
+                'total_procesados': creados + actualizados,
+                'errores': errores,
+                'advertencias': advertencias
+            }, status=status.HTTP_200_OK if not errores or creados + actualizados > 0 else status.HTTP_400_BAD_REQUEST)
+            
+        except UnicodeDecodeError:
+            return Response(
+                {'error': 'El archivo debe estar codificado en UTF-8'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Error al importar CSV: {str(e)}", exc_info=True)
+            return Response(
+                {'error': f'Error al procesar el archivo: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
     @action(detail=True, methods=['post'])
     def registrar_entrada(self, request, pk=None):
         """

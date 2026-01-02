@@ -10,6 +10,7 @@ const enlaces = [
   { to: '/alertas', etiqueta: 'Alertas', icono: '⚠️', mostrarBadge: true },
   { to: '/reportes', etiqueta: 'Reportes', icono: '📈' },
   { to: '/exportar', etiqueta: 'Exportar', icono: '📥' },
+  { to: '/importar', etiqueta: 'Importar', icono: '📤' },
   { to: '/scanner', etiqueta: 'Scanner', icono: '📷' },
   { to: '/generador', etiqueta: 'Etiquetas', icono: '🏷️' },
   { to: '/monitor', etiqueta: 'Monitor', icono: '💚' },

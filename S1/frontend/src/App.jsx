@@ -12,6 +12,7 @@ import DevTools from './pages/DevTools';
 import LogViewer from './pages/LogViewer';
 import MonitorSistema from './pages/MonitorSistema';
 import ExportarDatos from './pages/ExportarDatos';
+import ImportarDatos from './pages/ImportarDatos';
 import './App.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/generador" element={<GeneradorCodigoBarras />} />
           <Route path="/monitor" element={<MonitorSistema />} />
           <Route path="/exportar" element={<ExportarDatos />} />
+          <Route path="/importar" element={<ImportarDatos />} />
           <Route path="/dev" element={<DevTools />} />
           <Route path="/logs" element={<LogViewer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
