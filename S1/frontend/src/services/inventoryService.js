@@ -11,6 +11,7 @@ export const productService = {
   registrarSalida: (id, data) => api.post(`/productos/${id}/registrar_salida/`, data),
   obtenerEstadisticas: () => api.get('/productos/estadisticas/'),
   obtenerMetricasDashboard: () => api.get('/productos/metricas_dashboard/'),
+  exportarCSV: (url, params) => api.get(url, { params, responseType: 'blob' }),
   exportarReporte: (params) => {
     const queryString = new URLSearchParams(params).toString();
     return `${api.defaults.baseURL}/productos/exportar_reporte/?${queryString}`;
