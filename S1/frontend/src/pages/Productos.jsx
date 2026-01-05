@@ -4,7 +4,7 @@ import ListaProductos from '../components/productos/ListaProductos';
 import ModalMovimiento from '../components/productos/ModalMovimiento';
 import { productService, alertService } from '../services/inventoryService';
 import { useConfirmacion, useMensaje } from '../hooks/useCommon';
-import { useDebounce } from '../hooks/useDebounce';
+import useDebounce from '../hooks/useDebounce';
 import './Productos.css';
 
 function Productos() {

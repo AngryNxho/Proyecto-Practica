@@ -22,6 +22,7 @@ export const movementService = {
   obtenerTodos: () => api.get('/movimientos/'),
   buscar: (params) => api.get('/movimientos/', { params }),
   obtenerPorId: (id) => api.get(`/movimientos/${id}/`),
+  exportarCSV: () => api.get('/movimientos/exportar_csv/', { responseType: 'blob' }),
 };
 
 export const alertService = {

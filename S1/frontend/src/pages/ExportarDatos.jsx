@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { productService } from '../../services/inventoryService';
+import { productService } from '../services/inventoryService';
 import './ExportarDatos.css';
 
 function ExportarDatos() {

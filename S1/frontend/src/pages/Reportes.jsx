@@ -264,11 +264,11 @@ function Reportes() {
           {tipoReporte === 'general' && (
             <>
               <div className="graficos-grid">
-                <GraficoBarras 
+                <GraficoDona 
                   datos={productosPorCategoria}
                   titulo="Productos por Categoría"
                 />
-                <GraficoBarras 
+                <GraficoDona 
                   datos={stockPorCategoria}
                   titulo="Stock por Categoría"
                 />
@@ -287,7 +287,7 @@ function Reportes() {
           {tipoReporte === 'movimientos' && (
             <>
               <div className="graficos-grid">
-                <GraficoBarras 
+                <GraficoDona 
                   datos={datosGraficoTipo}
                   titulo="Movimientos por Tipo"
                 />
@@ -295,6 +295,7 @@ function Reportes() {
                   datos={movimientosPorDia}
                   titulo="Tendencia de Movimientos"
                   color="#3b82f6"
+                  altura={250}
                 />
               </div>
 
@@ -305,6 +306,7 @@ function Reportes() {
                     titulo="Top 10 Productos Más Movidos"
                     colorPrimario="#8b5cf6"
                     colorSecundario="#ec4899"
+                    altura={250}
                   />
                 </div>
               )}
@@ -315,15 +317,13 @@ function Reportes() {
           {tipoReporte === 'inventario' && (
             <>
               <div className="graficos-grid">
-                <GraficoBarras 
+                <GraficoDona 
                   datos={stockPorCategoria}
                   titulo="Distribución de Stock"
                 />
-                <GraficoBarras 
+                <GraficoDona 
                   datos={productosPorCategoria}
                   titulo="Cantidad de Productos"
-                  colorPrimario="#10b981"
-                  colorSecundario="#06b6d4"
                 />
               </div>
             </>
