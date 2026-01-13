@@ -24,8 +24,8 @@ function GraficoDona({ datos, titulo, tamano = 200, grosor = 35 }) {
   let acumulado = 0;
   const segmentos = datos.map((dato, index) => {
     const porcentaje = (dato.valor / total) * 100;
-    const offset = circunferencia - (circunferencia * acumulado / 100);
     const dasharray = `${(circunferencia * porcentaje) / 100} ${circunferencia}`;
+    const offset = -circunferencia * (acumulado / 100);
     acumulado += porcentaje;
 
     return {
@@ -73,8 +73,8 @@ function GraficoDona({ datos, titulo, tamano = 200, grosor = 35 }) {
               stroke={segmento.color}
               strokeWidth={grosor}
               strokeDasharray={animado ? segmento.dasharray : `0 ${circunferencia}`}
-              strokeDashoffset={-segmento.offset}
-              strokeLinecap="round"
+              strokeDashoffset={segmento.offset}
+              strokeLinecap="butt"
               filter="url(#dona-shadow)"
               className="dona-segmento"
               style={{ 
@@ -130,7 +130,7 @@ function GraficoDona({ datos, titulo, tamano = 200, grosor = 35 }) {
                   className="leyenda-color"
                   style={{ background: segmento.color }}
                 />
-                <span className="leyenda-label">{segmento.label}</span>
+                <span className="leyenda-label">{segmento.nombre || segmento.label}</span>
               </div>
               <div className="leyenda-valores">
                 <span className="leyenda-valor">{segmento.valor}</span>

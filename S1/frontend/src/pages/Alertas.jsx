@@ -16,6 +16,8 @@ function Alertas() {
 
   useEffect(() => {
     cargarDatos();
+    const interval = setInterval(cargarDatos, 30000); // actualizar cada 30 segundos
+    return () => clearInterval(interval);
   }, []);
 
   const cargarDatos = async () => {

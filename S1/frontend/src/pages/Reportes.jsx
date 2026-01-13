@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { productService, movementService } from '../services/inventoryService';
-import GraficoBarras from '../components/graficos/GraficoBarras';
-import GraficoLinea from '../components/graficos/GraficoLinea';
 import GraficoDona from '../components/graficos/GraficoDona';
 import { formatCurrency } from '../utils/utils';
 import './Reportes.css';
@@ -23,6 +21,8 @@ function Reportes() {
 
   useEffect(() => {
     cargarDatos();
+    const interval = setInterval(cargarDatos, 30000); // actualizar cada 30 segundos
+    return () => clearInterval(interval);
   }, []);
 
   const cargarDatos = async () => {
@@ -98,6 +98,7 @@ function Reportes() {
     const productosCategoria = productos.filter(p => p.categoria === cat);
     const valor = productosCategoria.reduce((sum, p) => sum + (p.precio * p.stock), 0);
     return {
+      nombre: cat,
       label: cat,
       valor: Math.round(valor),
       color: colores[index % colores.length]
@@ -263,21 +264,65 @@ function Reportes() {
           {/* Vista General */}
           {tipoReporte === 'general' && (
             <>
-              <div className="graficos-grid">
-                <GraficoDona 
-                  datos={productosPorCategoria}
-                  titulo="Productos por Categoría"
-                />
-                <GraficoDona 
-                  datos={stockPorCategoria}
-                  titulo="Stock por Categoría"
-                />
+              {/* Gráficos de Torta - Principales */}
+              <div style={{ marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '1.3rem', marginBottom: '16px', color: '#2c3e50' }}>
+                  🎨 Distribución Visual
+                </h2>
+                <div className="graficos-grid">
+                  <GraficoDona 
+                    datos={productosPorCategoria.map((cat, index) => ({
+                      nombre: cat.label,
+                      valor: cat.valor,
+                      color: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#14b8a6'][index % 8]
+                    }))}
+                    titulo="📦 Productos por Categoría"
+                    tamano={260}
+                    grosor={50}
+                  />
+                  <GraficoDona 
+                    datos={stockPorCategoria.map(cat => ({
+                      nombre: cat.label,
+                      valor: cat.valor,
+                      color: cat.color
+                    }))}
+                    titulo="📊 Stock por Categoría"
+                    tamano={260}
+                    grosor={50}
+                  />
+                  <GraficoDona 
+                    datos={valorPorCategoria}
+                    titulo="💰 Valor por Categoría"
+                    tamano={260}
+                    grosor={50}
+                  />
+                </div>
               </div>
 
+              {/* Gráficos de Donas - Detalles */}
+              <h2 style={{ fontSize: '1.3rem', marginBottom: '16px', marginTop: '24px', color: '#2c3e50' }}>
+                📊 Análisis Detallado
+              </h2>
               <div className="graficos-grid">
                 <GraficoDona 
-                  datos={valorPorCategoria}
-                  titulo="Distribución de Valor por Categoría"
+                  datos={productosPorCategoria.map((cat, index) => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6', '#f97316', '#a855f7'][index % 10]
+                  }))}
+                  titulo="📦 Productos por Categoría (Detalle)"
+                  tamano={240}
+                  grosor={45}
+                />
+                <GraficoDona 
+                  datos={stockPorCategoria.map(cat => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: cat.color
+                  }))}
+                  titulo="📊 Stock por Categoría (Detalle)"
+                  tamano={240}
+                  grosor={45}
                 />
               </div>
             </>
@@ -286,44 +331,85 @@ function Reportes() {
           {/* Vista Movimientos */}
           {tipoReporte === 'movimientos' && (
             <>
+              {/* Gráficos de Donas para Movimientos */}
               <div className="graficos-grid">
                 <GraficoDona 
-                  datos={datosGraficoTipo}
-                  titulo="Movimientos por Tipo"
+                  datos={datosGraficoTipo.map(item => ({
+                    nombre: item.label,
+                    valor: item.valor,
+                    color: item.color
+                  }))}
+                  titulo="📝 Movimientos por Tipo"
+                  tamano={240}
+                  grosor={45}
                 />
-                <GraficoLinea 
-                  datos={movimientosPorDia}
-                  titulo="Tendencia de Movimientos"
-                  color="#3b82f6"
-                  altura={250}
-                />
-              </div>
-
-              {topProductos.length > 0 && (
-                <div className="graficos-grid">
-                  <GraficoBarras 
-                    datos={topProductos}
-                    titulo="Top 10 Productos Más Movidos"
-                    colorPrimario="#8b5cf6"
-                    colorSecundario="#ec4899"
-                    altura={250}
+                {topProductos.length > 0 && (
+                  <GraficoDona 
+                    datos={topProductos.slice(0, 8).map((item, index) => ({
+                      nombre: item.label.length > 20 ? item.label.substring(0, 20) + '...' : item.label,
+                      valor: item.valor,
+                      color: ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#14b8a6'][index % 8]
+                    }))}
+                    titulo="🔝 Top 8 Productos Más Movidos"
+                    tamano={240}
+                    grosor={45}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
 
           {/* Vista Inventario */}
           {tipoReporte === 'inventario' && (
             <>
+              {/* Gráficos de Torta para Inventario */}
               <div className="graficos-grid">
                 <GraficoDona 
-                  datos={stockPorCategoria}
-                  titulo="Distribución de Stock"
+                  datos={stockPorCategoria.map(cat => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: cat.color
+                  }))}
+                  titulo="📊 Distribución de Stock"
+                  tamano={240}
+                  grosor={45}
                 />
                 <GraficoDona 
-                  datos={productosPorCategoria}
-                  titulo="Cantidad de Productos"
+                  datos={productosPorCategoria.map((cat, index) => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: ['#10b981', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899', '#3b82f6'][index % 6]
+                  }))}
+                  titulo="📦 Cantidad de Productos"
+                  tamano={240}
+                  grosor={45}
+                />
+              </div>
+
+              {/* Gráficos de Donas - Detalles */}
+              <h2 style={{ fontSize: '1.3rem', marginBottom: '16px', marginTop: '24px', color: '#2c3e50' }}>
+                📊 Análisis Detallado
+              </h2>
+              <div className="graficos-grid">
+                <GraficoDona 
+                  datos={stockPorCategoria.map(cat => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: cat.color
+                  }))}
+                  titulo="📊 Stock por Categoría (Detalle)"
+                  tamano={240}
+                  grosor={45}
+                />
+                <GraficoDona 
+                  datos={productosPorCategoria.map((cat, index) => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: ['#10b981', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899', '#3b82f6', '#ef4444', '#14b8a6'][index % 8]
+                  }))}
+                  titulo="📦 Productos por Categoría (Detalle)"
+                  tamano={240}
+                  grosor={45}
                 />
               </div>
             </>
@@ -335,7 +421,29 @@ function Reportes() {
               <div className="graficos-grid">
                 <GraficoDona 
                   datos={valorPorCategoria}
-                  titulo="Valor por Categoría"
+                  titulo="💰 Valor del Inventario por Categoría"
+                  tamano={260}
+                  grosor={50}
+                />
+                <GraficoDona 
+                  datos={productosPorCategoria.map((cat, index) => ({
+                    nombre: cat.label,
+                    valor: cat.valor,
+                    color: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'][index % 6]
+                  }))}
+                  titulo="📦 Distribución de Productos"
+                  tamano={260}
+                  grosor={50}
+                />
+              </div>
+
+              {/* Detalles financieros */}
+              <div className="graficos-grid">
+                <GraficoDona 
+                  datos={valorPorCategoria}
+                  titulo="💰 Valor por Categoría (Detalle en CLP)"
+                  tamano={260}
+                  grosor={50}
                 />
               </div>
             </>

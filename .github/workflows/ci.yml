@@ -58,12 +58,12 @@ jobs:
     
     - name: Configurar Node.js 20
       uses: actions/setup-node@v3
-      with:
-        node-version: '20'
-    
+      wi
     - name: Instalar dependencias
       working-directory: ./S1/frontend
-      run: npm ci --legacy-peer-deps
+      run: npm ci --legacy-peer-depslar dependencias
+      working-directory: ./S1/frontend
+      run: npm ci
       
     - name: Ejecutar linter
       working-directory: ./S1/frontend

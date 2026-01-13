@@ -62,6 +62,11 @@ class Logger {
     this.log('warning', message, data);
   }
 
+  // Alias para compatibilidad
+  warn(message, data) {
+    this.warning(message, data);
+  }
+
   error(message, data) {
     this.log('error', message, data);
   }

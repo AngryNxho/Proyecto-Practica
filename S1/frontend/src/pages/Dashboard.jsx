@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { productService, movimientoService, alertService } from '../services/inventoryService';
+import GraficoDona from '../components/graficos/GraficoDona';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -17,6 +18,8 @@ function Dashboard() {
 
   useEffect(() => {
     cargarDatos();
+    const interval = setInterval(cargarDatos, 30000); // actualizar cada 30 segundos
+    return () => clearInterval(interval);
   }, []);
 
   const cargarDatos = async () => {
@@ -29,6 +32,7 @@ function Dashboard() {
         alertService.obtenerActivas()
       ]);
 
+      console.log('Dashboard - Estadísticas recibidas:', estadisticasRes.data);
       setEstadisticas(estadisticasRes.data);
       setMovimientosRecientes(movimientosRes.data.results || movimientosRes.data || []);
       setAlertasActivas(alertasRes.data.alertas || []);
@@ -128,10 +132,47 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Productos por categoría */}
+      {/* Gráficos de análisis */}
+      <div className="dashboard-charts-grid" style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        {/* Gráfico de stock por estado */}
+        <div className="panel">
+          <GraficoDona
+            titulo="📊 Estado del Stock"
+            datos={[
+              { nombre: 'Stock Crítico', valor: estadisticas.stock_critico, color: '#ef4444' },
+              { nombre: 'Stock Bajo', valor: estadisticas.stock_bajo, color: '#f59e0b' },
+              { nombre: 'Stock Normal', valor: estadisticas.stock_normal, color: '#10b981' }
+            ]}
+            tamano={220}
+            grosor={40}
+          />
+        </div>
+
+        {/* Gráfico de productos por categoría */}
+        {Object.keys(estadisticas.por_categoria || {}).length > 0 && (
+          <div className="panel">
+            <GraficoDona
+              titulo="📦 Productos por Categoría"
+              datos={Object.entries(estadisticas.por_categoria).map(([categoria, datos], index) => ({
+                nombre: categoria,
+                valor: datos.cantidad,
+                color: [
+                  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', 
+                  '#10b981', '#06b6d4', '#6366f1', '#14b8a6',
+                  '#f97316', '#84cc16'
+                ][index % 10]
+              }))}
+              tamano={220}
+              grosor={40}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Productos por categoría - Detalle */}
       {Object.keys(estadisticas.por_categoria || {}).length > 0 && (
         <div className="panel" style={{ marginTop: '24px' }}>
-          <h2 className="section-title">Productos por categoría</h2>
+          <h2 className="section-title">Detalle por categoría</h2>
           <div className="categoria-grid">
             {Object.entries(estadisticas.por_categoria).map(([categoria, datos]) => (
               <div key={categoria} className="categoria-card">

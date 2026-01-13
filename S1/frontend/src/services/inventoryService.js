@@ -11,7 +11,6 @@ export const productService = {
   registrarSalida: (id, data) => api.post(`/productos/${id}/registrar_salida/`, data),
   obtenerEstadisticas: () => api.get('/productos/estadisticas/'),
   obtenerMetricasDashboard: () => api.get('/productos/metricas_dashboard/'),
-  exportarCSV: (url, params) => api.get(url, { params, responseType: 'blob' }),
   exportarReporte: (params) => {
     const queryString = new URLSearchParams(params).toString();
     return `${api.defaults.baseURL}/productos/exportar_reporte/?${queryString}`;
@@ -22,7 +21,6 @@ export const movementService = {
   obtenerTodos: () => api.get('/movimientos/'),
   buscar: (params) => api.get('/movimientos/', { params }),
   obtenerPorId: (id) => api.get(`/movimientos/${id}/`),
-  exportarCSV: () => api.get('/movimientos/exportar_csv/', { responseType: 'blob' }),
 };
 
 export const alertService = {

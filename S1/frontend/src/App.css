@@ -23,6 +23,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .page-header {
@@ -33,6 +34,7 @@
   margin: 0;
   font-size: 2rem;
   color: #1a2849;
+  animation: slideInLeft 0.5s ease-out;
 }
 
 .page-description {
@@ -45,6 +47,13 @@
   border-radius: 18px;
   padding: 24px;
   box-shadow: 0 10px 30px rgba(35, 38, 59, 0.08);
+  animation: fadeIn 0.5s ease-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(35, 38, 59, 0.12);
 }
 
 .panel + .panel {
@@ -61,7 +70,19 @@
   padding: 18px;
   border-radius: 16px;
   color: #fff;
+  animation: fadeIn 0.6s ease-out backwards;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.data-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.data-card:nth-child(1) { animation-delay: 0.1s; }
+.data-card:nth-child(2) { animation-delay: 0.2s; }
+.data-card:nth-child(3) { animation-delay: 0.3s; }
+.data-card:nth-child(4) { animation-delay: 0.4s; }
 
 .data-card h3 {
   margin: 0 0 8px;
@@ -109,6 +130,12 @@
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 500;
+  animation: fadeIn 0.4s ease-out;
+  transition: transform 0.2s ease;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
 }
 
 .status-badge.ok {
@@ -124,6 +151,7 @@
 .status-badge.critical {
   background: rgba(231, 76, 60, 0.15);
   color: #c0392b;
+  animation: pulse 2s infinite;
 }
 
 .btn {
@@ -133,7 +161,31 @@
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn:active {
+  transform: scale(0.95);
 }
 
 .btn:disabled {
@@ -147,9 +199,21 @@
   box-shadow: 0 8px 20px rgba(44, 98, 246, 0.3);
 }
 
+.btn-primary:hover:not(:disabled) {
+  background: #1e4ed8;
+  box-shadow: 0 12px 28px rgba(44, 98, 246, 0.4);
+  transform: translateY(-2px);
+}
+
 .btn-secondary {
   background: #f0f2f8;
   color: #1c2240;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e1e5f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn:hover:not(:disabled) {

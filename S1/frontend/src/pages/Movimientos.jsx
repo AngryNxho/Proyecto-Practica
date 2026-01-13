@@ -25,6 +25,8 @@ function Movimientos() {
 
   useEffect(() => {
     cargarDatos();
+    const interval = setInterval(cargarDatos, 30000); // actualizar cada 30 segundos
+    return () => clearInterval(interval);
   }, []);
 
   const cargarDatos = async () => {
@@ -34,6 +36,8 @@ function Movimientos() {
         productService.obtenerTodos(),
         movementService.obtenerTodos(),
       ]);
+      console.log('Movimientos - Productos recibidos:', productosRes.data);
+      console.log('Movimientos - Movimientos recibidos:', movimientosRes.data);
       setProductos(productosRes.data.results || productosRes.data || []);
       setMovimientos(movimientosRes.data.results || movimientosRes.data || []);
       setError(null);

@@ -7,6 +7,9 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
   },
   timeout: 30000, // 30 segundos para operaciones pesadas
   validateStatus: function (status) {
@@ -16,6 +19,14 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    // Agregar timestamp para evitar caché en peticiones GET
+    if (config.method === 'get') {
+      config.params = {
+        ...config.params,
+        _t: Date.now()
+      };
+    }
+    
     logger.info(`API Request: ${config.method.toUpperCase()} ${config.url}`, {
       params: config.params,
       data: config.data

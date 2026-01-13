@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './GraficoBarras.css';
 
-function GraficoBarras({ datos, titulo, altura = 250, colorPrimario = '#3b82f6', colorSecundario = '#8b5cf6' }) {
+function GraficoBarras({ datos, titulo, altura = 300, colorPrimario = '#3b82f6', colorSecundario = '#8b5cf6' }) {
   const [animado, setAnimado] = useState(false);
 
   useEffect(() => {

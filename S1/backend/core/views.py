@@ -277,6 +277,105 @@ class ProductoViewSet(viewsets.ModelViewSet):
         
         return response
 
+    @action(detail=False, methods=['post'])
+    def importar_csv(self, request):
+        """
+        Importa productos desde un archivo CSV
+        Formato esperado: nombre,marca,modelo,categoria,stock,precio,descripcion,codigo_barras
+        """
+        if 'archivo' not in request.FILES:
+            return Response(
+                {'error': 'No se proporcionó ningún archivo'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        archivo = request.FILES['archivo']
+        
+        if not archivo.name.endswith('.csv'):
+            return Response(
+                {'error': 'El archivo debe ser un CSV'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Leer el archivo CSV
+            contenido = archivo.read().decode('utf-8-sig')  # utf-8-sig maneja el BOM
+            lineas = contenido.split('\n')
+            
+            creados = 0
+            actualizados = 0
+            errores = []
+            
+            # Procesar cada línea (saltando la cabecera)
+            for i, linea in enumerate(lineas[1:], start=2):
+                if not linea.strip():
+                    continue
+                
+                try:
+                    partes = linea.strip().split(',')
+                    if len(partes) < 5:
+                        errores.append(f'Línea {i}: formato incorrecto (faltan campos)')
+                        continue
+                    
+                    nombre = partes[0].strip()
+                    marca = partes[1].strip() if len(partes) > 1 else ''
+                    modelo = partes[2].strip() if len(partes) > 2 else ''
+                    categoria = partes[3].strip() if len(partes) > 3 else ''
+                    stock = int(partes[4].strip()) if len(partes) > 4 and partes[4].strip() else 0
+                    precio = float(partes[5].strip()) if len(partes) > 5 and partes[5].strip() else 0
+                    descripcion = partes[6].strip() if len(partes) > 6 else ''
+                    codigo_barras = partes[7].strip() if len(partes) > 7 else None
+                    
+                    # Buscar si existe el producto (por código de barras o nombre+marca+modelo)
+                    producto_existente = None
+                    if codigo_barras:
+                        producto_existente = Producto.objects.filter(codigo_barras=codigo_barras).first()
+                    
+                    if not producto_existente and nombre and marca and modelo:
+                        producto_existente = Producto.objects.filter(
+                            nombre=nombre,
+                            marca=marca,
+                            modelo=modelo
+                        ).first()
+                    
+                    if producto_existente:
+                        # Actualizar producto existente
+                        producto_existente.stock = stock
+                        producto_existente.precio = precio
+                        if descripcion:
+                            producto_existente.descripcion = descripcion
+                        producto_existente.save()
+                        actualizados += 1
+                    else:
+                        # Crear nuevo producto
+                        Producto.objects.create(
+                            nombre=nombre,
+                            marca=marca,
+                            modelo=modelo,
+                            categoria=categoria,
+                            stock=stock,
+                            precio=precio,
+                            descripcion=descripcion,
+                            codigo_barras=codigo_barras if codigo_barras else None
+                        )
+                        creados += 1
+                
+                except Exception as e:
+                    errores.append(f'Línea {i}: {str(e)}')
+            
+            return Response({
+                'creados': creados,
+                'actualizados': actualizados,
+                'errores': errores,
+                'total_procesados': creados + actualizados
+            })
+        
+        except Exception as e:
+            return Response(
+                {'error': f'Error al procesar el archivo: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     @action(detail=False, methods=['get'])
     def exportar_reporte(self, request):
         """
@@ -382,164 +481,6 @@ class ProductoViewSet(viewsets.ModelViewSet):
                 ])
         
         return response
-    
-    @action(detail=False, methods=['post'])
-    def importar_csv(self, request):
-        """
-        Importa productos desde un archivo CSV
-        
-        Formato esperado del CSV:
-        nombre,categoria,marca,modelo,precio,stock,descripcion,codigo_barras
-        
-        Args:
-            archivo: archivo CSV con codificación UTF-8
-        
-        Returns:
-            JSON con resumen de la importación:
-            - creados: cantidad de productos creados
-            - errores: lista de errores encontrados
-            - advertencias: lista de advertencias (productos duplicados, etc.)
-        
-        Ejemplo de respuesta:
-            {
-                "creados": 15,
-                "actualizados": 3,
-                "errores": ["Línea 5: precio inválido", ...],
-                "advertencias": ["Línea 10: producto duplicado, actualizado"]
-            }
-        """
-        import io
-        from decimal import Decimal, InvalidOperation
-        
-        archivo = request.FILES.get('archivo')
-        
-        if not archivo:
-            return Response(
-                {'error': 'No se proporcionó ningún archivo'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        if not archivo.name.endswith('.csv'):
-            return Response(
-                {'error': 'El archivo debe ser un CSV'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        try:
-            # Leer archivo CSV
-            archivo_texto = io.TextIOWrapper(archivo, encoding='utf-8')
-            lector = csv.DictReader(archivo_texto)
-            
-            creados = 0
-            actualizados = 0
-            errores = []
-            advertencias = []
-            
-            for idx, fila in enumerate(lector, start=2):  # start=2 porque línea 1 es header
-                try:
-                    # Validar campos requeridos
-                    nombre = fila.get('nombre', '').strip()
-                    if not nombre:
-                        errores.append(f"Línea {idx}: nombre es obligatorio")
-                        continue
-                    
-                    # Obtener precio y validar
-                    precio_str = fila.get('precio', '0').strip()
-                    try:
-                        precio = Decimal(precio_str.replace(',', '.'))
-                        if precio < 0:
-                            errores.append(f"Línea {idx}: precio no puede ser negativo")
-                            continue
-                    except (InvalidOperation, ValueError):
-                        errores.append(f"Línea {idx}: precio '{precio_str}' no es válido")
-                        continue
-                    
-                    # Obtener stock y validar
-                    stock_str = fila.get('stock', '0').strip()
-                    try:
-                        stock = int(stock_str)
-                        if stock < 0:
-                            errores.append(f"Línea {idx}: stock no puede ser negativo")
-                            continue
-                    except ValueError:
-                        errores.append(f"Línea {idx}: stock '{stock_str}' no es válido")
-                        continue
-                    
-                    # Obtener otros campos
-                    categoria = fila.get('categoria', '').strip()
-                    marca = fila.get('marca', '').strip()
-                    modelo = fila.get('modelo', '').strip()
-                    descripcion = fila.get('descripcion', '').strip()
-                    codigo_barras = fila.get('codigo_barras', '').strip()
-                    
-                    # Validar código de barras único si existe
-                    if codigo_barras:
-                        existe = Producto.objects.filter(codigo_barras=codigo_barras).exists()
-                        if existe:
-                            advertencias.append(
-                                f"Línea {idx}: código de barras '{codigo_barras}' ya existe, "
-                                f"producto '{nombre}' no importado"
-                            )
-                            continue
-                    
-                    # Verificar si ya existe producto con mismo nombre
-                    producto_existente = Producto.objects.filter(nombre=nombre).first()
-                    
-                    if producto_existente:
-                        # Actualizar producto existente
-                        producto_existente.categoria = categoria
-                        producto_existente.marca = marca
-                        producto_existente.modelo = modelo
-                        producto_existente.precio = precio
-                        producto_existente.stock = stock
-                        producto_existente.descripcion = descripcion
-                        if codigo_barras:
-                            producto_existente.codigo_barras = codigo_barras
-                        producto_existente.save()
-                        
-                        actualizados += 1
-                        advertencias.append(f"Línea {idx}: producto '{nombre}' actualizado")
-                    else:
-                        # Crear nuevo producto
-                        Producto.objects.create(
-                            nombre=nombre,
-                            categoria=categoria,
-                            marca=marca,
-                            modelo=modelo,
-                            precio=precio,
-                            stock=stock,
-                            descripcion=descripcion,
-                            codigo_barras=codigo_barras if codigo_barras else None
-                        )
-                        creados += 1
-                    
-                except Exception as e:
-                    errores.append(f"Línea {idx}: error inesperado - {str(e)}")
-            
-            logger.info(
-                f"Importación CSV completada - Creados: {creados}, "
-                f"Actualizados: {actualizados}, Errores: {len(errores)}"
-            )
-            
-            return Response({
-                'creados': creados,
-                'actualizados': actualizados,
-                'total_procesados': creados + actualizados,
-                'errores': errores,
-                'advertencias': advertencias
-            }, status=status.HTTP_200_OK if not errores or creados + actualizados > 0 else status.HTTP_400_BAD_REQUEST)
-            
-        except UnicodeDecodeError:
-            return Response(
-                {'error': 'El archivo debe estar codificado en UTF-8'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            logger.error(f"Error al importar CSV: {str(e)}", exc_info=True)
-            return Response(
-                {'error': f'Error al procesar el archivo: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
     
     @action(detail=True, methods=['post'])
     def registrar_entrada(self, request, pk=None):
@@ -814,256 +755,67 @@ def reset_database(request):
 @solo_desarrollo
 @registrar_operacion('población de base de datos')
 def populate_database(request):
-    """SOLO DESARROLLO: Inserta datos de ejemplo"""
+    """SOLO DESARROLLO: Inserta catálogo completo de productos con stock variado"""
     try:
+        from catalogo_productos import CATALOGO_PRODUCTOS
+        import random
+        
         # Limpiar primero
         Movimiento.objects.all().delete()
         Alerta.objects.all().delete()
         Producto.objects.all().delete()
         
-        # Crear productos de ejemplo
-        productos_data = [
-            # Impresoras
-            {
-                'nombre': 'Impresora HP LaserJet Pro M404dn',
-                'marca': 'HP',
-                'modelo': 'M404dn',
-                'categoria': 'Impresora',
-                'stock': 3,
-                'precio': 285000,
-                'descripcion': 'Impresora láser monocromática, 38 ppm, dúplex',
-                'codigo_barras': '7801234567890'
-            },
-            {
-                'nombre': 'Impresora Canon Pixma G3110',
-                'marca': 'Canon',
-                'modelo': 'G3110',
-                'categoria': 'Impresora',
-                'stock': 5,
-                'precio': 195000,
-                'descripcion': 'Multifuncional de tinta continua WiFi',
-                'codigo_barras': '7801234567891'
-            },
-            {
-                'nombre': 'Impresora Epson EcoTank L3250',
-                'marca': 'Epson',
-                'modelo': 'L3250',
-                'categoria': 'Impresora',
-                'stock': 4,
-                'precio': 220000,
-                'descripcion': 'Multifuncional con tanque de tinta WiFi',
-                'codigo_barras': '7801234567892'
-            },
-            {
-                'nombre': 'Impresora Brother DCP-L2540DW',
-                'marca': 'Brother',
-                'modelo': 'DCP-L2540DW',
-                'categoria': 'Impresora',
-                'stock': 2,
-                'precio': 175000,
-                'descripcion': 'Multifuncional láser monocromática WiFi',
-                'codigo_barras': '7801234567893'
-            },
-            # Tóners Negro
-            {
-                'nombre': 'Tóner HP 414A Negro',
-                'marca': 'HP',
-                'modelo': 'W2020A',
-                'categoria': 'Toner',
-                'stock': 15,
-                'precio': 48000,
-                'descripcion': 'Tóner original negro para HP Color LaserJet Pro',
-                'codigo_barras': '7801234567894'
-            },
-            {
-                'nombre': 'Tóner Canon 046 Negro',
-                'marca': 'Canon',
-                'modelo': '046BK',
-                'categoria': 'Toner',
-                'stock': 12,
-                'precio': 45000,
-                'descripcion': 'Tóner original negro para Canon i-SENSYS',
-                'codigo_barras': '7801234567895'
-            },
-            {
-                'nombre': 'Tóner Brother TN-760',
-                'marca': 'Brother',
-                'modelo': 'TN-760',
-                'categoria': 'Toner',
-                'stock': 8,
-                'precio': 52000,
-                'descripcion': 'Tóner original alto rendimiento negro',
-                'codigo_barras': '7801234567896'
-            },
-            # Tóners Cyan
-            {
-                'nombre': 'Tóner HP 414A Cyan',
-                'marca': 'HP',
-                'modelo': 'W2021A',
-                'categoria': 'Toner',
-                'stock': 10,
-                'precio': 62000,
-                'descripcion': 'Tóner original cyan para HP Color LaserJet Pro',
-                'codigo_barras': '7801234567897'
-            },
-            {
-                'nombre': 'Tóner Canon 046 Cyan',
-                'marca': 'Canon',
-                'modelo': '046C',
-                'categoria': 'Toner',
-                'stock': 9,
-                'precio': 58000,
-                'descripcion': 'Tóner original cyan para Canon i-SENSYS',
-                'codigo_barras': '7801234567898'
-            },
-            # Tóners Magenta
-            {
-                'nombre': 'Tóner HP 414A Magenta',
-                'marca': 'HP',
-                'modelo': 'W2023A',
-                'categoria': 'Toner',
-                'stock': 11,
-                'precio': 62000,
-                'descripcion': 'Tóner original magenta para HP Color LaserJet Pro',
-                'codigo_barras': '7801234567899'
-            },
-            {
-                'nombre': 'Tóner Canon 046 Magenta',
-                'marca': 'Canon',
-                'modelo': '046M',
-                'categoria': 'Toner',
-                'stock': 7,
-                'precio': 58000,
-                'descripcion': 'Tóner original magenta para Canon i-SENSYS',
-                'codigo_barras': '7801234567900'
-            },
-            # Tóners Yellow
-            {
-                'nombre': 'Tóner HP 414A Amarillo',
-                'marca': 'HP',
-                'modelo': 'W2022A',
-                'categoria': 'Toner',
-                'stock': 10,
-                'precio': 62000,
-                'descripcion': 'Tóner original amarillo para HP Color LaserJet Pro',
-                'codigo_barras': '7801234567901'
-            },
-            {
-                'nombre': 'Tóner Canon 046 Amarillo',
-                'marca': 'Canon',
-                'modelo': '046Y',
-                'categoria': 'Toner',
-                'stock': 8,
-                'precio': 58000,
-                'descripcion': 'Tóner original amarillo para Canon i-SENSYS',
-                'codigo_barras': '7801234567902'
-            },
-            # Tintas
-            {
-                'nombre': 'Tinta Epson 544 Negro',
-                'marca': 'Epson',
-                'modelo': 'T544120',
-                'categoria': 'Tinta',
-                'stock': 20,
-                'precio': 12000,
-                'descripcion': 'Botella de tinta negra 65ml para EcoTank',
-                'codigo_barras': '7801234567903'
-            },
-            {
-                'nombre': 'Tinta Epson 544 Cyan',
-                'marca': 'Epson',
-                'modelo': 'T544220',
-                'categoria': 'Tinta',
-                'stock': 18,
-                'precio': 12000,
-                'descripcion': 'Botella de tinta cyan 65ml para EcoTank',
-                'codigo_barras': '7801234567904'
-            },
-            {
-                'nombre': 'Tinta Canon GI-790 Negro',
-                'marca': 'Canon',
-                'modelo': 'GI-790BK',
-                'categoria': 'Tinta',
-                'stock': 16,
-                'precio': 11500,
-                'descripcion': 'Botella de tinta negra para Pixma G',
-                'codigo_barras': '7801234567905'
-            },
-            # Consumibles
-            {
-                'nombre': 'Papel Bond Carta Navigator',
-                'marca': 'Navigator',
-                'modelo': 'A4-75g',
-                'categoria': 'Papel',
-                'stock': 50,
-                'precio': 3500,
-                'descripcion': 'Resma 500 hojas papel bond carta 75g',
-                'codigo_barras': '7801234567906'
-            },
-            {
-                'nombre': 'Papel Fotográfico HP Premium',
-                'marca': 'HP',
-                'modelo': 'Q8692A',
-                'categoria': 'Papel',
-                'stock': 25,
-                'precio': 8500,
-                'descripcion': 'Papel fotográfico glossy 50 hojas A4',
-                'codigo_barras': '7801234567907'
-            },
-            {
-                'nombre': 'Tambor Brother DR-2340',
-                'marca': 'Brother',
-                'modelo': 'DR-2340',
-                'categoria': 'Tambor',
-                'stock': 4,
-                'precio': 85000,
-                'descripcion': 'Unidad de tambor original 12000 páginas',
-                'codigo_barras': '7801234567908'
-            },
-            {
-                'nombre': 'Kit Mantenimiento HP M404',
-                'marca': 'HP',
-                'modelo': 'J8J88A',
-                'categoria': 'Kit',
-                'stock': 2,
-                'precio': 125000,
-                'descripcion': 'Kit de mantenimiento 225K páginas',
-                'codigo_barras': '7801234567909'
-            }
-        ]
-        
         productos_creados = []
-        for data in productos_data:
-            producto = Producto.objects.create(**data)
-            productos_creados.append(producto)
+        for data in CATALOGO_PRODUCTOS:
+            # Asignar stock aleatorio para simular inventario real
+            producto_data = data.copy()
             
-            # Crear alerta para productos con stock bajo
-            if producto.stock < 10:
+            # Stock variado según categoría
+            if producto_data['categoria'] == 'Impresora':
+                producto_data['stock'] = random.randint(0, 8)  # 0-8 impresoras
+            elif producto_data['categoria'] == 'Toner':
+                producto_data['stock'] = random.randint(5, 25)  # 5-25 toners
+            elif producto_data['categoria'] == 'Tinta':
+                producto_data['stock'] = random.randint(10, 40)  # 10-40 tintas
+            elif producto_data['categoria'] == 'Papel':
+                producto_data['stock'] = random.randint(20, 100)  # 20-100 resmas
+            elif producto_data['categoria'] == 'Repuesto':
+                producto_data['stock'] = random.randint(0, 10)  # 0-10 repuestos
+            elif producto_data['categoria'] == 'Accesorio':
+                producto_data['stock'] = random.randint(5, 30)  # 5-30 accesorios
+            elif producto_data['categoria'] == 'Cinta':
+                producto_data['stock'] = random.randint(3, 15)  # 3-15 cintas
+            else:
+                producto_data['stock'] = random.randint(0, 20)  # Por defecto
+            
+            producto = Producto.objects.create(**producto_data)
+            productos_creados.append(producto)
+        
+        # Crear alertas para productos con stock crítico
+        alertas_creadas = 0
+        for producto in productos_creados:
+            if producto.stock <= 5:
                 Alerta.objects.create(
                     producto=producto,
                     umbral=10,
                     activa=True
                 )
-        
-        # Crear algunos movimientos de ejemplo
-        if len(productos_creados) >= 2:
-            Movimiento.objects.create(
-                producto=productos_creados[0],
-                tipo='ENTRADA',
-                cantidad=10,
-                descripcion='Entrada inicial de stock'
-            )
-            Movimiento.objects.create(
-                producto=productos_creados[1],
-                tipo='SALIDA',
-                cantidad=5,
-                descripcion='Venta a cliente'
-            )
+                alertas_creadas += 1
         
         return Response({
-            'message': 'Base de datos poblada',
+            'message': f'Catálogo completo insertado con stock variado',
             'status': 'success',
-            'productos': len(productos_creados)
+            'productos': len(productos_creados),
+            'alertas_creadas': alertas_creadas,
+            'detalle': {
+                'impresoras': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Impresora']),
+                'toners': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Toner']),
+                'tintas': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Tinta']),
+                'papel': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Papel']),
+                'repuestos': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Repuesto']),
+                'accesorios': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Accesorio']),
+                'cintas': len([p for p in CATALOGO_PRODUCTOS if p['categoria'] == 'Cinta']),
+            }
         })
     except Exception as e:
         return Response({'message': str(e), 'status': 'error'}, status=500)

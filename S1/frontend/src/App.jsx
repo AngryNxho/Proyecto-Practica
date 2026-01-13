@@ -1,4 +1,5 @@
-﻿import { Routes, Route, Navigate } from 'react-router-dom';
+﻿import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import BarraNavegacion from './components/layout/BarraNavegacion';
 import Tablero from './pages/Tablero';
 import Dashboard from './pages/Dashboard';
@@ -11,11 +12,18 @@ import GeneradorCodigoBarras from './pages/GeneradorCodigoBarras';
 import DevTools from './pages/DevTools';
 import LogViewer from './pages/LogViewer';
 import MonitorSistema from './pages/MonitorSistema';
-import ExportarDatos from './pages/ExportarDatos';
 import ImportarDatos from './pages/ImportarDatos';
+import ExportarDatos from './pages/ExportarDatos';
 import './App.css';
 
 function App() {
+  const location = useLocation();
+
+  // Scroll automático al inicio cuando cambia la ruta
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <div className="app-shell">
       <BarraNavegacion />
@@ -29,9 +37,9 @@ function App() {
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/generador" element={<GeneradorCodigoBarras />} />
-          <Route path="/monitor" element={<MonitorSistema />} />
-          <Route path="/exportar" element={<ExportarDatos />} />
           <Route path="/importar" element={<ImportarDatos />} />
+          <Route path="/exportar" element={<ExportarDatos />} />
+          <Route path="/monitor" element={<MonitorSistema />} />
           <Route path="/dev" element={<DevTools />} />
           <Route path="/logs" element={<LogViewer />} />
           <Route path="*" element={<Navigate to="/" replace />} />

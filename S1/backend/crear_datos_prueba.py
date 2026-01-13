@@ -117,10 +117,7 @@ for data in productos_data:
     if producto.stock <= 10:
         Alerta.objects.create(
             producto=producto,
-            tipo='stock_bajo',
-            mensaje=f'Stock bajo: {producto.nombre}',
             umbral=10,
-            stock_actual=producto.stock,
             activa=True
         )
         print(f"  → Alerta creada para {producto.nombre}")

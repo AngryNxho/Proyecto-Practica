@@ -121,6 +121,8 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
         precio: Number(datosFormulario.precio) || 0,
       };
       
+      console.log('Enviando producto:', payload);
+      
       if (modoEdicion) {
         await productService.actualizar(productoEditar.id, payload);
         setMensaje({ tipo: 'success', texto: '✓ Producto actualizado correctamente.' });
@@ -136,6 +138,7 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
         alCancelar?.();
       }, 1500);
     } catch (error) {
+      console.error('Error al crear producto:', error.response?.data);
       const errorMsg = error.response?.data;
       let textoError = `No se pudo ${modoEdicion ? 'actualizar' : 'crear'} el producto.`;
       
