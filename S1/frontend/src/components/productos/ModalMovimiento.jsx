@@ -47,12 +47,13 @@ function ModalMovimiento({ producto, tipo, alCerrar, alConfirmar }) {
             </label>
 
             <label>
-              <span>Descripción (opcional)</span>
+              <span>Descripción</span>
               <textarea
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
-                placeholder="Motivo del movimiento"
+                placeholder="Motivo del movimiento (requerido)"
                 rows="3"
+                required
               />
             </label>
 

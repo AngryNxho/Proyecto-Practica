@@ -184,12 +184,22 @@ function FormularioProducto({ alCrear, productoEditar, alCancelar }) {
         </label>
         <label>
           <span>Categoría</span>
-          <input
+          <select
             name="categoria"
             value={datosFormulario.categoria}
             onChange={manejarCambio}
-            placeholder="Impresora, Toner, etc."
-          />
+            required
+          >
+            <option value="">-- Seleccionar categoría --</option>
+            <option value="Impresora">Impresora</option>
+            <option value="Toner">Toner</option>
+            <option value="Tinta">Tinta</option>
+            <option value="Papel">Papel</option>
+            <option value="Tambor">Tambor</option>
+            <option value="Kit">Kit</option>
+            <option value="Repuesto">Repuesto</option>
+            <option value="Otro">Otro</option>
+          </select>
         </label>
         <label>
           <span>Marca</span>

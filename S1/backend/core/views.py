@@ -737,6 +737,10 @@ def reset_database(request):
         Alerta.objects.all().delete()
         Producto.objects.all().delete()
         
+        # Limpiar caché para que dashboard muestre datos actualizados
+        cache.clear()
+        logger.info("Caché limpiado después de reset de base de datos")
+        
         return Response({
             'message': 'Base de datos limpiada exitosamente',
             'status': 'success',
@@ -801,6 +805,10 @@ def populate_database(request):
                     activa=True
                 )
                 alertas_creadas += 1
+        
+        # Limpiar caché para que dashboard muestre datos actualizados
+        cache.clear()
+        logger.info("Caché limpiado después de poblar base de datos")
         
         return Response({
             'message': f'Catálogo completo insertado con stock variado',

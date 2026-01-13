@@ -15,12 +15,14 @@ export const productService = {
     const queryString = new URLSearchParams(params).toString();
     return `${api.defaults.baseURL}/productos/exportar_reporte/?${queryString}`;
   },
+  exportarCSV: (url, params) => api.get(url, { params, responseType: 'blob' }),
 };
 
 export const movementService = {
   obtenerTodos: () => api.get('/movimientos/'),
   buscar: (params) => api.get('/movimientos/', { params }),
   obtenerPorId: (id) => api.get(`/movimientos/${id}/`),
+  exportarCSV: (params) => api.get('/movimientos/exportar_csv/', { params, responseType: 'blob' }),
 };
 
 export const alertService = {

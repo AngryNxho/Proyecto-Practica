@@ -7,8 +7,12 @@
   flex-direction: column;
   gap: 32px;
   box-shadow: 0 20px 40px rgba(5, 8, 20, 0.45);
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
   z-index: 100;
+  overflow-y: auto;
 }
 
 .navbar__toggle {

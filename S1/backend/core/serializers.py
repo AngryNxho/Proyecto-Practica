@@ -189,13 +189,5 @@ class AlertaSerializer(serializers.ModelSerializer):
                     f"Ya existe una alerta activa para '{producto.nombre}' con umbral {umbral}."
                 )
         
-        # Validar que el umbral sea mayor que el stock actual si se crea nueva alerta
-        if not self.instance and producto and umbral:
-            if umbral <= producto.stock:
-                raise serializers.ValidationError(
-                    f"El umbral ({umbral}) debe ser mayor al stock actual ({producto.stock}) "
-                    f"para que la alerta tenga sentido."
-                )
-        
         return data
 

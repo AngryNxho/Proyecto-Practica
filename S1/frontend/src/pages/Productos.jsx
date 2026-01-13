@@ -124,12 +124,26 @@ if (!confirmado) return;
 
   const confirmarMovimiento = async (datos) => {
     try {
+      console.log('Registrando movimiento:', modalMovimiento.tipo, 'Producto ID:', modalMovimiento.producto.id, 'Datos:', datos);
       const accion = modalMovimiento.tipo === 'entrada' ? 'registrarEntrada' : 'registrarSalida';
-      await productService[accion](modalMovimiento.producto.id, datos);
-      setModalMovimiento(null);
-      await cargarDatos();
+      console.log('Acción:', accion);
+      const resultado = await productService[accion](modalMovimiento.producto.id, datos);
+      console.log('Resultado:', resultado);
+      
+      // Check if response indicates success (status 200-299)
+      if (resultado.status >= 200 && resultado.status < 300) {
+        setModalMovimiento(null);
+        await cargarDatos();
+      } else {
+        // Backend returned error response
+        const errorMsg = resultado.data?.error || `Error al registrar ${modalMovimiento.tipo}`;
+        setError(errorMsg);
+        console.error('Backend error:', resultado.data);
+      }
     } catch (err) {
-      setError(`No se pudo registrar la ${modalMovimiento.tipo}`);
+      console.error('Error al registrar movimiento:', err);
+      const errorMsg = err.response?.data?.error || `No se pudo registrar la ${modalMovimiento.tipo}`;
+      setError(errorMsg);
     }
   };
 
